@@ -1,1 +1,81 @@
-<p>product-detail works!</p>
+<div class="container">
+  @if (loading()) {
+    <div class="loading">Cargando producto...</div>
+  } @else if (!product()) {
+    <div class="not-found">
+      <h2>Producto no encontrado</h2>
+      <a routerLink="/catalog">Volver al catálogo</a>
+    </div>
+  } @else {
+    <div class="product-layout">
+      <!-- Galería de imágenes -->
+      <div class="gallery">
+        <div class="main-image">
+          @if (product()!.images.length > 0) {
+            <img
+              [src]="'http://localhost:3000' + product()!.images[selectedImage()].url"
+              [alt]="product()!.name"
+            />
+          } @else {
+            <div class="no-image">Sin imagen</div>
+          }
+          @if (product()!.hasPromotion) {
+            <span class="badge-discount">-{{ product()!.discountPct }}% OFF</span>
+          }
+        </div>
+        @if (product()!.images.length > 1) {
+          <div class="thumbnails">
+            @for (img of product()!.images; track img.id; let i = $index) {
+              <img
+                [src]="'http://localhost:3000' + img.url"
+                [alt]="product()!.name"
+                [class.active]="selectedImage() === i"
+                (click)="selectedImage.set(i)"
+              />
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Info del producto -->
+      <div class="product-info">
+        <p class="category-tag">{{ product()!.category.name }}</p>
+        <h1>{{ product()!.name }}</h1>
+
+        <div class="prices">
+          @if (product()!.hasPromotion) {
+            <span class="original-price">${{ product()!.originalPrice }}</span>
+            <span class="discount-badge">-{{ product()!.discountPct }}%</span>
+          }
+          <span class="final-price">${{ product()!.finalPrice }}</span>
+        </div>
+
+        <p class="description">{{ product()!.description }}</p>
+
+        <div class="stock-info">
+          @if (product()!.stock > 0) {
+            <span class="in-stock">✓ En stock ({{ product()!.stock }} disponibles)</span>
+          } @else {
+            <span class="out-stock">✗ Sin stock</span>
+          }
+        </div>
+
+        @if (product()!.stock > 0) {
+          <div class="quantity-selector">
+            <button (click)="decreaseQty()">−</button>
+            <span>{{ quantity() }}</span>
+            <button (click)="increaseQty()">+</button>
+          </div>
+
+          @if (auth.isLoggedIn()) {
+            <button class="btn-add-cart" (click)="addToCart()" [disabled]="addedToCart()">
+              {{ addedToCart() ? '✓ Agregado al carrito' : '🛒 Agregar al carrito' }}
+            </button>
+          } @else {
+            <a routerLink="/auth/login" class="btn-login">Inicia sesión para comprar</a>
+          }
+        }
+      </div>
+    </div>
+  }
+</div>
