@@ -10,8 +10,8 @@ import { Product, Category } from '../../core/models';
   selector: 'app-catalog',
   standalone: true,
   imports: [RouterLink, CommonModule, FormsModule],
-  templateUrl:'./catalog.html',
-  styleUrls: ['./catalog.css']
+  templateUrl: './catalog.html',
+  styleUrl: './catalog.css',
 })
 export class Catalog implements OnInit {
   productsService = inject(ProductsService);
@@ -29,7 +29,6 @@ export class Catalog implements OnInit {
 
   ngOnInit() {
     this.categoriesService.getAll().subscribe((cats) => this.categories.set(cats));
-
     this.route.queryParams.subscribe((params) => {
       if (params['categoryId']) this.selectedCategory = params['categoryId'];
       this.applyFilters();
