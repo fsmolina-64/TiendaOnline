@@ -11,38 +11,38 @@ import * as path from 'path';
 export class UploadsService {
   constructor(private prisma: PrismaService) {}
 
-  async addImages(productId: string, files: Express.Multer.File[]) {
-    const product = await this.prisma.product.findUnique({
-      where: { id: productId },
-      include: { images: true },
-    });
+async addImages(productId: string, files: Express.Multer.File[]) {
+  const product = await this.prisma.product.findUnique({
+    where: { id: productId },
+    include: { images: true },
+  });
 
-    if (!product) throw new NotFoundException('Producto no encontrado');
+  if (!product) throw new NotFoundException('Producto no encontrado');
 
-    if (files.length === 0) {
-      throw new BadRequestException('No se enviaron imágenes');
-    }
-
-    // El orden empieza después de las imágenes existentes
-    const startOrder = product.images.length;
-
-    const images = await Promise.all(
-      files.map((file, index) =>
-        this.prisma.productImage.create({
-          data: {
-            productId,
-            url: `/uploads/products/${file.filename}`,
-            order: startOrder + index,
-          },
-        }),
-      ),
-    );
-
-    return {
-      message: `${images.length} imagen(es) subida(s) correctamente`,
-      images,
-    };
+  // Validar que files exista y no esté vacío
+  if (!files || files.length === 0) {
+    throw new BadRequestException('No se enviaron imágenes');
   }
+
+  const startOrder = product.images.length;
+
+  const images = await Promise.all(
+    files.map((file, index) =>
+      this.prisma.productImage.create({
+        data: {
+          productId,
+          url: `/uploads/products/${file.filename}`,
+          order: startOrder + index,
+        },
+      }),
+    ),
+  );
+
+  return {
+    message: `${images.length} imagen(es) subida(s) correctamente`,
+    images,
+  };
+}
 
   async removeImage(imageId: string) {
     const image = await this.prisma.productImage.findUnique({
