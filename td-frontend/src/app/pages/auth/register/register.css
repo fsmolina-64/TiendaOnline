@@ -1,0 +1,50 @@
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 64px);
+      padding: 2rem;
+    }
+    .auth-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 420px;
+    }
+    h2 { margin-bottom: 1.5rem; color: #1a1a2e; text-align: center; }
+    .field { margin-bottom: 1.2rem; }
+    label { display: block; margin-bottom: 0.4rem; color: #555; font-size: 0.9rem; }
+    input {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    input:focus { outline: none; border-color: #1a1a2e; }
+    button[type=submit] {
+      width: 100%;
+      padding: 0.8rem;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button:hover:not(:disabled) { background: #e94560; }
+    .error-msg {
+      background: #ffe0e0;
+      color: #c00;
+      padding: 0.7rem 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    p { text-align: center; margin-top: 1rem; color: #666; }
+    a { color: #e94560; }
