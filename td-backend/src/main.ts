@@ -20,6 +20,9 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads',
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    },
   });
 
   await app.listen(3000);

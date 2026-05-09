@@ -1,1 +1,55 @@
-<p>home works!</p>
+<div class="hero">
+  <div class="hero-content">
+    <h1>Bienvenido a TiendaOnline</h1>
+    <p>Encuentra los mejores productos al mejor precio</p>
+    <a routerLink="/catalog" class="btn-primary">Ver Catálogo</a>
+  </div>
+</div>
+
+<div class="container">
+  <section class="categories-section">
+    <h2>Categorías</h2>
+    <div class="categories-grid">
+      @for (cat of categories(); track cat.id) {
+        <a [routerLink]="['/catalog']" [queryParams]="{ categoryId: cat.id }" class="category-card">
+          {{ cat.name }}
+        </a>
+      }
+    </div>
+  </section>
+
+  <section class="products-section">
+    <h2>Productos Destacados</h2>
+    @if (loading()) {
+      <div class="loading">Cargando productos...</div>
+    }
+    <div class="products-grid">
+      @for (product of products(); track product.id) {
+        <div class="product-card">
+          <a [routerLink]="['/products', product.slug]">
+            <div class="product-image">
+              @if (product.images.length > 0) {
+                <img [src]="'http://localhost:3000' + product.images[0].url" [alt]="product.name" />
+              } @else {
+                <div class="no-image">Sin imagen</div>
+              }
+              @if (product.hasPromotion) {
+                <span class="badge-discount">-{{ product.discountPct }}%</span>
+              }
+            </div>
+            <div class="product-info">
+              <h3>{{ product.name }}</h3>
+              <p class="category">{{ product.category.name }}</p>
+              <div class="prices">
+                @if (product.hasPromotion) {
+                  <span class="original-price">${{ product.originalPrice }}</span>
+                }
+                <span class="final-price">${{ product.finalPrice }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      }
+    </div>
+  </section>
+</div>
