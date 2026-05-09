@@ -1,1 +1,68 @@
-<p>checkout works!</p>
+<div class="container">
+  <h1>Confirmar Pedido</h1>
+
+  @if (loading()) {
+    <div class="loading">Cargando...</div>
+  } @else if (cart()) {
+    <div class="checkout-layout">
+      <div class="order-summary">
+        <h3>Resumen del pedido</h3>
+
+        @for (item of cart()!.items; track item.id) {
+          <div class="order-item">
+            <div class="item-info">
+              <span class="item-name">{{ item.product.name }}</span>
+              <span class="item-qty">x{{ item.quantity }}</span>
+            </div>
+            <span class="item-total">${{ item.lineTotal }}</span>
+          </div>
+        }
+
+        <div class="totals">
+          <div class="total-row">
+            <span>Subtotal</span>
+            <span>${{ cart()!.subtotal }}</span>
+          </div>
+          <div class="total-row">
+            <span>IVA (15%)</span>
+            <span>${{ cart()!.tax }}</span>
+          </div>
+          <div class="total-row final">
+            <span>Total a pagar</span>
+            <span>${{ cart()!.total }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-info">
+        <h3>Dirección de entrega</h3>
+        @if (auth.currentUser()?.address) {
+          <div class="address-card">
+            <p>{{ auth.currentUser()?.name }}</p>
+            <p>{{ auth.currentUser()?.address }}</p>
+            <p>{{ auth.currentUser()?.city }}, {{ auth.currentUser()?.province }}</p>
+            @if (auth.currentUser()?.reference) {
+              <p class="reference">Ref: {{ auth.currentUser()?.reference }}</p>
+            }
+          </div>
+        } @else {
+          <div class="no-address">
+            <p>No tienes una dirección guardada.</p>
+            <a href="/profile">Agregar dirección en tu perfil</a>
+          </div>
+        }
+
+        @if (error()) {
+          <div class="error-msg">{{ error() }}</div>
+        }
+
+        <button
+          class="btn-confirm"
+          (click)="placeOrder()"
+          [disabled]="processing()">
+          {{ processing() ? 'Procesando...' : '✓ Confirmar y pagar' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
