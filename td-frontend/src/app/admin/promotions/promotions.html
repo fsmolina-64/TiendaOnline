@@ -1,1 +1,100 @@
-<p>promotions works!</p>
+<div class="container">
+  <div class="page-header">
+    <h1>Promociones</h1>
+    <button (click)="openCreate()" class="btn-primary">+ Nueva Promoción</button>
+  </div>
+
+  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+  @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
+
+  @if (showForm()) {
+    <div class="form-card">
+      <h3>{{ editingId() ? 'Editar Promoción' : 'Nueva Promoción' }}</h3>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-grid">
+          @if (!editingId()) {
+            <div class="field full">
+              <label>Producto</label>
+              <select formControlName="productId">
+                <option value="">Seleccionar producto</option>
+                @for (p of products(); track p.id) {
+                  @if (p.isActive) {
+                    <option [value]="p.id">{{ p.name }}</option>
+                  }
+                }
+              </select>
+            </div>
+          }
+          <div class="field">
+            <label>Descuento (%)</label>
+            <input type="number" formControlName="discount" min="1" max="100" />
+          </div>
+          <div class="field">
+            <label>Activa</label>
+            <select formControlName="isActive">
+              <option [value]="true">Sí</option>
+              <option [value]="false">No</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fecha inicio</label>
+            <input type="date" formControlName="startDate" />
+          </div>
+          <div class="field">
+            <label>Fecha fin</label>
+            <input type="date" formControlName="endDate" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="form.invalid" class="btn-primary">Guardar</button>
+          <button type="button" (click)="showForm.set(false)" class="btn-cancel">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando promociones...</div>
+  } @else if (promotions().length === 0) {
+    <div class="empty">No hay promociones creadas</div>
+  } @else {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Descuento</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (promo of promotions(); track promo.id) {
+            <tr>
+              <td>{{ promo.product.name }}</td>
+              <td class="discount">{{ promo.discount }}%</td>
+              <td>{{ promo.startDate | date:'dd/MM/yyyy' }}</td>
+              <td>{{ promo.endDate | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span [class]="promo.isActive ? 'badge-active' : 'badge-inactive'">
+                  {{ promo.isActive ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button (click)="openEdit(promo)" class="btn-edit">Editar</button>
+                  <button (click)="toggle(promo.id)" [class]="promo.isActive ? 'btn-disable' : 'btn-enable'">
+                    {{ promo.isActive ? 'Desactivar' : 'Activar' }}
+                  </button>
+                  <button (click)="remove(promo.id)" class="btn-delete">Eliminar</button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
