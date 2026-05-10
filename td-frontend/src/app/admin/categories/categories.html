@@ -1,1 +1,63 @@
-<p>categories works!</p>
+<div class="container">
+  <div class="page-header">
+    <h1>Categorías</h1>
+    <button (click)="openCreate()" class="btn-primary">+ Nueva Categoría</button>
+  </div>
+
+  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+  @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
+
+  @if (showForm()) {
+    <div class="form-card">
+      <h3>{{ editingId() ? 'Editar Categoría' : 'Nueva Categoría' }}</h3>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" formControlName="name" placeholder="Ej: Electrónica" />
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="form.invalid" class="btn-primary">Guardar</button>
+          <button type="button" (click)="showForm.set(false)" class="btn-cancel">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando categorías...</div>
+  } @else {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Slug</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of categories(); track cat.id) {
+            <tr [class.inactive]="!cat.isActive">
+              <td>{{ cat.name }}</td>
+              <td class="slug">{{ cat.slug }}</td>
+              <td>
+                <span [class]="cat.isActive ? 'badge-active' : 'badge-inactive'">
+                  {{ cat.isActive ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button (click)="openEdit(cat)" class="btn-edit">Editar</button>
+                  <button (click)="toggle(cat)" [class]="cat.isActive ? 'btn-disable' : 'btn-enable'">
+                    {{ cat.isActive ? 'Deshabilitar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
