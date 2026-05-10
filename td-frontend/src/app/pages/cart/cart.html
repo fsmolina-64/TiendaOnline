@@ -35,12 +35,7 @@
               <button (click)="updateQuantity(item.productId, item.quantity + 1)">+</button>
             </div>
 
-            <div class="item-price">
-              <span class="line-total">${{ item.lineTotal }}</span>
-              @if (item.discountPct > 0) {
-                <span class="unit-price">${{ item.finalPrice }} c/u</span>
-              }
-            </div>
+
 
             <button class="btn-remove" (click)="removeItem(item.productId)">✕</button>
           </div>

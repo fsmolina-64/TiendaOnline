@@ -20,6 +20,7 @@ export class CartService {
       include: {
         product: {
           include: {
+            category: true,
             images: { orderBy: { order: 'asc' }, take: 1 },
             promotions: {
               where: {

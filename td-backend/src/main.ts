@@ -18,12 +18,13 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads',
-    setHeaders: (res) => {
-      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-    },
-  });
+app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  prefix: '/uploads',
+  setHeaders: (res: any) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  },
+});
 
   await app.listen(3000);
 }

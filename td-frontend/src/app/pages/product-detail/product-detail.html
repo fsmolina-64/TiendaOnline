@@ -75,6 +75,15 @@
             <a routerLink="/auth/login" class="btn-login">Inicia sesión para comprar</a>
           }
         }
+        
+        @if (auth.isLoggedIn()) {
+  <button
+    class="btn-favorite"
+    (click)="isFavorite() ? removeFromFavorites() : addToFavorites()">
+    {{ isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
+  </button>
+}
+
       </div>
     </div>
   }

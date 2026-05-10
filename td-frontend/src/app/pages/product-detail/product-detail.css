@@ -107,3 +107,16 @@ h1 { color: #1a1a2e; font-size: 1.8rem; margin-bottom: 1rem; }
   border-radius: 8px;
   font-size: 1rem;
 }
+.btn-favorite {
+  width: 100%;
+  padding: 0.8rem;
+  background: transparent;
+  border: 1px solid #e94560;
+  color: #e94560;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.8rem;
+  transition: all 0.2s;
+}
+.btn-favorite:hover { background: #e94560; color: white; }

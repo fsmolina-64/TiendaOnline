@@ -56,12 +56,19 @@
           <div class="error-msg">{{ error() }}</div>
         }
 
-        <button
-          class="btn-confirm"
-          (click)="placeOrder()"
-          [disabled]="processing()">
-          {{ processing() ? 'Procesando...' : '✓ Confirmar y pagar' }}
-        </button>
+<button
+  class="btn-confirm"
+  (click)="placeOrder()"
+  [disabled]="processing() || !auth.currentUser()?.address">
+  {{ processing() ? 'Procesando...' : '✓ Confirmar y pagar' }}
+</button>
+
+@if (!auth.currentUser()?.address) {
+  <div class="no-address">
+    <p>⚠️ Necesitas agregar una dirección antes de continuar.</p>
+    <a href="/profile">Ir a mi perfil</a>
+  </div>
+}
       </div>
     </div>
   }
