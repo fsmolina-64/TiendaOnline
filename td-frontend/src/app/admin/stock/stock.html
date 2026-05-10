@@ -1,1 +1,98 @@
-<p>stock works!</p>
+<div class="container">
+  <h1>Gestión de Stock</h1>
+
+  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+  @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
+
+  <div class="layout">
+    <div class="products-list">
+      <h3>Productos</h3>
+      @if (loading()) {
+        <div class="loading">Cargando...</div>
+      } @else {
+        @for (product of products(); track product.id) {
+          <div
+            class="product-item"
+            [class.selected]="selectedProduct()?.id === product.id"
+            (click)="selectProduct(product)">
+            <span class="product-name">{{ product.name }}</span>
+            <span [class]="product.stock === 0 ? 'stock-zero' : product.stock <= 5 ? 'stock-low' : 'stock-ok'">
+              {{ product.stock }} uds
+            </span>
+          </div>
+        }
+      }
+    </div>
+
+    <div class="stock-actions">
+      @if (!selectedProduct()) {
+        <div class="empty">Selecciona un producto</div>
+      } @else {
+        <div class="selected-info">
+          <h3>{{ selectedProduct()!.name }}</h3>
+          <p>Stock actual: <strong>{{ selectedProduct()!.stock }}</strong></p>
+        </div>
+
+        <div class="forms-grid">
+          <div class="form-card">
+            <h4>➕ Agregar Stock</h4>
+            <form [formGroup]="addForm" (ngSubmit)="addStock()">
+              <div class="field">
+                <label>Cantidad</label>
+                <input type="number" formControlName="quantity" min="1" />
+              </div>
+              <div class="field">
+                <label>Razón</label>
+                <input type="text" formControlName="reason" placeholder="Ej: Reposición" />
+              </div>
+              <button type="submit" [disabled]="addForm.invalid" class="btn-add">Agregar</button>
+            </form>
+          </div>
+
+          <div class="form-card">
+            <h4>➖ Ajuste Manual</h4>
+            <form [formGroup]="adjustForm" (ngSubmit)="adjustStock()">
+              <div class="field">
+                <label>Cantidad a reducir</label>
+                <input type="number" formControlName="quantity" min="1" />
+              </div>
+              <div class="field">
+                <label>Razón</label>
+                <input type="text" formControlName="reason" placeholder="Ej: Producto dañado" />
+              </div>
+              <button type="submit" [disabled]="adjustForm.invalid" class="btn-adjust">Ajustar</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="movements-card">
+          <h4>Historial de movimientos</h4>
+          @if (movements().length === 0) {
+            <p class="empty">Sin movimientos</p>
+          } @else {
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Cantidad</th>
+                  <th>Razón</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (m of movements(); track m.id) {
+                  <tr>
+                    <td><span [class]="'badge-' + m.type.toLowerCase()">{{ m.type }}</span></td>
+                    <td>{{ m.quantity }}</td>
+                    <td>{{ m.reason || '-' }}</td>
+                    <td>{{ m.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

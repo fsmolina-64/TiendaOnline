@@ -1,1 +1,54 @@
-<p>orders works!</p>
+<div class="container">
+  <h1>Pedidos</h1>
+
+  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+
+  @if (loading()) {
+    <div class="loading">Cargando pedidos...</div>
+  } @else if (orders().length === 0) {
+    <div class="empty">No hay pedidos aún</div>
+  } @else {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th>Cambiar Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.id) {
+            <tr>
+              <td class="order-id">#{{ order.id.slice(0,8) }}</td>
+              <td>
+                <div class="client-info">
+                  <span class="client-name">{{ order.user?.name }}</span>
+                  <span class="client-email">{{ order.user?.email }}</span>
+                </div>
+              </td>
+              <td class="total">${{ order.total }}</td>
+              <td>
+                <span [class]="'status status-' + order.status.toLowerCase()">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </td>
+              <td>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <select (change)="updateStatus(order.id, $any($event.target).value)" [value]="order.status">
+                  <option value="PENDING">Pendiente</option>
+                  <option value="PAID">Pagado</option>
+                  <option value="DELIVERED">Entregado</option>
+                  <option value="CANCELLED">Cancelado</option>
+                </select>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

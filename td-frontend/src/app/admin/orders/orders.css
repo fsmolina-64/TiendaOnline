@@ -1,0 +1,19 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+h1 { color: #1a1a2e; margin-bottom: 1.5rem; }
+.loading, .empty { text-align: center; padding: 3rem; color: #888; }
+.success-msg { background: #d1e7dd; color: #0a3622; padding: 0.8rem; border-radius: 6px; margin-bottom: 1rem; }
+.table-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+table { width: 100%; border-collapse: collapse; }
+th { background: #f8f8f8; padding: 1rem; text-align: left; color: #555; font-size: 0.85rem; }
+td { padding: 0.8rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+.order-id { font-weight: bold; color: #1a1a2e; font-family: monospace; }
+.client-info { display: flex; flex-direction: column; }
+.client-name { font-weight: 500; color: #1a1a2e; }
+.client-email { font-size: 0.8rem; color: #888; }
+.total { font-weight: bold; color: #1a1a2e; }
+.status { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-paid { background: #d1e7dd; color: #0a3622; }
+.status-delivered { background: #cfe2ff; color: #084298; }
+.status-cancelled { background: #f8d7da; color: #842029; }
+select { padding: 0.4rem 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; cursor: pointer; }

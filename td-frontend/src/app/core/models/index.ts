@@ -103,6 +103,11 @@ export interface Order {
   createdAt: string;
   items: OrderItem[];
   invoice?: Invoice;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
 }
 
 export interface AuthResponse {
