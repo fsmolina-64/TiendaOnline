@@ -1,1 +1,62 @@
-<p>profile works!</p>
+<div class="container">
+  <h1>Mi Perfil</h1>
+
+  @if (successMsg()) {
+    <div class="success-msg">{{ successMsg() }}</div>
+  }
+  @if (errorMsg()) {
+    <div class="error-msg">{{ errorMsg() }}</div>
+  }
+
+  <div class="profile-layout">
+    <div class="card">
+      <h3>Información personal</h3>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" formControlName="name" />
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input type="text" formControlName="phone" />
+        </div>
+        <div class="field">
+          <label>Provincia</label>
+          <input type="text" formControlName="province" />
+        </div>
+        <div class="field">
+          <label>Ciudad</label>
+          <input type="text" formControlName="city" />
+        </div>
+        <div class="field">
+          <label>Dirección</label>
+          <input type="text" formControlName="address" />
+        </div>
+        <div class="field">
+          <label>Referencia</label>
+          <input type="text" formControlName="reference" />
+        </div>
+        <button type="submit" [disabled]="profileForm.invalid || loading()">
+          {{ loading() ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Cambiar contraseña</h3>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <div class="field">
+          <label>Contraseña actual</label>
+          <input type="password" formControlName="currentPassword" />
+        </div>
+        <div class="field">
+          <label>Nueva contraseña</label>
+          <input type="password" formControlName="newPassword" />
+        </div>
+        <button type="submit" [disabled]="passwordForm.invalid || loading()">
+          {{ loading() ? 'Actualizando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

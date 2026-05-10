@@ -1,1 +1,33 @@
-<p>favorites works!</p>
+<div class="container">
+  <h1>Mis Favoritos</h1>
+
+  @if (loading()) {
+    <div class="loading">Cargando favoritos...</div>
+  } @else if (favorites().length === 0) {
+    <div class="empty">
+      <p>No tienes favoritos aún</p>
+      <a routerLink="/catalog">Explorar productos</a>
+    </div>
+  } @else {
+    <div class="favorites-grid">
+      @for (fav of favorites(); track fav.id) {
+        <div class="fav-card">
+          <a [routerLink]="['/products', fav.product.slug]">
+            <div class="fav-image">
+              @if (fav.product.images.length > 0) {
+                <img [src]="'http://localhost:3000' + fav.product.images[0].url" [alt]="fav.product.name" />
+              } @else {
+                <div class="no-image">Sin imagen</div>
+              }
+            </div>
+            <div class="fav-info">
+              <h3>{{ fav.product.name }}</h3>
+              <p>${{ fav.product.price }}</p>
+            </div>
+          </a>
+          <button class="btn-remove" (click)="remove(fav.productId)">❤️ Quitar</button>
+        </div>
+      }
+    </div>
+  }
+</div>

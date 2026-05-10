@@ -1,0 +1,49 @@
+.container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+h1 { color: #1a1a2e; margin-bottom: 1.5rem; }
+.success-msg {
+  background: #d1e7dd;
+  color: #0a3622;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+.error-msg {
+  background: #ffe0e0;
+  color: #c00;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+.profile-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+h3 { color: #1a1a2e; margin: 0 0 1.5rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; margin-bottom: 0.4rem; color: #555; font-size: 0.9rem; }
+.field input {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+.field input:focus { outline: none; border-color: #1a1a2e; }
+button[type=submit] {
+  width: 100%;
+  padding: 0.8rem;
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+button:hover:not(:disabled) { background: #e94560; }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
