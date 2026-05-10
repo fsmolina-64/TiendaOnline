@@ -1,1 +1,78 @@
-<p>dashboard works!</p>
+<div class="container">
+  <h1>Dashboard</h1>
+
+  @if (loading()) {
+    <div class="loading">Cargando estadísticas...</div>
+  } @else if (stats()) {
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <h3>Total Ventas</h3>
+        <p>${{ stats()!.stats.totalSales }}</p>
+      </div>
+      <div class="stat-card green">
+        <h3>Total Pedidos</h3>
+        <p>{{ stats()!.stats.totalOrders }}</p>
+      </div>
+      <div class="stat-card purple">
+        <h3>Usuarios</h3>
+        <p>{{ stats()!.stats.totalUsers }}</p>
+      </div>
+      <div class="stat-card orange">
+        <h3>Productos</h3>
+        <p>{{ stats()!.stats.totalProducts }}</p>
+      </div>
+    </div>
+
+    <div class="bottom-grid">
+      <div class="card">
+        <h3>⚠️ Productos agotados</h3>
+        @if (stats()!.outOfStockProducts.length === 0) {
+          <p class="empty">No hay productos agotados</p>
+        } @else {
+          @for (p of stats()!.outOfStockProducts; track p.id) {
+            <div class="product-row">
+              <span>{{ p.name }}</span>
+              <span class="badge-danger">Sin stock</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="card">
+        <h3>📉 Stock bajo</h3>
+        @if (stats()!.lowStockProducts.length === 0) {
+          <p class="empty">Todo el stock está bien</p>
+        } @else {
+          @for (p of stats()!.lowStockProducts; track p.id) {
+            <div class="product-row">
+              <span>{{ p.name }}</span>
+              <span class="badge-warning">{{ p.stock }} unidades</span>
+            </div>
+          }
+        }
+      </div>
+
+      <div class="card">
+        <h3>🕐 Pedidos recientes</h3>
+        @if (stats()!.recentOrders.length === 0) {
+          <p class="empty">No hay pedidos recientes</p>
+        } @else {
+          @for (o of stats()!.recentOrders; track o.id) {
+            <div class="product-row">
+              <span>#{{ o.id.slice(0,8) }}</span>
+              <span>${{ o.total }}</span>
+            </div>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="quick-links">
+      <a routerLink="/admin/products">Gestionar Productos</a>
+      <a routerLink="/admin/categories">Gestionar Categorías</a>
+      <a routerLink="/admin/orders">Gestionar Pedidos</a>
+      <a routerLink="/admin/stock">Gestionar Stock</a>
+      <a routerLink="/admin/promotions">Gestionar Promociones</a>
+    </div>
+  }
+</div>
