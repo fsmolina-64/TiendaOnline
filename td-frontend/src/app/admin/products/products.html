@@ -1,1 +1,113 @@
-<p>products works!</p>
+<div class="container">
+  <div class="page-header">
+    <h1>Productos</h1>
+    <button (click)="openCreate()" class="btn-primary">+ Nuevo Producto</button>
+  </div>
+
+  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+  @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
+
+  @if (showForm()) {
+    <div class="form-card">
+      <h3>{{ editingId() ? 'Editar Producto' : 'Nuevo Producto' }}</h3>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-grid">
+          <div class="field">
+            <label>Nombre</label>
+            <input type="text" formControlName="name" />
+          </div>
+          <div class="field">
+            <label>Categoría</label>
+            <select formControlName="categoryId">
+              <option value="">Seleccionar</option>
+              @for (cat of categories(); track cat.id) {
+                @if (cat.isActive) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label>Precio</label>
+            <input type="number" formControlName="price" step="0.01" />
+          </div>
+          <div class="field">
+            <label>Stock</label>
+            <input type="number" formControlName="stock" />
+          </div>
+          <div class="field full">
+            <label>Descripción</label>
+            <textarea formControlName="description" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" [disabled]="form.invalid" class="btn-primary">Guardar</button>
+          <button type="button" (click)="showForm.set(false)" class="btn-cancel">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando productos...</div>
+  } @else {
+    <div class="products-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Imagen</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products(); track product.id) {
+            <tr [class.inactive]="!product.isActive">
+              <td>
+                <div class="product-images">
+                  @if (product.images.length > 0) {
+                    <img [src]="'http://localhost:3000' + product.images[0].url" [alt]="product.name" />
+                  } @else {
+                    <div class="no-img">Sin imagen</div>
+                  }
+                  <div class="upload-section">
+                    <input type="file" multiple accept="image/*" (change)="onFilesSelected($event)" />
+                    <button type="button" (click)="uploadImages(product.id)" class="btn-upload">Subir</button>
+                  </div>
+                  @if (product.images.length > 0) {
+                    <div class="img-list">
+                      @for (img of product.images; track img.id) {
+                        <button class="btn-del-img" (click)="deleteImage(img.id)">✕</button>
+                      }
+                    </div>
+                  }
+                </div>
+              </td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.category.name }}</td>
+              <td>${{ product.originalPrice }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                <span [class]="product.isActive ? 'badge-active' : 'badge-inactive'">
+                  {{ product.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <button (click)="openEdit(product)" class="btn-edit">Editar</button>
+                  <button (click)="toggle(product)" [class]="product.isActive ? 'btn-disable' : 'btn-enable'">
+                    {{ product.isActive ? 'Deshabilitar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
