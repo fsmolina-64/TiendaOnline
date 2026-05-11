@@ -29,7 +29,7 @@
           <a [routerLink]="['/products', product.slug]">
             <div class="product-image">
               @if (product.images.length > 0) {
-                <img [src]="'http://localhost:3000' + product.images[0].url" [alt]="product.name" />
+                <img [src]="product.images[0].url" [alt]="product.name" />
               } @else {
                 <div class="no-image">Sin imagen</div>
               }

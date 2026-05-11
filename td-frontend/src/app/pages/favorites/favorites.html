@@ -15,7 +15,7 @@
           <a [routerLink]="['/products', fav.product.slug]">
             <div class="fav-image">
               @if (fav.product.images.length > 0) {
-                <img [src]="'http://localhost:3000' + fav.product.images[0].url" [alt]="fav.product.name" />
+                <img [src]="fav.product.images[0].url" [alt]="fav.product.name" />
               } @else {
                 <div class="no-image">Sin imagen</div>
               }

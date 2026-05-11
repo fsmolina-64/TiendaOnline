@@ -8,12 +8,11 @@
     </div>
   } @else {
     <div class="product-layout">
-      <!-- Galería de imágenes -->
       <div class="gallery">
         <div class="main-image">
           @if (product()!.images.length > 0) {
             <img
-              [src]="'http://localhost:3000' + product()!.images[selectedImage()].url"
+              [src]="product()!.images[selectedImage()].url"
               [alt]="product()!.name"
             />
           } @else {
@@ -27,7 +26,7 @@
           <div class="thumbnails">
             @for (img of product()!.images; track img.id; let i = $index) {
               <img
-                [src]="'http://localhost:3000' + img.url"
+                [src]="img.url"
                 [alt]="product()!.name"
                 [class.active]="selectedImage() === i"
                 (click)="selectedImage.set(i)"
@@ -37,11 +36,9 @@
         }
       </div>
 
-      <!-- Info del producto -->
       <div class="product-info">
         <p class="category-tag">{{ product()!.category.name }}</p>
         <h1>{{ product()!.name }}</h1>
-
         <div class="prices">
           @if (product()!.hasPromotion) {
             <span class="original-price">${{ product()!.originalPrice }}</span>
@@ -49,9 +46,7 @@
           }
           <span class="final-price">${{ product()!.finalPrice }}</span>
         </div>
-
         <p class="description">{{ product()!.description }}</p>
-
         <div class="stock-info">
           @if (product()!.stock > 0) {
             <span class="in-stock">✓ En stock ({{ product()!.stock }} disponibles)</span>
@@ -59,14 +54,12 @@
             <span class="out-stock">✗ Sin stock</span>
           }
         </div>
-
         @if (product()!.stock > 0) {
           <div class="quantity-selector">
             <button (click)="decreaseQty()">−</button>
             <span>{{ quantity() }}</span>
             <button (click)="increaseQty()">+</button>
           </div>
-
           @if (auth.isLoggedIn()) {
             <button class="btn-add-cart" (click)="addToCart()" [disabled]="addedToCart()">
               {{ addedToCart() ? '✓ Agregado al carrito' : '🛒 Agregar al carrito' }}
@@ -75,15 +68,13 @@
             <a routerLink="/auth/login" class="btn-login">Inicia sesión para comprar</a>
           }
         }
-        
         @if (auth.isLoggedIn()) {
-  <button
-    class="btn-favorite"
-    (click)="isFavorite() ? removeFromFavorites() : addToFavorites()">
-    {{ isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
-  </button>
-}
-
+          <button
+            class="btn-favorite"
+            (click)="isFavorite() ? removeFromFavorites() : addToFavorites()">
+            {{ isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
+          </button>
+        }
       </div>
     </div>
   }

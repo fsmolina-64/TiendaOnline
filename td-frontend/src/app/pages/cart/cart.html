@@ -15,7 +15,7 @@
           <div class="cart-item">
             <div class="item-image">
               @if (item.product.images.length > 0) {
-                <img [src]="'http://localhost:3000' + item.product.images[0].url" [alt]="item.product.name" />
+                <img [src]="item.product.images[0].url" [alt]="item.product.name" />
               } @else {
                 <div class="no-image">Sin imagen</div>
               }

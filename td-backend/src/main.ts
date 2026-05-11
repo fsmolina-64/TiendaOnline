@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { join } from 'path';
+import { cwd } from 'process';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -18,7 +19,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  app.useStaticAssets(join(cwd(), 'uploads'), {
     prefix: '/uploads',
     setHeaders: (res: any) => {
       res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
