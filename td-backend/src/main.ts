@@ -18,15 +18,17 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-  prefix: '/uploads',
-  setHeaders: (res: any) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-  },
-});
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+    setHeaders: (res: any) => {
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    },
+  });
 
   await app.listen(3000);
+  console.log('Backend corriendo en http://localhost:3000');
 }
 
 bootstrap();
