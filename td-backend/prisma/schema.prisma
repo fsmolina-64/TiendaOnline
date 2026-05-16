@@ -6,7 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 enum Role {
   USER
   ADMIN
@@ -25,6 +24,11 @@ enum StockMovementType {
   MANUAL_ADJUSTMENT
 }
 
+enum ReviewType {
+  PAYMENT
+  DELIVERY
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -35,6 +39,7 @@ model User {
   city      String?
   address   String?
   reference String?
+  avatar    String?
   role      Role     @default(USER)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -43,6 +48,7 @@ model User {
   cart      Cart?
   orders    Order[]
   favorites Favorite[]
+  reviews   OrderReview[]
 
   @@map("users")
 }
@@ -154,14 +160,14 @@ model CartItem {
 }
 
 model Order {
-  id        String      @id @default(uuid())
-  status    OrderStatus @default(PENDING)
-  subtotal  Decimal     @db.Decimal(10, 2)
-  tax       Decimal     @db.Decimal(10, 2)
-  total     Decimal     @db.Decimal(10, 2)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
+  id           String      @id @default(uuid())
+  status       OrderStatus @default(PENDING)
+  subtotal     Decimal     @db.Decimal(10, 2)
+  tax          Decimal     @db.Decimal(10, 2)
+  total        Decimal     @db.Decimal(10, 2)
+  cancelReason String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   province  String?
   city      String?
@@ -173,6 +179,7 @@ model Order {
 
   items   OrderItem[]
   invoice Invoice?
+  reviews OrderReview[]
 
   @@map("orders")
 }
@@ -219,4 +226,21 @@ model Favorite {
 
   @@unique([userId, productId])
   @@map("favorites")
+}
+
+model OrderReview {
+  id        String     @id @default(uuid())
+  type      ReviewType
+  rating    Int
+  comment   String?
+  createdAt DateTime   @default(now())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([orderId, userId, type])
+  @@map("order_reviews")
 }
