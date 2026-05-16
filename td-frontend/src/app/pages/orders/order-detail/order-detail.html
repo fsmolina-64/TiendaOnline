@@ -7,6 +7,33 @@
       <a routerLink="/orders">Volver a mis pedidos</a>
     </div>
   } @else {
+    @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+
+    @if (reviewType()) {
+      <div class="modal-overlay">
+        <div class="modal">
+          <h3>{{ reviewType() === 'PAYMENT' ? 'Valorar proceso de pago' : 'Valorar entrega' }}</h3>
+          <div class="stars-selector">
+            @for (star of [1,2,3,4,5]; track star) {
+              <span
+                [class]="star <= reviewRating ? 'star active' : 'star'"
+                (click)="reviewRating = star">★</span>
+            }
+          </div>
+          <textarea
+            [(ngModel)]="reviewComment"
+            placeholder="Deja un comentario opcional..."
+            rows="3">
+          </textarea>
+          @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
+          <div class="modal-actions">
+            <button (click)="submitReview()" class="btn-submit-review">Enviar valoración</button>
+            <button (click)="reviewType.set(null)" class="btn-cancel-modal">Cancelar</button>
+          </div>
+        </div>
+      </div>
+    }
+
     <div class="header">
       <a routerLink="/orders" class="back">← Mis pedidos</a>
       <h1>Pedido #{{ order()!.id.slice(0, 8) }}</h1>
@@ -14,6 +41,12 @@
         {{ getStatusLabel(order()!.status) }}
       </span>
     </div>
+
+    @if (order()!.cancelReason) {
+      <div class="cancel-reason-box">
+        <strong>Motivo de cancelación:</strong> {{ order()!.cancelReason }}
+      </div>
+    }
 
     <div class="detail-layout">
       <div class="items-section">
@@ -34,11 +67,42 @@
                 <p class="discount">-{{ item.discountPct }}% descuento</p>
               }
             </div>
-            <div class="item-price">
-              ${{ item.finalPrice * item.quantity }}
-            </div>
+            <div class="item-price">${{ item.finalPrice * item.quantity }}</div>
           </div>
         }
+
+@for (review of (order()!.reviews ?? []); track review.id) {
+          <div class="reviews-section">
+            <h3>Tus valoraciones</h3>
+            @for (review of order()!.reviews; track review.id) {
+              <div class="review-card">
+                <div class="review-header">
+                  <span class="review-type">
+                    {{ review.type === 'PAYMENT' ? '💳 Proceso de pago' : '🚚 Entrega' }}
+                  </span>
+                  <span class="review-stars">{{ getStars(review.rating) }}</span>
+                </div>
+                @if (review.comment) {
+                  <p class="review-comment">{{ review.comment }}</p>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Botones de valoración -->
+        <div class="review-actions">
+          @if (canReviewPayment()) {
+            <button (click)="openReview('PAYMENT')" class="btn-review">
+              💳 Valorar proceso de pago
+            </button>
+          }
+          @if (canReviewDelivery()) {
+            <button (click)="openReview('DELIVERY')" class="btn-review">
+              🚚 Valorar entrega
+            </button>
+          }
+        </div>
       </div>
 
       <div class="side-info">

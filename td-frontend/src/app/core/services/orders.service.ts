@@ -20,11 +20,19 @@ export class OrdersService {
     return this.http.get<Order>(`${API}/orders/${id}`);
   }
 
+  cancelOrder(id: string, cancelReason: string) {
+    return this.http.patch<Order>(`${API}/orders/${id}/cancel`, { cancelReason });
+  }
+
   getAllAdmin() {
     return this.http.get<Order[]>(`${API}/orders/admin/all`);
   }
 
-  updateStatus(id: string, status: string) {
-    return this.http.patch(`${API}/orders/${id}/status`, { status });
+  updateStatus(id: string, status: string, cancelReason?: string) {
+    return this.http.patch(`${API}/orders/${id}/status`, { status, cancelReason });
+  }
+
+  createReview(orderId: string, data: { type: string; rating: number; comment?: string }) {
+    return this.http.post(`${API}/reviews/${orderId}`, data);
   }
 }

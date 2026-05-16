@@ -1,6 +1,29 @@
 <div class="container">
   <h1>Mis Pedidos</h1>
 
+  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+
+  @if (cancellingId()) {
+    <div class="modal-overlay">
+      <div class="modal">
+        <h3>Cancelar pedido</h3>
+        <p>Por favor indica el motivo de cancelación:</p>
+        <textarea
+          [(ngModel)]="cancelReason"
+          placeholder="Ej: Me arrepentí de la compra, encontré mejor precio, etc."
+          rows="4">
+        </textarea>
+        @if (errorMsg()) {
+          <div class="error-msg">{{ errorMsg() }}</div>
+        }
+        <div class="modal-actions">
+          <button (click)="confirmCancel()" class="btn-confirm-cancel">Confirmar cancelación</button>
+          <button (click)="closeCancel()" class="btn-cancel-modal">Volver</button>
+        </div>
+      </div>
+    </div>
+  }
+
   @if (loading()) {
     <div class="loading">Cargando pedidos...</div>
   } @else if (orders().length === 0) {
@@ -21,6 +44,7 @@
             </div>
             <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy' }}</span>
           </div>
+
           <div class="order-items-preview">
             @for (item of order.items.slice(0, 2); track item.id) {
               <span>{{ item.product.name }} x{{ item.quantity }}</span>
@@ -29,9 +53,21 @@
               <span class="more">+{{ order.items.length - 2 }} más</span>
             }
           </div>
+
+          @if (order.cancelReason) {
+            <div class="cancel-reason">
+              <strong>Motivo:</strong> {{ order.cancelReason }}
+            </div>
+          }
+
           <div class="order-footer">
             <span class="total">Total: ${{ order.total }}</span>
-            <a [routerLink]="['/orders', order.id]" class="btn-detail">Ver detalle</a>
+            <div class="order-actions">
+              @if (order.status === 'PENDING') {
+                <button (click)="openCancel(order.id)" class="btn-cancel-order">Cancelar</button>
+              }
+              <a [routerLink]="['/orders', order.id]" class="btn-detail">Ver detalle</a>
+            </div>
           </div>
         </div>
       }

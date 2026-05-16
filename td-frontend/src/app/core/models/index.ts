@@ -7,6 +7,7 @@ export interface User {
   city?: string;
   address?: string;
   reference?: string;
+  avatar?: string;
   role: 'USER' | 'ADMIN';
   isActive: boolean;
   createdAt: string;
@@ -90,12 +91,26 @@ export interface Invoice {
   issuedAt: string;
 }
 
+export interface OrderReview {
+  id: string;
+  type: 'PAYMENT' | 'DELIVERY';
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
 export interface Order {
   id: string;
   status: 'PENDING' | 'PAID' | 'DELIVERED' | 'CANCELLED';
   subtotal: number;
   tax: number;
   total: number;
+  cancelReason?: string;
   province?: string;
   city?: string;
   address?: string;
@@ -103,6 +118,7 @@ export interface Order {
   createdAt: string;
   items: OrderItem[];
   invoice?: Invoice;
+  reviews: OrderReview[];
   user?: {
     id: string;
     name: string;
