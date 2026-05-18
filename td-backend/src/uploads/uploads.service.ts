@@ -83,4 +83,33 @@ async addImages(productId: string, files: Express.Multer.File[]) {
       orderBy: { order: 'asc' },
     });
   }
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
+  if (!file) {
+    throw new BadRequestException('No se envió ninguna imagen');
+  }
+
+  // Obtener avatar anterior para eliminarlo
+  const user = await this.prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatar: true },
+  });
+
+  // Eliminar archivo anterior si existe
+  if (user?.avatar) {
+    const oldPath = path.join(process.cwd(), user.avatar);
+    if (fs.existsSync(oldPath)) {
+      fs.unlinkSync(oldPath);
+    }
+  }
+
+  const avatarUrl = `/uploads/avatars/${file.filename}`;
+
+  const updated = await this.prisma.user.update({
+    where: { id: userId },
+    data: { avatar: avatarUrl },
+  });
+
+  const { password, ...rest } = updated;
+  return rest;
+}
 }
