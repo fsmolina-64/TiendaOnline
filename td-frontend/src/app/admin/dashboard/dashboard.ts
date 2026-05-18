@@ -22,4 +22,11 @@ export class Dashboard implements OnInit {
       error: () => this.loading.set(false),
     });
   }
+
+  getStars(rating: number): string {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  }
+  roundRating(rating: number): number {
+  return Math.round(rating);
+}
 }

@@ -138,7 +138,21 @@ export interface DashboardStats {
     totalOrders: number;
     totalSales: number;
   };
+  reviews: {
+    avgPayment: number;
+    avgDelivery: number;
+    totalReviews: number;
+    recent: {
+      id: string;
+      type: 'PAYMENT' | 'DELIVERY';
+      rating: number;
+      comment?: string;
+      createdAt: string;
+      user: { id: string; name: string; email: string };
+      order: { id: string; total: number; status: string };
+    }[];
+  };
   outOfStockProducts: Product[];
   lowStockProducts: Product[];
   recentOrders: Order[];
-}
+} 
