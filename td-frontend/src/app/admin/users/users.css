@@ -1,0 +1,85 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+h1 { color: #1a1a2e; margin-bottom: 1.5rem; }
+.success-msg { background: #d1e7dd; color: #0a3622; padding: 0.8rem; border-radius: 6px; margin-bottom: 1rem; }
+.layout { display: grid; grid-template-columns: 380px 1fr; gap: 2rem; }
+.users-panel { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+.search-box { padding: 1rem; border-bottom: 1px solid #f0f0f0; }
+.search-box input { width: 100%; padding: 0.7rem 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
+.search-box input:focus { outline: none; border-color: #1a1a2e; }
+.loading, .empty { text-align: center; padding: 3rem; color: #888; }
+.users-list { max-height: 600px; overflow-y: auto; }
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.user-item:hover { background: #f9f9f9; }
+.user-item.selected { background: #f0f4ff; border-left: 3px solid #1a1a2e; }
+.user-item.inactive { opacity: 0.5; }
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1a1a2e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { display: block; font-weight: 600; color: #1a1a2e; font-size: 0.9rem; }
+.user-email { display: block; color: #888; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-stats { display: flex; gap: 0.8rem; margin-top: 0.3rem; }
+.user-stats span { font-size: 0.75rem; color: #aaa; }
+.badge-active { background: #d1e7dd; color: #0a3622; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; white-space: nowrap; }
+.badge-inactive { background: #f8d7da; color: #842029; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; white-space: nowrap; }
+.detail-panel { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); padding: 1.5rem; height: fit-content; }
+.empty-detail { text-align: center; padding: 4rem; color: #aaa; }
+.detail-header { display: flex; gap: 1.5rem; align-items: center; margin-bottom: 1.5rem; }
+.detail-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1a1a2e;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+h2 { margin: 0 0 0.3rem; color: #1a1a2e; }
+.detail-email { color: #888; font-size: 0.9rem; margin: 0 0 0.5rem; }
+.detail-stats { display: flex; gap: 1.5rem; background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+.stat { display: flex; flex-direction: column; align-items: center; }
+.stat-num { font-size: 1.4rem; font-weight: bold; color: #1a1a2e; }
+.stat-label { font-size: 0.75rem; color: #888; }
+.detail-info { margin-bottom: 1.5rem; }
+h3 { color: #1a1a2e; margin: 0 0 1rem; font-size: 1rem; }
+.info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+.info-label { color: #888; }
+.recent-orders { margin-bottom: 1.5rem; }
+.order-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+.order-id { font-family: monospace; color: #1a1a2e; font-weight: 600; }
+.order-date { color: #aaa; }
+.status { padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+.status-pending { background: #fff3cd; color: #856404; }
+.status-paid { background: #d1e7dd; color: #0a3622; }
+.status-delivered { background: #cfe2ff; color: #084298; }
+.status-cancelled { background: #f8d7da; color: #842029; }
+.btn-disable { width: 100%; padding: 0.8rem; background: #e94560; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; margin-top: 0.5rem; }
+.btn-disable:hover { background: #c73652; }
+.btn-enable { width: 100%; padding: 0.8rem; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; margin-top: 0.5rem; }
+.btn-enable:hover { background: #219a52; }

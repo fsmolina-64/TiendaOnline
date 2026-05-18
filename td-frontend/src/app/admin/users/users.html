@@ -1,0 +1,146 @@
+<div class="container">
+  <h1>Usuarios</h1>
+
+  @if (successMsg()) {
+    <div class="success-msg">{{ successMsg() }}</div>
+  }
+
+  <div class="layout">
+    <div class="users-panel">
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="search"
+          (input)="onSearch()"
+          placeholder="Buscar por nombre o email..." />
+      </div>
+
+      @if (loading()) {
+        <div class="loading">Cargando usuarios...</div>
+      } @else if (users().length === 0) {
+        <div class="empty">No se encontraron usuarios</div>
+      } @else {
+        <div class="users-list">
+          @for (user of users(); track user.id) {
+            <div
+              class="user-item"
+              [class.selected]="selectedUser()?.id === user.id"
+              [class.inactive]="!user.isActive"
+              (click)="selectUser(user.id)">
+              <div class="user-avatar">
+                @if (user.avatar) {
+                  <img [src]="user.avatar" [alt]="user.name" />
+                } @else {
+                  <span>{{ user.name.charAt(0).toUpperCase() }}</span>
+                }
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ user.name }}</span>
+                <span class="user-email">{{ user.email }}</span>
+                <div class="user-stats">
+                  <span>{{ user._count.orders }} pedidos</span>
+                  <span>{{ user._count.favorites }} favoritos</span>
+                </div>
+              </div>
+              <span [class]="user.isActive ? 'badge-active' : 'badge-inactive'">
+                {{ user.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="detail-panel">
+      @if (!selectedUser()) {
+        <div class="empty-detail">
+          <p>Selecciona un usuario para ver su perfil</p>
+        </div>
+      } @else if (loadingDetail()) {
+        <div class="loading">Cargando perfil...</div>
+      } @else {
+        <div class="user-detail">
+          <div class="detail-header">
+            <div class="detail-avatar">
+              @if (selectedUser().avatar) {
+                <img [src]="selectedUser().avatar" [alt]="selectedUser().name" />
+              } @else {
+                <span>{{ selectedUser().name.charAt(0).toUpperCase() }}</span>
+              }
+            </div>
+            <div>
+              <h2>{{ selectedUser().name }}</h2>
+              <p class="detail-email">{{ selectedUser().email }}</p>
+              <span [class]="selectedUser().isActive ? 'badge-active' : 'badge-inactive'">
+                {{ selectedUser().isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-stats">
+            <div class="stat">
+              <span class="stat-num">{{ selectedUser()._count.orders }}</span>
+              <span class="stat-label">Pedidos</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">{{ selectedUser()._count.favorites }}</span>
+              <span class="stat-label">Favoritos</span>
+            </div>
+            <div class="stat">
+              <span class="stat-num">{{ selectedUser().createdAt | date:'dd/MM/yy' }}</span>
+              <span class="stat-label">Registro</span>
+            </div>
+          </div>
+
+          <div class="detail-info">
+            <h3>Información de contacto</h3>
+            <div class="info-row">
+              <span class="info-label">Teléfono</span>
+              <span>{{ selectedUser().phone || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Provincia</span>
+              <span>{{ selectedUser().province || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Ciudad</span>
+              <span>{{ selectedUser().city || '—' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Dirección</span>
+              <span>{{ selectedUser().address || '—' }}</span>
+            </div>
+            @if (selectedUser().reference) {
+              <div class="info-row">
+                <span class="info-label">Referencia</span>
+                <span>{{ selectedUser().reference }}</span>
+              </div>
+            }
+          </div>
+
+          @if (selectedUser().orders?.length > 0) {
+            <div class="recent-orders">
+              <h3>Últimos pedidos</h3>
+              @for (order of selectedUser().orders; track order.id) {
+                <div class="order-row">
+                  <span class="order-id">#{{ order.id.slice(0,8) }}</span>
+                  <span [class]="'status status-' + order.status.toLowerCase()">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                  <span>${{ order.total }}</span>
+                  <span class="order-date">{{ order.createdAt | date:'dd/MM/yy' }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <button
+            (click)="toggle(selectedUser())"
+            [class]="selectedUser().isActive ? 'btn-disable' : 'btn-enable'">
+            {{ selectedUser().isActive ? 'Desactivar usuario' : 'Activar usuario' }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

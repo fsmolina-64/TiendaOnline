@@ -110,6 +110,10 @@ export const routes: Routes = [
       },
     ],
   },
-
+{
+  path: 'users',
+  loadComponent: () =>
+    import('./admin/users').then((m) => m.Users),
+},
   { path: '**', redirectTo: 'home' },
 ];
