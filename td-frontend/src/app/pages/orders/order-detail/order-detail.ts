@@ -25,17 +25,27 @@ export class OrderDetail implements OnInit {
   reviewRating = 5;
   reviewComment = '';
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.loadOrder(id);
-  }
+ngOnInit() {
+  const id = this.route.snapshot.paramMap.get('id')!;
+  const reviewPayment = this.route.snapshot.queryParamMap.get('reviewPayment');
 
-  loadOrder(id: string) {
-    this.ordersService.getOrder(id).subscribe({
-      next: (order) => { this.order.set(order); this.loading.set(false); },
-      error: () => this.loading.set(false),
-    });
-  }
+  this.loadOrder(id, () => {
+    if (reviewPayment === 'true' && this.canReviewPayment()) {
+      this.openReview('PAYMENT');
+    }
+  });
+}
+
+loadOrder(id: string, callback?: () => void) {
+  this.ordersService.getOrder(id).subscribe({
+    next: (order) => {
+      this.order.set(order);
+      this.loading.set(false);
+      if (callback) callback();
+    },
+    error: () => this.loading.set(false),
+  });
+}
 
   canReviewPayment(): boolean {
     const o = this.order();

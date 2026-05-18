@@ -43,9 +43,11 @@ export class Checkout implements OnInit {
     this.error.set('');
 
     this.ordersService.checkout().subscribe({
-      next: (order) => {
-        this.router.navigate(['/orders', order.id]);
-      },
+next: (order) => {
+  this.router.navigate(['/orders', order.id], { 
+    queryParams: { reviewPayment: true } 
+  });
+},
       error: (err) => {
         this.error.set(err.error?.message || 'Error al procesar el pedido');
         this.processing.set(false);

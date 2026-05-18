@@ -46,18 +46,19 @@ export class OrdersService {
     }
 
     const order = await this.prisma.$transaction(async (tx) => {
-      const newOrder = await tx.order.create({
-        data: {
-          userId,
-          subtotal: cart.subtotal,
-          tax: cart.tax,
-          total: cart.total,
-          province: user.province,
-          city: user.city,
-          address: user.address,
-          reference: user.reference,
-        },
-      });
+const newOrder = await tx.order.create({
+  data: {
+    userId,
+    status: 'PAID',
+    subtotal: cart.subtotal,
+    tax: cart.tax,
+    total: cart.total,
+    province: user.province,
+    city: user.city,
+    address: user.address,
+    reference: user.reference,
+  },
+});
 
       for (const item of cart.items) {
         await tx.orderItem.create({

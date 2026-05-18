@@ -7,7 +7,9 @@
       <a routerLink="/orders">Volver a mis pedidos</a>
     </div>
   } @else {
-    @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+    @if (successMsg()) {
+      <div class="success-msg">{{ successMsg() }}</div>
+    }
 
     @if (reviewType()) {
       <div class="modal-overlay">
@@ -25,7 +27,9 @@
             placeholder="Deja un comentario opcional..."
             rows="3">
           </textarea>
-          @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
+          @if (errorMsg()) {
+            <div class="error-msg">{{ errorMsg() }}</div>
+          }
           <div class="modal-actions">
             <button (click)="submitReview()" class="btn-submit-review">Enviar valoración</button>
             <button (click)="reviewType.set(null)" class="btn-cancel-modal">Cancelar</button>
@@ -71,7 +75,7 @@
           </div>
         }
 
-@for (review of (order()!.reviews ?? []); track review.id) {
+        @if (order()!.reviews.length > 0) {
           <div class="reviews-section">
             <h3>Tus valoraciones</h3>
             @for (review of order()!.reviews; track review.id) {
@@ -90,7 +94,6 @@
           </div>
         }
 
-        <!-- Botones de valoración -->
         <div class="review-actions">
           @if (canReviewPayment()) {
             <button (click)="openReview('PAYMENT')" class="btn-review">
