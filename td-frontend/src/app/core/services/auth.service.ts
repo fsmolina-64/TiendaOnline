@@ -51,4 +51,8 @@ export class AuthService {
     const user = localStorage.getItem('user');
     if (user) this.currentUser.set(JSON.parse(user));
   }
+  updateUser(user: User) {
+  localStorage.setItem('user', JSON.stringify(user));
+  this.currentUser.set(user);
+}
 }

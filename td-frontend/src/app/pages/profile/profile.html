@@ -8,6 +8,29 @@
     <div class="error-msg">{{ errorMsg() }}</div>
   }
 
+  <div class="avatar-section">
+    <div class="avatar-wrapper">
+      @if (avatarPreview()) {
+        <img [src]="avatarPreview()!" alt="Preview" class="avatar-img" />
+      } @else if (auth.currentUser()?.avatar) {
+        <img [src]="auth.currentUser()!.avatar!" alt="Avatar" class="avatar-img" />
+      } @else {
+        <div class="avatar-placeholder">
+          {{ auth.currentUser()?.name?.charAt(0)?.toUpperCase() }}
+        </div>
+      }
+    </div>
+    <div class="avatar-actions">
+      <label class="btn-select-avatar">
+        📷 Seleccionar foto
+        <input type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
+      </label>
+      @if (selectedAvatarFile) {
+        <button (click)="uploadAvatar()" class="btn-upload-avatar">Guardar foto</button>
+      }
+    </div>
+  </div>
+
   <div class="profile-layout">
     <div class="card">
       <h3>Información personal</h3>
