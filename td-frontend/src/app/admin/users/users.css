@@ -83,3 +83,17 @@ h3 { color: #1a1a2e; margin: 0 0 1rem; font-size: 1rem; }
 .btn-disable:hover { background: #c73652; }
 .btn-enable { width: 100%; padding: 0.8rem; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; margin-top: 0.5rem; }
 .btn-enable:hover { background: #219a52; }
+.btn-filter {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  background: transparent;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #555;
+  transition: all 0.2s;
+}
+.btn-filter:hover { border-color: #1a1a2e; color: #1a1a2e; }
+.btn-filter.active { background: #1a1a2e; color: white; border-color: #1a1a2e; }

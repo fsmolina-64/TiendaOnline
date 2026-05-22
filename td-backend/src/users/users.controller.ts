@@ -35,13 +35,15 @@ export class UsersController {
     return this.usersService.changePassword(req.user.id, dto);
   }
 
-  // Rutas admin
-  @UseGuards(RolesGuard)
-  @Roles('ADMIN')
-  @Get('admin/all')
-  findAllAdmin(@Query('search') search?: string) {
-    return this.usersService.findAllAdmin(search);
-  }
+@UseGuards(RolesGuard)
+@Roles('ADMIN')
+@Get('admin/all')
+findAllAdmin(
+  @Query('search') search?: string,
+  @Query('showInactive') showInactive?: string,
+) {
+  return this.usersService.findAllAdmin(search, showInactive === 'true');
+}
 
   @UseGuards(RolesGuard)
   @Roles('ADMIN')

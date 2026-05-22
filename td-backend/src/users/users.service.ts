@@ -55,11 +55,12 @@ export class UsersService {
 
     return { message: 'Contraseña actualizada correctamente' };
   }
-  async findAllAdmin(search?: string) {
+async findAllAdmin(search?: string, showInactive?: boolean) {
   return this.prisma.user.findMany({
     where: {
       role: 'USER',
-      isActive: true,
+      // Si showInactive es true mostramos todos, si no solo activos
+      ...(!showInactive && { isActive: true }),
       ...(search && {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },

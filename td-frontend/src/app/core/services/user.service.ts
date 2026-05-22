@@ -7,9 +7,10 @@ const API = 'http://localhost:3000';
 export class UsersService {
   constructor(private http: HttpClient) {}
 
-  getAllAdmin(search?: string) {
+  getAllAdmin(search?: string, showInactive?: boolean) {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
+    if (showInactive) params = params.set('showInactive', 'true');
     return this.http.get<any[]>(`${API}/users/admin/all`, { params });
   }
 
@@ -18,6 +19,6 @@ export class UsersService {
   }
 
   toggleUser(id: string) {
-    return this.http.patch(`${API}/users/admin/${id}/toggle`, {});
+    return this.http.patch<any>(`${API}/users/admin/${id}/toggle`, {});
   }
 }

@@ -7,13 +7,18 @@
 
   <div class="layout">
     <div class="users-panel">
-      <div class="search-box">
-        <input
-          type="text"
-          [(ngModel)]="search"
-          (input)="onSearch()"
-          placeholder="Buscar por nombre o email..." />
-      </div>
+<div class="search-box">
+  <input
+    type="text"
+    [(ngModel)]="search"
+    (input)="onSearch()"
+    placeholder="Buscar por nombre o email..." />
+  <button
+    (click)="toggleInactive()"
+    [class]="showInactive ? 'btn-filter active' : 'btn-filter'">
+    {{ showInactive ? '👁️ Mostrando todos' : '👁️ Ver inactivos también' }}
+  </button>
+</div>
 
       @if (loading()) {
         <div class="loading">Cargando usuarios...</div>

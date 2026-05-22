@@ -18,28 +18,36 @@ export class Users implements OnInit {
   loading = signal(true);
   loadingDetail = signal(false);
   search = '';
+  showInactive = false;
   successMsg = signal('');
 
   ngOnInit() { this.loadUsers(); }
 
   loadUsers() {
     this.loading.set(true);
-    this.usersService.getAllAdmin(this.search || undefined).subscribe({
-      next: (users) => { this.users.set(users); this.loading.set(false); },
+    this.usersService.getAllAdmin(
+      this.search || undefined,
+      this.showInactive
+    ).subscribe({
+      next: (users: any[]) => { this.users.set(users); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
   }
 
-  // Búsqueda con debounce manual — evita llamar al backend en cada tecla
   onSearch() {
     clearTimeout((this as any)._searchTimer);
     (this as any)._searchTimer = setTimeout(() => this.loadUsers(), 400);
   }
 
+  toggleInactive() {
+    this.showInactive = !this.showInactive;
+    this.loadUsers();
+  }
+
   selectUser(id: string) {
     this.loadingDetail.set(true);
     this.usersService.getOneAdmin(id).subscribe({
-      next: (user) => { this.selectedUser.set(user); this.loadingDetail.set(false); },
+      next: (user: any) => { this.selectedUser.set(user); this.loadingDetail.set(false); },
       error: () => this.loadingDetail.set(false),
     });
   }
