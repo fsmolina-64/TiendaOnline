@@ -27,19 +27,31 @@ export class ProductDetail implements OnInit {
   selectedImage = signal(0);
   addedToCart = signal(false);
   isFavorite = signal(false);
+  error = signal<string | null>(null);
 
   ngOnInit() {
-    const slug = this.route.snapshot.paramMap.get('slug')!;
+  this.route.paramMap.subscribe(params => {
+    const slug = params.get('slug');
+    if (!slug) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+
     this.productsService.getBySlug(slug).subscribe({
       next: (p) => {
         this.product.set(p);
+        this.related.set((p as any).related || []);
         this.loading.set(false);
         this.checkFavorite(p.id);
+        window.scrollTo(0, 0);
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.error.set('Producto no encontrado');
+        this.loading.set(false);
+      },
     });
-  }
-
+  });
+}
   checkFavorite(productId: string) {
     if (!this.auth.isLoggedIn()) return;
     this.favoritesService.getAll().subscribe({
@@ -84,4 +96,5 @@ export class ProductDetail implements OnInit {
       next: () => this.isFavorite.set(false),
     });
   }
+  related = signal<Product[]>([]);
 }

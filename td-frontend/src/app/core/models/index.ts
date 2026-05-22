@@ -52,6 +52,7 @@ export interface Product {
   finalPrice: number;
   discountPct: number;
   hasPromotion: boolean;
+  related?: Product[];
 }
 
 export interface CartItem {

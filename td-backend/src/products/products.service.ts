@@ -47,26 +47,51 @@ export class ProductsService {
     return products.map((p) => this.applyPromotion(p));
   }
 
-  async findBySlug(slug: string) {
-    const product = await this.prisma.product.findUnique({
-      where: { slug, isActive: true },
-      include: {
-        category: true,
-        images: { orderBy: { order: 'asc' } },
-        promotions: {
-          where: {
-            isActive: true,
-            startDate: { lte: new Date() },
-            endDate: { gte: new Date() },
-          },
+async findBySlug(slug: string) {
+  const product = await this.prisma.product.findFirst({
+    where: { slug, isActive: true },
+    include: {
+      category: true,
+      images: { orderBy: { order: 'asc' } },
+      promotions: {
+        where: {
+          isActive: true,
+          startDate: { lte: new Date() },
+          endDate: { gte: new Date() },
         },
       },
-    });
+    },
+  });
 
-    if (!product) throw new NotFoundException('Producto no encontrado');
+  if (!product) throw new NotFoundException('Producto no encontrado');
 
-    return this.applyPromotion(product);
-  }
+  const promotedProduct = this.applyPromotion(product);
+
+  const related = await this.prisma.product.findMany({
+    where: {
+      categoryId: product.categoryId,
+      isActive: true,
+      id: { not: product.id },
+    },
+    take: 4,
+    include: {
+      category: true,
+      images: { orderBy: { order: 'asc' }, take: 1 },
+      promotions: {
+        where: {
+          isActive: true,
+          startDate: { lte: new Date() },
+          endDate: { gte: new Date() },
+        },
+      },
+    },
+  });
+
+  return {
+    ...promotedProduct,
+    related: related.map((p) => this.applyPromotion(p)),
+  };
+}
 
   async findAllAdmin() {
     const products = await this.prisma.product.findMany({
@@ -146,7 +171,6 @@ export class ProductsService {
     });
   }
 
-  // Calcula precio final con promoción activa
   private applyPromotion(product: any) {
     const activePromotion = product.promotions?.[0] ?? null;
 

@@ -77,5 +77,35 @@
         }
       </div>
     </div>
+    @if (related().length > 0) {
+  <div class="related-section">
+    <h2>Productos relacionados</h2>
+    <div class="related-grid">
+      @for (p of related(); track p.id) {
+        <a [routerLink]="['/products', p.slug]" class="related-card">
+          <div class="related-image">
+            @if (p.images.length > 0) {
+              <img [src]="p.images[0].url" [alt]="p.name" />
+            } @else {
+              <div class="no-image">Sin imagen</div>
+            }
+            @if (p.hasPromotion) {
+              <span class="badge-discount">-{{ p.discountPct }}%</span>
+            }
+          </div>
+          <div class="related-info">
+            <h3>{{ p.name }}</h3>
+            <div class="prices">
+              @if (p.hasPromotion) {
+                <span class="original-price">${{ p.originalPrice }}</span>
+              }
+              <span class="final-price">${{ p.finalPrice }}</span>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+}
   }
 </div>
