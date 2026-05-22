@@ -35,4 +35,9 @@ export class OrdersService {
   createReview(orderId: string, data: { type: string; rating: number; comment?: string }) {
     return this.http.post(`${API}/reviews/${orderId}`, data);
   }
+  downloadInvoice(orderId: string) {
+  return this.http.get(`${API}/invoices/${orderId}/download`, {
+    responseType: 'blob',
+  });
+}
 }

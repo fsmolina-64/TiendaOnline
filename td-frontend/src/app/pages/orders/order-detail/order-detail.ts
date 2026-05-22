@@ -103,4 +103,27 @@ loadOrder(id: string, callback?: () => void) {
     };
     return labels[status] || status;
   }
+  downloadingPdf = signal(false);
+
+downloadInvoice() {
+  const o = this.order();
+  if (!o?.invoice) return;
+
+  this.downloadingPdf.set(true);
+
+  this.ordersService.downloadInvoice(o.id).subscribe({
+    next: (blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `factura-${o.invoice!.number}.pdf`;
+      link.click();
+
+      window.URL.revokeObjectURL(url);
+      this.downloadingPdf.set(false);
+    },
+    error: () => this.downloadingPdf.set(false),
+  });
+}
 }

@@ -49,3 +49,17 @@ h1 { color: #1a1a2e; margin: 0; }
 .modal-actions { display: flex; gap: 1rem; margin-top: 1rem; }
 .btn-submit-review { background: #1a1a2e; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; }
 .btn-cancel-modal { background: transparent; border: 1px solid #ddd; padding: 0.8rem 1.5rem; border-radius: 6px; cursor: pointer; }
+.btn-download-pdf {
+  width: 100%;
+  padding: 0.7rem;
+  background: #1a1a2e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  transition: background 0.2s;
+}
+.btn-download-pdf:hover:not(:disabled) { background: #e94560; }
+.btn-download-pdf:disabled { opacity: 0.6; cursor: not-allowed; }
