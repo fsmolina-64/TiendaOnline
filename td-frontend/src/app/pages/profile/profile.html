@@ -1,5 +1,4 @@
 <div class="container">
-  <!-- Mensajes globales -->
   @if (successMsg()) {
     <div class="alert alert-success">{{ successMsg() }}</div>
   }
@@ -7,7 +6,7 @@
     <div class="alert alert-error">{{ errorMsg() }}</div>
   }
 
-  <!-- Avatar card -->
+  <!-- Avatar -->
   <div class="avatar-card">
     <div class="avatar-wrapper">
       @if (avatarPreview()) {
@@ -46,7 +45,7 @@
     </button>
   </div>
 
-  <!-- Tab: Información personal -->
+  <!-- Tab: Personal -->
   @if (activeTab() === 'personal') {
     <div class="card">
       <h3>Información personal</h3>
@@ -61,10 +60,20 @@
             <input type="text" formControlName="phone" placeholder="09XXXXXXXX" />
           </div>
         </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Cédula</label>
+            <input type="text" formControlName="cedula" placeholder="1234567890" />
+          </div>
+          <div class="field">
+            <label>Correo electrónico</label>
+            <input type="email" [value]="currentEmail" readonly class="input-readonly" />
+            <span class="field-hint">🔐 El correo no puede modificarse</span>
+          </div>
+        </div>
         <div class="field">
-          <label>Correo electrónico</label>
-          <input type="email" [value]="currentEmail" readonly class="input-readonly" />
-          <span class="field-hint">🔐 El correo no puede modificarse</span>
+          <label>Miembro desde</label>
+          <input type="text" [value]="auth.currentUser()?.createdAt | date:'dd/MM/yyyy'" readonly class="input-readonly" />
         </div>
         <button type="submit" class="btn-primary" [disabled]="personalForm.invalid || loading()">
           {{ loading() ? 'Guardando...' : 'Guardar cambios' }}
@@ -96,22 +105,19 @@
             }
           </div>
         </div>
-        <button type="submit" class="btn-primary"
-          [disabled]="passwordForm.invalid || loading()">
+        <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || loading()">
           {{ loading() ? 'Actualizando...' : 'Actualizar contraseña' }}
         </button>
       </form>
 
-      <!-- Danger Zone -->
       <div class="danger-zone">
         <div class="danger-header">
           <span class="danger-icon">⚠️</span>
           <div>
             <p class="danger-title">Eliminar cuenta</p>
-            <p class="danger-desc">Esta acción es permanente y no se puede deshacer.</p>
+            <p class="danger-desc">Acción permanente e irreversible.</p>
           </div>
         </div>
-
         @if (!showDeleteConfirm()) {
           <button class="btn-danger-outline" (click)="showDeleteConfirm.set(true)">
             Eliminar mi cuenta
@@ -119,8 +125,8 @@
         } @else {
           <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()" class="delete-form">
             <div class="field">
-              <label>Confirma tu contraseña para continuar</label>
-              <input type="password" formControlName="password" placeholder="Tu contraseña actual" />
+              <label>Confirma tu contraseña</label>
+              <input type="password" formControlName="password" />
             </div>
             <div class="delete-actions">
               <button type="button" class="btn-cancel" (click)="showDeleteConfirm.set(false)">
@@ -139,31 +145,98 @@
   <!-- Tab: Direcciones -->
   @if (activeTab() === 'direcciones') {
     <div class="card">
-      <h3>Dirección de envío</h3>
-      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()">
-        <div class="grid-2">
-          <div class="field">
-            <label>Provincia</label>
-            <input type="text" formControlName="province" />
+      <div class="card-header">
+        <h3>Mis direcciones</h3>
+        @if (!showAddressForm()) {
+          <button class="btn-add" (click)="openNewAddress()">+ Agregar dirección</button>
+        }
+      </div>
+
+      @if (showAddressForm()) {
+        <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form">
+          <div class="grid-2">
+            <div class="field">
+              <label>Etiqueta</label>
+              <select formControlName="label" class="select-input">
+                <option value="Casa">🏠 Casa</option>
+                <option value="Trabajo">💼 Trabajo</option>
+                <option value="Otro">📍 Otro</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Código postal</label>
+              <input type="text" formControlName="postalCode" placeholder="010101" />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Provincia</label>
+              <input type="text" formControlName="province" />
+            </div>
+            <div class="field">
+              <label>Ciudad</label>
+              <input type="text" formControlName="city" />
+            </div>
           </div>
           <div class="field">
-            <label>Ciudad</label>
-            <input type="text" formControlName="city" />
+            <label>Dirección</label>
+            <input type="text" formControlName="address" placeholder="Calle, número, sector" />
           </div>
+          <div class="field">
+            <label>Referencia</label>
+            <input type="text" formControlName="reference" placeholder="Frente al parque, casa azul..." />
+          </div>
+          <div class="field-check">
+            <input type="checkbox" formControlName="isDefault" id="isDefault" />
+            <label for="isDefault">Usar como dirección predeterminada</label>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" (click)="showAddressForm.set(false)">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary-sm" [disabled]="addressForm.invalid || loading()">
+              {{ loading() ? 'Guardando...' : editingAddressId() ? 'Actualizar' : 'Agregar' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (addresses().length === 0 && !showAddressForm()) {
+        <div class="empty-state">
+          <p>📍 No tienes direcciones guardadas</p>
+          <span>Agrega una dirección para agilizar tus pedidos</span>
         </div>
-        <div class="field">
-          <label>Dirección</label>
-          <input type="text" formControlName="address" placeholder="Calle, número, sector" />
-        </div>
-        <div class="field">
-          <label>Referencia</label>
-          <input type="text" formControlName="reference"
-            placeholder="Ej: frente al parque, casa azul..." />
-        </div>
-        <button type="submit" class="btn-primary" [disabled]="loading()">
-          {{ loading() ? 'Guardando...' : 'Guardar dirección' }}
-        </button>
-      </form>
+      }
+
+      <div class="address-list">
+        @for (addr of addresses(); track addr.id) {
+          <div class="address-card" [class.is-default]="addr.isDefault">
+            <div class="address-card-header">
+              <div class="address-label">
+                <span class="label-badge">{{ addr.label }}</span>
+                @if (addr.isDefault) {
+                  <span class="default-badge">✓ Predeterminada</span>
+                }
+              </div>
+              <div class="address-actions">
+                @if (!addr.isDefault) {
+                  <button class="btn-link" (click)="setDefault(addr.id)">Predeterminar</button>
+                }
+                <button class="btn-link" (click)="editAddress(addr)">Editar</button>
+                <button class="btn-link danger" (click)="deleteAddress(addr.id)">Eliminar</button>
+              </div>
+            </div>
+            <p class="address-text">{{ addr.province }}, {{ addr.city }}</p>
+            <p class="address-text">{{ addr.address }}</p>
+            @if (addr.reference) {
+              <p class="address-ref">Ref: {{ addr.reference }}</p>
+            }
+            @if (addr.postalCode) {
+              <p class="address-ref">CP: {{ addr.postalCode }}</p>
+            }
+          </div>
+        }
+      </div>
     </div>
   }
 </div>

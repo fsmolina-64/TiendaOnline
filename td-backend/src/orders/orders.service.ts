@@ -27,6 +27,15 @@ export class OrdersService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
+    const defaultAddress = await this.prisma.address.findFirst({
+      where: { userId, isDefault: true },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const deliveryAddress =
+      defaultAddress ||
+      (await this.prisma.address.findFirst({ where: { userId }, orderBy: { createdAt: 'asc' } }));
+
     for (const item of cart.items) {
       const product = await this.prisma.product.findUnique({
         where: { id: item.productId },
@@ -46,19 +55,19 @@ export class OrdersService {
     }
 
     const order = await this.prisma.$transaction(async (tx) => {
-const newOrder = await tx.order.create({
-  data: {
-    userId,
-    status: 'PAID',
-    subtotal: cart.subtotal,
-    tax: cart.tax,
-    total: cart.total,
-    province: user.province,
-    city: user.city,
-    address: user.address,
-    reference: user.reference,
-  },
-});
+  const newOrder = await tx.order.create({
+    data: {
+      userId,
+      status: 'PAID',
+      subtotal: cart.subtotal,
+      tax: cart.tax,
+      total: cart.total,
+      province: deliveryAddress?.province || null,
+      city: deliveryAddress?.city || null,
+      address: deliveryAddress?.address || null,
+      reference: deliveryAddress?.reference || null,
+    },
+  });
 
       for (const item of cart.items) {
         await tx.orderItem.create({

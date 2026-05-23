@@ -9,6 +9,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
 import { DeleteAccountDto } from './dto/delete-account.dto';
+import { CreateAddressDto } from './dto/create-address.dto';
+import { UpdateAddressDto } from './dto/update-address.dto';
 
 @Injectable()
 export class UsersService {
@@ -61,7 +63,6 @@ async findAllAdmin(search?: string, showInactive?: boolean) {
   return this.prisma.user.findMany({
     where: {
       role: 'USER',
-      // Si showInactive es true mostramos todos, si no solo activos
       ...(!showInactive && { isActive: true }),
       ...(search && {
         OR: [
@@ -75,9 +76,7 @@ async findAllAdmin(search?: string, showInactive?: boolean) {
       name: true,
       email: true,
       phone: true,
-      province: true,
-      city: true,
-      address: true,
+      cedula: true,
       avatar: true,
       isActive: true,
       createdAt: true,
@@ -97,13 +96,11 @@ async findOneAdmin(userId: string) {
       name: true,
       email: true,
       phone: true,
-      province: true,
-      city: true,
-      address: true,
-      reference: true,
+      cedula: true,
       avatar: true,
       isActive: true,
       createdAt: true,
+      addresses: true,
       orders: {
         take: 5,
         orderBy: { createdAt: 'desc' },
@@ -147,6 +144,71 @@ async toggleUser(userId: string) {
       email: true,
       isActive: true,
     },
+  });
+}
+
+async getAddresses(userId: string) {
+  return this.prisma.address.findMany({
+    where: { userId },
+    orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
+  });
+}
+
+async createAddress(userId: string, dto: CreateAddressDto) {
+  if (dto.isDefault) {
+    await this.prisma.address.updateMany({
+      where: { userId },
+      data: { isDefault: false },
+    });
+  }
+  return this.prisma.address.create({
+    data: { ...dto, userId },
+  });
+}
+
+async updateAddress(userId: string, addressId: string, dto: UpdateAddressDto) {
+  const address = await this.prisma.address.findFirst({
+    where: { id: addressId, userId },
+  });
+  if (!address) throw new NotFoundException('Dirección no encontrada');
+
+  if (dto.isDefault) {
+    await this.prisma.address.updateMany({
+      where: { userId },
+      data: { isDefault: false },
+    });
+  }
+
+  return this.prisma.address.update({
+    where: { id: addressId },
+    data: dto,
+  });
+}
+
+async deleteAddress(userId: string, addressId: string) {
+  const address = await this.prisma.address.findFirst({
+    where: { id: addressId, userId },
+  });
+  if (!address) throw new NotFoundException('Dirección no encontrada');
+
+  await this.prisma.address.delete({ where: { id: addressId } });
+  return { message: 'Dirección eliminada' };
+}
+
+async setDefaultAddress(userId: string, addressId: string) {
+  const address = await this.prisma.address.findFirst({
+    where: { id: addressId, userId },
+  });
+  if (!address) throw new NotFoundException('Dirección no encontrada');
+
+  await this.prisma.address.updateMany({
+    where: { userId },
+    data: { isDefault: false },
+  });
+
+  return this.prisma.address.update({
+    where: { id: addressId },
+    data: { isDefault: true },
   });
 }
 }

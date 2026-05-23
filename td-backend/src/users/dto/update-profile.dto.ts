@@ -11,17 +11,5 @@ export class UpdateProfileDto {
 
   @IsString()
   @IsOptional()
-  province?: string;
-
-  @IsString()
-  @IsOptional()
-  city?: string;
-
-  @IsString()
-  @IsOptional()
-  address?: string;
-
-  @IsString()
-  @IsOptional()
-  reference?: string;
+  cedula?: string;
 }

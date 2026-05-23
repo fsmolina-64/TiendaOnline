@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   Delete,
   Body,
@@ -16,6 +17,9 @@ import { DeleteAccountDto } from './dto/delete-account.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UpdateAddressDto } from './dto/update-address.dto';
+import { CreateAddressDto } from './dto/create-address.dto';
+
 
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -41,6 +45,30 @@ export class UsersController {
   deleteAccount(@Request() req: any, @Body() dto: DeleteAccountDto) {
     return this.usersService.deleteAccount(req.user.id, dto);
   }
+  @Get('addresses')
+getAddresses(@Request() req: any) {
+  return this.usersService.getAddresses(req.user.id);
+}
+
+@Post('addresses')
+createAddress(@Request() req: any, @Body() dto: CreateAddressDto) {
+  return this.usersService.createAddress(req.user.id, dto);
+}
+
+@Patch('addresses/:id')
+updateAddress(@Request() req: any, @Param('id') id: string, @Body() dto: UpdateAddressDto) {
+  return this.usersService.updateAddress(req.user.id, id, dto);
+}
+
+@Delete('addresses/:id')
+deleteAddress(@Request() req: any, @Param('id') id: string) {
+  return this.usersService.deleteAddress(req.user.id, id);
+}
+
+@Patch('addresses/:id/default')
+setDefaultAddress(@Request() req: any, @Param('id') id: string) {
+  return this.usersService.setDefaultAddress(req.user.id, id);
+}
 
   @UseGuards(RolesGuard)
   @Roles('ADMIN')

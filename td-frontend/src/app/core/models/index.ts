@@ -1,12 +1,23 @@
+export interface Address {
+  id: string;
+  label: string;
+  province: string;
+  city: string;
+  address: string;
+  reference?: string;
+  postalCode?: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   phone?: string;
-  province?: string;
-  city?: string;
-  address?: string;
-  reference?: string;
+  cedula?: string;
   avatar?: string;
   role: 'USER' | 'ADMIN';
   isActive: boolean;

@@ -14,7 +14,7 @@ export class InvoicesService {
       include: {
         invoice: true,
         user: {
-          select: { name: true, email: true, address: true, city: true, province: true },
+          select: { name: true, email: true },
         },
         items: {
           include: {

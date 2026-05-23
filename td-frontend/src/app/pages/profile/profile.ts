@@ -1,16 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
-import { User } from '../../core/models';
+import { User, Address } from '../../core/models';
 
 type Tab = 'personal' | 'seguridad' | 'direcciones';
 
-function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
-  const newPass = control.get('newPassword')?.value;
-  const confirm = control.get('confirmPassword')?.value;
-  return newPass && confirm && newPass !== confirm ? { mismatch: true } : null;
+function passwordMatchValidator(control: any) {
+  const n = control.get('newPassword')?.value;
+  const c = control.get('confirmPassword')?.value;
+  return n && c && n !== c ? { mismatch: true } : null;
 }
 
 @Component({
@@ -32,17 +32,14 @@ export class Profile implements OnInit {
   avatarPreview = signal<string | null>(null);
   selectedAvatarFile: File | null = null;
   showDeleteConfirm = signal(false);
+  showAddressForm = signal(false);
+  editingAddressId = signal<string | null>(null);
+  addresses = signal<Address[]>([]);
 
   personalForm = this.fb.group({
     name: ['', Validators.required],
     phone: [''],
-  });
-
-  addressForm = this.fb.group({
-    province: [''],
-    city: [''],
-    address: [''],
-    reference: [''],
+    cedula: [''],
   });
 
   passwordForm = this.fb.group(
@@ -58,23 +55,38 @@ export class Profile implements OnInit {
     password: ['', Validators.required],
   });
 
+  addressForm = this.fb.group({
+    label: ['Casa', Validators.required],
+    province: ['', Validators.required],
+    city: ['', Validators.required],
+    address: ['', Validators.required],
+    reference: [''],
+    postalCode: [''],
+    isDefault: [false],
+  });
+
   ngOnInit() {
     const user = this.auth.currentUser();
     if (user) {
-      this.personalForm.patchValue({ name: user.name, phone: user.phone || '' });
-      this.addressForm.patchValue({
-        province: user.province || '',
-        city: user.city || '',
-        address: user.address || '',
-        reference: user.reference || '',
+      this.personalForm.patchValue({
+        name: user.name,
+        phone: user.phone || '',
+        cedula: user.cedula || '',
       });
     }
+    this.loadAddresses();
   }
 
   setTab(tab: Tab) {
     this.activeTab.set(tab);
     this.successMsg.set('');
     this.errorMsg.set('');
+  }
+
+  loadAddresses() {
+    this.http.get<Address[]>('http://localhost:3000/users/addresses').subscribe({
+      next: (list) => this.addresses.set(list),
+    });
   }
 
   onAvatarSelected(event: any) {
@@ -114,18 +126,6 @@ export class Profile implements OnInit {
     });
   }
 
-  saveAddress() {
-    this.loading.set(true);
-    this.http.patch<User>('http://localhost:3000/users/profile', this.addressForm.value).subscribe({
-      next: (user) => {
-        this.auth.updateUser(user);
-        this.loading.set(false);
-        this.notify('success', 'Dirección guardada');
-      },
-      error: () => { this.loading.set(false); this.notify('error', 'Error al guardar'); },
-    });
-  }
-
   changePassword() {
     if (this.passwordForm.invalid) return;
     this.loading.set(true);
@@ -149,13 +149,62 @@ export class Profile implements OnInit {
     this.http.delete('http://localhost:3000/users/me', {
       body: { password: this.deleteForm.value.password },
     }).subscribe({
-      next: () => {
-        this.auth.logout();
-      },
+      next: () => this.auth.logout(),
       error: (err) => {
         this.loading.set(false);
         this.notify('error', err.error?.message || 'Contraseña incorrecta');
       },
+    });
+  }
+
+  openNewAddress() {
+    this.editingAddressId.set(null);
+    this.addressForm.reset({ label: 'Casa', isDefault: false });
+    this.showAddressForm.set(true);
+  }
+
+  editAddress(addr: Address) {
+    this.editingAddressId.set(addr.id);
+    this.addressForm.patchValue({
+      label: addr.label,
+      province: addr.province,
+      city: addr.city,
+      address: addr.address,
+      reference: addr.reference || '',
+      postalCode: addr.postalCode || '',
+      isDefault: addr.isDefault,
+    });
+    this.showAddressForm.set(true);
+  }
+
+  saveAddress() {
+    if (this.addressForm.invalid) return;
+    this.loading.set(true);
+    const id = this.editingAddressId();
+    const req = id
+      ? this.http.patch<Address>(`http://localhost:3000/users/addresses/${id}`, this.addressForm.value)
+      : this.http.post<Address>('http://localhost:3000/users/addresses', this.addressForm.value);
+
+    req.subscribe({
+      next: () => {
+        this.loadAddresses();
+        this.showAddressForm.set(false);
+        this.loading.set(false);
+        this.notify('success', id ? 'Dirección actualizada' : 'Dirección agregada');
+      },
+      error: () => { this.loading.set(false); this.notify('error', 'Error al guardar dirección'); },
+    });
+  }
+
+  setDefault(id: string) {
+    this.http.patch(`http://localhost:3000/users/addresses/${id}/default`, {}).subscribe({
+      next: () => this.loadAddresses(),
+    });
+  }
+
+  deleteAddress(id: string) {
+    this.http.delete(`http://localhost:3000/users/addresses/${id}`).subscribe({
+      next: () => this.loadAddresses(),
     });
   }
 
@@ -168,5 +217,7 @@ export class Profile implements OnInit {
   get currentName() { return this.auth.currentUser()?.name || ''; }
   get avatarInitial() { return this.currentName.charAt(0).toUpperCase(); }
   get currentAvatar() { return this.auth.currentUser()?.avatar; }
-  get passwordMismatch() { return this.passwordForm.hasError('mismatch') && this.passwordForm.get('confirmPassword')?.dirty; }
+  get passwordMismatch() {
+    return this.passwordForm.hasError('mismatch') && this.passwordForm.get('confirmPassword')?.dirty;
+  }
 }
