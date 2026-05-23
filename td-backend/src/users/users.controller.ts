@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Patch,
+  Delete,
   Body,
   UseGuards,
   Request,
@@ -11,6 +12,7 @@ import {
 import { UsersService } from './users.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -35,15 +37,20 @@ export class UsersController {
     return this.usersService.changePassword(req.user.id, dto);
   }
 
-@UseGuards(RolesGuard)
-@Roles('ADMIN')
-@Get('admin/all')
-findAllAdmin(
-  @Query('search') search?: string,
-  @Query('showInactive') showInactive?: string,
-) {
-  return this.usersService.findAllAdmin(search, showInactive === 'true');
-}
+  @Delete('me')
+  deleteAccount(@Request() req: any, @Body() dto: DeleteAccountDto) {
+    return this.usersService.deleteAccount(req.user.id, dto);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/all')
+  findAllAdmin(
+    @Query('search') search?: string,
+    @Query('showInactive') showInactive?: string,
+  ) {
+    return this.usersService.findAllAdmin(search, showInactive === 'true');
+  }
 
   @UseGuards(RolesGuard)
   @Roles('ADMIN')

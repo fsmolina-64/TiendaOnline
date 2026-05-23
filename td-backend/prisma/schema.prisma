@@ -136,7 +136,7 @@ model Cart {
   updatedAt DateTime   @updatedAt
 
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   items CartItem[]
 
@@ -175,7 +175,7 @@ model Order {
   reference String?
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   items   OrderItem[]
   invoice Invoice?
@@ -219,7 +219,7 @@ model Favorite {
   createdAt DateTime @default(now())
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   productId String
   product   Product @relation(fields: [productId], references: [id])
@@ -239,7 +239,7 @@ model OrderReview {
   order   Order  @relation(fields: [orderId], references: [id])
 
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([orderId, userId, type])
   @@map("order_reviews")

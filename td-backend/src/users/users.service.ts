@@ -2,11 +2,13 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
+import { DeleteAccountDto } from './dto/delete-account.dto';
 
 @Injectable()
 export class UsersService {
@@ -120,6 +122,16 @@ async findOneAdmin(userId: string) {
 
   if (!user) throw new NotFoundException('Usuario no encontrado');
   return user;
+}
+async deleteAccount(userId: string, dto: DeleteAccountDto) {
+  const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new NotFoundException('Usuario no encontrado');
+
+  const isMatch = await bcrypt.compare(dto.password, user.password);
+  if (!isMatch) throw new UnauthorizedException('Contraseña incorrecta');
+
+  await this.prisma.user.delete({ where: { id: userId } });
+  return { message: 'Cuenta eliminada' };
 }
 
 async toggleUser(userId: string) {

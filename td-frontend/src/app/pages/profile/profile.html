@@ -1,70 +1,80 @@
 <div class="container">
-  <h1>Mi Perfil</h1>
-
+  <!-- Mensajes globales -->
   @if (successMsg()) {
-    <div class="success-msg">{{ successMsg() }}</div>
+    <div class="alert alert-success">{{ successMsg() }}</div>
   }
   @if (errorMsg()) {
-    <div class="error-msg">{{ errorMsg() }}</div>
+    <div class="alert alert-error">{{ errorMsg() }}</div>
   }
 
-  <div class="avatar-section">
+  <!-- Avatar card -->
+  <div class="avatar-card">
     <div class="avatar-wrapper">
       @if (avatarPreview()) {
         <img [src]="avatarPreview()!" alt="Preview" class="avatar-img" />
-      } @else if (auth.currentUser()?.avatar) {
-        <img [src]="auth.currentUser()!.avatar!" alt="Avatar" class="avatar-img" />
+      } @else if (currentAvatar) {
+        <img [src]="currentAvatar" alt="Avatar" class="avatar-img" />
       } @else {
-        <div class="avatar-placeholder">
-          {{ auth.currentUser()?.name?.charAt(0)?.toUpperCase() }}
-        </div>
+        <div class="avatar-placeholder">{{ avatarInitial }}</div>
       }
     </div>
-    <div class="avatar-actions">
-      <label class="btn-select-avatar">
-        📷 Seleccionar foto
-        <input type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
-      </label>
-      @if (selectedAvatarFile) {
-        <button (click)="uploadAvatar()" class="btn-upload-avatar">Guardar foto</button>
-      }
+    <div class="avatar-info">
+      <p class="avatar-name">{{ currentName }}</p>
+      <p class="avatar-email">{{ currentEmail }}</p>
+      <div class="avatar-actions">
+        <label class="btn-avatar">
+          📷 Cambiar foto
+          <input type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
+        </label>
+        @if (selectedAvatarFile) {
+          <button class="btn-save-avatar" (click)="uploadAvatar()">Guardar foto</button>
+        }
+      </div>
     </div>
   </div>
 
-  <div class="profile-layout">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab() === 'personal'" (click)="setTab('personal')">
+      👤 Información personal
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'seguridad'" (click)="setTab('seguridad')">
+      🔒 Seguridad
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'direcciones'" (click)="setTab('direcciones')">
+      📍 Direcciones
+    </button>
+  </div>
+
+  <!-- Tab: Información personal -->
+  @if (activeTab() === 'personal') {
     <div class="card">
       <h3>Información personal</h3>
-      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-        <div class="field">
-          <label>Nombre</label>
-          <input type="text" formControlName="name" />
+      <form [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+        <div class="grid-2">
+          <div class="field">
+            <label>Nombre</label>
+            <input type="text" formControlName="name" />
+          </div>
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="text" formControlName="phone" placeholder="09XXXXXXXX" />
+          </div>
         </div>
         <div class="field">
-          <label>Teléfono</label>
-          <input type="text" formControlName="phone" />
+          <label>Correo electrónico</label>
+          <input type="email" [value]="currentEmail" readonly class="input-readonly" />
+          <span class="field-hint">🔐 El correo no puede modificarse</span>
         </div>
-        <div class="field">
-          <label>Provincia</label>
-          <input type="text" formControlName="province" />
-        </div>
-        <div class="field">
-          <label>Ciudad</label>
-          <input type="text" formControlName="city" />
-        </div>
-        <div class="field">
-          <label>Dirección</label>
-          <input type="text" formControlName="address" />
-        </div>
-        <div class="field">
-          <label>Referencia</label>
-          <input type="text" formControlName="reference" />
-        </div>
-        <button type="submit" [disabled]="profileForm.invalid || loading()">
+        <button type="submit" class="btn-primary" [disabled]="personalForm.invalid || loading()">
           {{ loading() ? 'Guardando...' : 'Guardar cambios' }}
         </button>
       </form>
     </div>
+  }
 
+  <!-- Tab: Seguridad -->
+  @if (activeTab() === 'seguridad') {
     <div class="card">
       <h3>Cambiar contraseña</h3>
       <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
@@ -72,14 +82,88 @@
           <label>Contraseña actual</label>
           <input type="password" formControlName="currentPassword" />
         </div>
-        <div class="field">
-          <label>Nueva contraseña</label>
-          <input type="password" formControlName="newPassword" />
+        <div class="grid-2">
+          <div class="field">
+            <label>Nueva contraseña</label>
+            <input type="password" formControlName="newPassword" placeholder="Mínimo 6 caracteres" />
+          </div>
+          <div class="field">
+            <label>Confirmar contraseña</label>
+            <input type="password" formControlName="confirmPassword"
+              [class.input-error]="passwordMismatch" />
+            @if (passwordMismatch) {
+              <span class="field-error">Las contraseñas no coinciden</span>
+            }
+          </div>
         </div>
-        <button type="submit" [disabled]="passwordForm.invalid || loading()">
-          {{ loading() ? 'Actualizando...' : 'Cambiar contraseña' }}
+        <button type="submit" class="btn-primary"
+          [disabled]="passwordForm.invalid || loading()">
+          {{ loading() ? 'Actualizando...' : 'Actualizar contraseña' }}
+        </button>
+      </form>
+
+      <!-- Danger Zone -->
+      <div class="danger-zone">
+        <div class="danger-header">
+          <span class="danger-icon">⚠️</span>
+          <div>
+            <p class="danger-title">Eliminar cuenta</p>
+            <p class="danger-desc">Esta acción es permanente y no se puede deshacer.</p>
+          </div>
+        </div>
+
+        @if (!showDeleteConfirm()) {
+          <button class="btn-danger-outline" (click)="showDeleteConfirm.set(true)">
+            Eliminar mi cuenta
+          </button>
+        } @else {
+          <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()" class="delete-form">
+            <div class="field">
+              <label>Confirma tu contraseña para continuar</label>
+              <input type="password" formControlName="password" placeholder="Tu contraseña actual" />
+            </div>
+            <div class="delete-actions">
+              <button type="button" class="btn-cancel" (click)="showDeleteConfirm.set(false)">
+                Cancelar
+              </button>
+              <button type="submit" class="btn-danger" [disabled]="deleteForm.invalid || loading()">
+                {{ loading() ? 'Eliminando...' : 'Sí, eliminar cuenta' }}
+              </button>
+            </div>
+          </form>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Tab: Direcciones -->
+  @if (activeTab() === 'direcciones') {
+    <div class="card">
+      <h3>Dirección de envío</h3>
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()">
+        <div class="grid-2">
+          <div class="field">
+            <label>Provincia</label>
+            <input type="text" formControlName="province" />
+          </div>
+          <div class="field">
+            <label>Ciudad</label>
+            <input type="text" formControlName="city" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Dirección</label>
+          <input type="text" formControlName="address" placeholder="Calle, número, sector" />
+        </div>
+        <div class="field">
+          <label>Referencia</label>
+          <input type="text" formControlName="reference"
+            placeholder="Ej: frente al parque, casa azul..." />
+        </div>
+        <button type="submit" class="btn-primary" [disabled]="loading()">
+          {{ loading() ? 'Guardando...' : 'Guardar dirección' }}
         </button>
       </form>
     </div>
-  </div>
+  }
 </div>
