@@ -11,28 +11,39 @@ import { FilterProductDto } from './dto/filter-product.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(filters: FilterProductDto) {
-    const { categoryId, minPrice, maxPrice, search } = filters;
+async findAll(filters: FilterProductDto) {
+  const { categoryId, minPrice, maxPrice, search, page = 1, limit = 12, orderBy = 'newest' } = filters;
 
-    const products = await this.prisma.product.findMany({
-      where: {
-        isActive: true,
-        ...(categoryId && { categoryId }),
-        ...(search && {
-          name: { contains: search, mode: 'insensitive' },
-        }),
-        ...(minPrice !== undefined || maxPrice !== undefined
-          ? {
-              price: {
-                ...(minPrice !== undefined && { gte: minPrice }),
-                ...(maxPrice !== undefined && { lte: maxPrice }),
-              },
-            }
-          : {}),
+  const skip = (page - 1) * limit;
+
+  const where: any = {
+    isActive: true,
+    ...(categoryId && { categoryId }),
+    ...(search && { name: { contains: search, mode: 'insensitive' } }),
+    ...(minPrice !== undefined || maxPrice !== undefined ? {
+      price: {
+        ...(minPrice !== undefined && { gte: minPrice }),
+        ...(maxPrice !== undefined && { lte: maxPrice }),
       },
+    } : {}),
+  };
+
+  const orderByMap: any = {
+    newest: { createdAt: 'desc' },
+    oldest: { createdAt: 'asc' },
+    price_asc: { price: 'asc' },
+    price_desc: { price: 'desc' },
+    name_asc: { name: 'asc' },
+  };
+
+  const [products, total] = await Promise.all([
+    this.prisma.product.findMany({
+      where,
+      skip,
+      take: limit,
       include: {
         category: true,
-        images: { orderBy: { order: 'asc' } },
+        images: { orderBy: { order: 'asc' }, take: 1 },
         promotions: {
           where: {
             isActive: true,
@@ -41,11 +52,19 @@ export class ProductsService {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
-    });
+      orderBy: orderByMap[orderBy] || { createdAt: 'desc' },
+    }),
+    this.prisma.product.count({ where }),
+  ]);
 
-    return products.map((p) => this.applyPromotion(p));
-  }
+  return {
+    data: products.map((p) => this.applyPromotion(p)),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
 
 async findBySlug(slug: string) {
   const product = await this.prisma.product.findFirst({
