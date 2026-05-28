@@ -34,6 +34,17 @@
     </aside>
 
     <div class="products-area">
+      <div class="products-toolbar">
+        <span class="results-count">{{ total() }} productos encontrados</span>
+        <select [(ngModel)]="orderBy" (change)="applyFilters()" class="order-select">
+          <option value="newest">Más recientes</option>
+          <option value="oldest">Más antiguos</option>
+          <option value="price_asc">Precio: menor a mayor</option>
+          <option value="price_desc">Precio: mayor a menor</option>
+          <option value="name_asc">Nombre A-Z</option>
+        </select>
+      </div>
+
       @if (loading()) {
         <div class="loading">Cargando productos...</div>
       } @else if (products().length === 0) {
@@ -67,6 +78,46 @@
             </div>
           }
         </div>
+
+        @if (totalPages() > 1) {
+          <div class="pagination">
+            <button
+              (click)="goToPage(currentPage() - 1)"
+              [disabled]="currentPage() === 1"
+              class="page-btn">
+              ←
+            </button>
+
+            @if (getPages()[0] > 1) {
+              <button (click)="goToPage(1)" class="page-btn">1</button>
+              @if (getPages()[0] > 2) {
+                <span class="page-dots">...</span>
+              }
+            }
+
+            @for (page of getPages(); track page) {
+              <button
+                (click)="goToPage(page)"
+                [class]="page === currentPage() ? 'page-btn active' : 'page-btn'">
+                {{ page }}
+              </button>
+            }
+
+            @if (getPages()[getPages().length - 1] < totalPages()) {
+              @if (getPages()[getPages().length - 1] < totalPages() - 1) {
+                <span class="page-dots">...</span>
+              }
+              <button (click)="goToPage(totalPages())" class="page-btn">{{ totalPages() }}</button>
+            }
+
+            <button
+              (click)="goToPage(currentPage() + 1)"
+              [disabled]="currentPage() === totalPages()"
+              class="page-btn">
+              →
+            </button>
+          </div>
+        }
       }
     </div>
   </div>

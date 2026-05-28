@@ -23,8 +23,8 @@ export class Home implements OnInit {
   ngOnInit() {
     this.categoriesService.getAll().subscribe((cats) => this.categories.set(cats));
     this.productsService.getAll().subscribe({
-      next: (products) => {
-        this.products.set(products.slice(0, 8));
+      next: (res) => {
+        this.products.set(res.data.slice(0, 8));
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
