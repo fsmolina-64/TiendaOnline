@@ -73,3 +73,7 @@ h3 { color: #1a1a2e; margin: 0 0 1.5rem; }
 }
 .btn-confirm:hover:not(:disabled) { background: #219a52; }
 .btn-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+.address-label { font-weight: 600; color: #1a1a2e; margin-bottom: 0.3rem; }
+.reference { color: #888; font-size: 0.85rem; }
+.postal { color: #888; font-size: 0.85rem; }
+.link-change { display: inline-block; margin-top: 0.8rem; color: #e94560; font-size: 0.85rem; }

@@ -36,18 +36,23 @@
 
       <div class="delivery-info">
         <h3>Dirección de entrega</h3>
-        @if (auth.currentUser()?.address) {
+
+        @if (defaultAddress()) {
           <div class="address-card">
-            <p>{{ auth.currentUser()?.name }}</p>
-            <p>{{ auth.currentUser()?.address }}</p>
-            <p>{{ auth.currentUser()?.city }}, {{ auth.currentUser()?.province }}</p>
-            @if (auth.currentUser()?.reference) {
-              <p class="reference">Ref: {{ auth.currentUser()?.reference }}</p>
+            <p class="address-label">{{ defaultAddress()!.label }}</p>
+            <p>{{ defaultAddress()!.address }}</p>
+            <p>{{ defaultAddress()!.city }}, {{ defaultAddress()!.province }}</p>
+            @if (defaultAddress()!.reference) {
+              <p class="reference">Ref: {{ defaultAddress()!.reference }}</p>
+            }
+            @if (defaultAddress()!.postalCode) {
+              <p class="postal">CP: {{ defaultAddress()!.postalCode }}</p>
             }
           </div>
+          <a href="/profile" class="link-change">Cambiar dirección</a>
         } @else {
           <div class="no-address">
-            <p>No tienes una dirección guardada.</p>
+            <p>⚠️ No tienes una dirección guardada.</p>
             <a href="/profile">Agregar dirección en tu perfil</a>
           </div>
         }
@@ -56,19 +61,12 @@
           <div class="error-msg">{{ error() }}</div>
         }
 
-<button
-  class="btn-confirm"
-  (click)="placeOrder()"
-  [disabled]="processing() || !auth.currentUser()?.address">
-  {{ processing() ? 'Procesando...' : '✓ Confirmar y pagar' }}
-</button>
-
-@if (!auth.currentUser()?.address) {
-  <div class="no-address">
-    <p>⚠️ Necesitas agregar una dirección antes de continuar.</p>
-    <a href="/profile">Ir a mi perfil</a>
-  </div>
-}
+        <button
+          class="btn-confirm"
+          (click)="placeOrder()"
+          [disabled]="processing() || !defaultAddress()">
+          {{ processing() ? 'Procesando...' : '✓ Confirmar y pagar' }}
+        </button>
       </div>
     </div>
   }
