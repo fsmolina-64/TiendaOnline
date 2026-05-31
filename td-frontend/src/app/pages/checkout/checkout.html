@@ -1,73 +1,116 @@
 <div class="container">
-  <h1>Confirmar Pedido</h1>
-
   @if (loading()) {
-    <div class="loading">Cargando...</div>
-  } @else if (cart()) {
-    <div class="checkout-layout">
-      <div class="order-summary">
-        <h3>Resumen del pedido</h3>
+  <div class="loading">Cargando...</div>
+  } @else {
+  <div class="checkout-layout">
 
-        @for (item of cart()!.items; track item.id) {
-          <div class="order-item">
-            <div class="item-info">
-              <span class="item-name">{{ item.product.name }}</span>
-              <span class="item-qty">x{{ item.quantity }}</span>
-            </div>
-            <span class="item-total">${{ item.lineTotal }}</span>
-          </div>
+    <div class="main-col">
+      <h1>Finalizar compra</h1>
+
+      <div class="section-card">
+        <h3>📍 Dirección de entrega</h3>
+        @if (defaultAddress()) {
+        <p class="address-line">{{ defaultAddress()!.address }}</p>
+        <p class="address-line">{{ defaultAddress()!.city }}, {{ defaultAddress()!.province }}</p>
+        @if (defaultAddress()!.reference) {
+        <p class="address-ref">Ref: {{ defaultAddress()!.reference }}</p>
         }
+        } @else {
+        <p class="no-address">Sin dirección registrada. <a routerLink="/profile">Agregar en perfil</a></p>
+        }
+      </div>
 
-        <div class="totals">
-          <div class="total-row">
-            <span>Subtotal</span>
-            <span>${{ cart()!.subtotal }}</span>
+      <div class="section-card">
+        <h3>💳 Método de pago</h3>
+        <div class="payment-options">
+          <label [class]="'payment-option' + (paymentMethod === 'CARD' ? ' selected' : '')">
+            <input type="radio" name="paymentMethod" value="CARD" [(ngModel)]="paymentMethod" />
+            <span class="option-icon">💳</span>
+            <span class="option-label">Tarjeta de crédito/débito</span>
+          </label>
+          <label [class]="'payment-option' + (paymentMethod === 'TRANSFER' ? ' selected' : '')">
+            <input type="radio" name="paymentMethod" value="TRANSFER" [(ngModel)]="paymentMethod" />
+            <span class="option-icon">🏦</span>
+            <span class="option-label">Transferencia bancaria</span>
+          </label>
+          <label [class]="'payment-option' + (paymentMethod === 'CASH' ? ' selected' : '')">
+            <input type="radio" name="paymentMethod" value="CASH" [(ngModel)]="paymentMethod" />
+            <span class="option-icon">💵</span>
+            <span class="option-label">Efectivo contra entrega</span>
+          </label>
+        </div>
+
+        @if (paymentMethod === 'CARD') {
+        <div class="card-form">
+          <div class="form-group">
+            <label>Tipo de tarjeta</label>
+            <select [(ngModel)]="cardType">
+              <option value="Visa">Visa</option>
+              <option value="Mastercard">Mastercard</option>
+              <option value="Amex">American Express</option>
+            </select>
           </div>
-          <div class="total-row">
-            <span>IVA (15%)</span>
-            <span>${{ cart()!.tax }}</span>
+          <div class="form-group">
+            <label>Número de tarjeta</label>
+            <input type="text" [(ngModel)]="cardNumber" placeholder="1234 5678 9012 3456" maxlength="16" />
           </div>
-          <div class="total-row final">
-            <span>Total a pagar</span>
-            <span>${{ cart()!.total }}</span>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Expiración</label>
+              <input type="text" [(ngModel)]="cardExpiry" placeholder="MM/YY" maxlength="5" />
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input type="text" [(ngModel)]="cardCvv" placeholder="123" maxlength="4" />
+            </div>
           </div>
         </div>
+        }
+
+        @if (paymentMethod === 'TRANSFER') {
+        <div class="transfer-info">
+          <p class="transfer-note">⚠️ Tu pedido quedará <strong>pendiente</strong> hasta confirmar el pago.</p>
+          <div class="bank-data">
+            <div class="bank-row"><span>Banco</span><strong>{{ bankInfo.bank }}</strong></div>
+            <div class="bank-row"><span>Tipo</span><strong>{{ bankInfo.type }}</strong></div>
+            <div class="bank-row"><span>N° Cuenta</span><strong>{{ bankInfo.account }}</strong></div>
+            <div class="bank-row"><span>Titular</span><strong>{{ bankInfo.holder }}</strong></div>
+          </div>
+        </div>
+        }
+
+        @if (paymentMethod === 'CASH') {
+        <div class="cash-info">
+          <p>💵 Pagas al recibir. El pedido quedará <strong>pendiente</strong> hasta la entrega.</p>
+        </div>
+        }
       </div>
 
-      <div class="delivery-info">
-        <h3>Dirección de entrega</h3>
+      @if (error()) {
+      <div class="error-msg">{{ error() }}</div>
+      }
 
-        @if (defaultAddress()) {
-          <div class="address-card">
-            <p class="address-label">{{ defaultAddress()!.label }}</p>
-            <p>{{ defaultAddress()!.address }}</p>
-            <p>{{ defaultAddress()!.city }}, {{ defaultAddress()!.province }}</p>
-            @if (defaultAddress()!.reference) {
-              <p class="reference">Ref: {{ defaultAddress()!.reference }}</p>
-            }
-            @if (defaultAddress()!.postalCode) {
-              <p class="postal">CP: {{ defaultAddress()!.postalCode }}</p>
-            }
-          </div>
-          <a href="/profile" class="link-change">Cambiar dirección</a>
-        } @else {
-          <div class="no-address">
-            <p>⚠️ No tienes una dirección guardada.</p>
-            <a href="/profile">Agregar dirección en tu perfil</a>
-          </div>
+      <button (click)="placeOrder()" [disabled]="processing() || !isCardValid()" class="btn-place-order">
+        {{ processing() ? 'Procesando...' : 'Confirmar pedido' }}
+      </button>
+    </div>
+
+    <div class="summary-col">
+      <div class="summary-card">
+        <h3>Resumen del pedido</h3>
+        @for (item of cart()!.items; track item.id) {
+        <div class="summary-item">
+          <span class="item-name">{{ item.product.name }} x{{ item.quantity }}</span>
+          <span class="item-price">${{ item.finalPrice * item.quantity }}</span>
+        </div>
         }
-
-        @if (error()) {
-          <div class="error-msg">{{ error() }}</div>
-        }
-
-        <button
-          class="btn-confirm"
-          (click)="placeOrder()"
-          [disabled]="processing() || !defaultAddress()">
-          {{ processing() ? 'Procesando...' : '✓ Confirmar y pagar' }}
-        </button>
+        <hr class="summary-divider" />
+        <div class="summary-row"><span>Subtotal</span><span>${{ cart()!.subtotal }}</span></div>
+        <div class="summary-row"><span>IVA (15%)</span><span>${{ cart()!.tax }}</span></div>
+        <div class="summary-row total"><span>Total</span><span>${{ cart()!.total }}</span></div>
       </div>
     </div>
+
+  </div>
   }
 </div>
