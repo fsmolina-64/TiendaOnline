@@ -11,7 +11,8 @@ import { CommonModule } from '@angular/common';
   template: `
     <nav class="navbar">
       <div class="navbar-brand">
-        <a routerLink="/home">🛍️ TiendaOnline</a>
+        <a routerLink="/home">🛍️ FeliMarket</a>
+        <p>Tu tienda online de confianza</p>
       </div>
 
       <div class="navbar-links">
