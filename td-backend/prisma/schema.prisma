@@ -189,6 +189,7 @@ model Order {
   city      String?
   address   String?
   reference String?
+  paymentMethod String @default("CARD")
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

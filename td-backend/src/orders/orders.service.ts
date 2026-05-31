@@ -7,17 +7,16 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CartService } from '../cart/cart.service';
 import { UpdateStatusDto } from './dto/update-status.dto';
-
-const IVA = 0.15;
+import { CheckoutDto, PaymentMethod } from './dto/checkout.dto';
 
 @Injectable()
 export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private cartService: CartService,
-  ) {}
+  ) { }
 
-  async checkout(userId: string) {
+  async checkout(userId: string, dto: CheckoutDto) {
     const cart = await this.cartService.getCart(userId);
 
     if (cart.items.length === 0) {
@@ -34,7 +33,10 @@ export class OrdersService {
 
     const deliveryAddress =
       defaultAddress ||
-      (await this.prisma.address.findFirst({ where: { userId }, orderBy: { createdAt: 'asc' } }));
+      (await this.prisma.address.findFirst({
+        where: { userId },
+        orderBy: { createdAt: 'asc' },
+      }));
 
     for (const item of cart.items) {
       const product = await this.prisma.product.findUnique({
@@ -55,19 +57,20 @@ export class OrdersService {
     }
 
     const order = await this.prisma.$transaction(async (tx) => {
-  const newOrder = await tx.order.create({
-    data: {
-      userId,
-      status: 'PAID',
-      subtotal: cart.subtotal,
-      tax: cart.tax,
-      total: cart.total,
-      province: deliveryAddress?.province || null,
-      city: deliveryAddress?.city || null,
-      address: deliveryAddress?.address || null,
-      reference: deliveryAddress?.reference || null,
-    },
-  });
+      const newOrder = await tx.order.create({
+        data: {
+          userId,
+          status: dto.paymentMethod === PaymentMethod.CARD ? 'PAID' : 'PENDING',
+          paymentMethod: dto.paymentMethod,
+          subtotal: cart.subtotal,
+          tax: cart.tax,
+          total: cart.total,
+          province: deliveryAddress?.province || null,
+          city: deliveryAddress?.city || null,
+          address: deliveryAddress?.address || null,
+          reference: deliveryAddress?.reference || null,
+        },
+      });
 
       for (const item of cart.items) {
         await tx.orderItem.create({
@@ -96,17 +99,17 @@ export class OrdersService {
         });
       }
 
-      const invoiceNumber = `INV-${Date.now()}`;
-
-      await tx.invoice.create({
-        data: {
-          orderId: newOrder.id,
-          number: invoiceNumber,
-          subtotal: cart.subtotal,
-          tax: cart.tax,
-          total: cart.total,
-        },
-      });
+      if (dto.paymentMethod === PaymentMethod.CARD) {
+        await tx.invoice.create({
+          data: {
+            orderId: newOrder.id,
+            number: `INV-${Date.now()}`,
+            subtotal: cart.subtotal,
+            tax: cart.tax,
+            total: cart.total,
+          },
+        });
+      }
 
       return newOrder;
     });
@@ -245,10 +248,7 @@ export class OrdersService {
 
         await tx.order.update({
           where: { id: orderId },
-          data: {
-            status: dto.status,
-            cancelReason: dto.cancelReason,
-          },
+          data: { status: dto.status, cancelReason: dto.cancelReason },
         });
       });
 
