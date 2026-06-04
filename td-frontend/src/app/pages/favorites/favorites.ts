@@ -1,7 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { forkJoin } from 'rxjs';
 import { FavoritesService } from '../../core/services/favorites.service';
+import { CartService } from '../../core/services/cart.service';
+import { ProductsService } from '../../core/services/products.service';
 
 @Component({
   selector: 'app-favorites',
@@ -12,14 +15,25 @@ import { FavoritesService } from '../../core/services/favorites.service';
 })
 export class Favorites implements OnInit {
   favoritesService = inject(FavoritesService);
-  favorites = signal<any[]>([]);
-  loading = signal(true);
+  cartService = inject(CartService);
+  productsService = inject(ProductsService);
 
-  ngOnInit() { this.loadFavorites(); }
+  favorites = signal<any[]>([]);
+  related = signal<any[]>([]);
+  loading = signal(true);
+  addingCart = signal<string | null>(null);
+
+  ngOnInit() {
+    this.loadFavorites();
+  }
 
   loadFavorites() {
     this.favoritesService.getAll().subscribe({
-      next: (favs) => { this.favorites.set(favs); this.loading.set(false); },
+      next: (favs) => {
+        this.favorites.set(favs);
+        this.loading.set(false);
+        this.loadRelated();
+      },
       error: () => this.loading.set(false),
     });
   }
@@ -27,6 +41,41 @@ export class Favorites implements OnInit {
   remove(productId: string) {
     this.favoritesService.remove(productId).subscribe({
       next: () => this.loadFavorites(),
+    });
+  }
+
+  addToCart(productId: string) {
+    this.addingCart.set(productId);
+    this.cartService.addItem(productId, 1).subscribe({
+      next: () => this.addingCart.set(null),
+      error: () => this.addingCart.set(null)
+    });
+  }
+
+  loadRelated() {
+    const favs = this.favorites();
+    if (favs.length === 0) {
+      this.related.set([]);
+      return;
+    }
+
+    const limit = favs.slice(0, 3);
+    const reqs = limit.map(f => this.productsService.getBySlug(f.product.slug));
+
+    forkJoin(reqs).subscribe({
+      next: (res) => {
+        const all = res.flatMap(p => (p as any).related || []);
+        const ids = new Set(favs.map(f => f.productId));
+        const unique = new Map();
+
+        all.forEach(r => {
+          if (!ids.has(r.id) && !unique.has(r.id)) {
+            unique.set(r.id, r);
+          }
+        });
+
+        this.related.set(Array.from(unique.values()).slice(0, 10));
+      }
     });
   }
 }
