@@ -1,111 +1,109 @@
 <div class="container">
   @if (loading()) {
-    <div class="loading">Cargando producto...</div>
+  <div class="loading">Cargando producto...</div>
   } @else if (!product()) {
-    <div class="not-found">
-      <h2>Producto no encontrado</h2>
-      <a routerLink="/catalog">Volver al catálogo</a>
-    </div>
+  <div class="not-found">
+    <h2>Producto no encontrado</h2>
+    <a routerLink="/catalog" class="btn-outline">Volver al catálogo</a>
+  </div>
   } @else {
-    <div class="product-layout">
-      <div class="gallery">
-        <div class="main-image">
-          @if (product()!.images.length > 0) {
-            <img
-              [src]="product()!.images[selectedImage()].url"
-              [alt]="product()!.name"
-            />
-          } @else {
-            <div class="no-image">Sin imagen</div>
-          }
-          @if (product()!.hasPromotion) {
-            <span class="badge-discount">-{{ product()!.discountPct }}% OFF</span>
-          }
-        </div>
-        @if (product()!.images.length > 1) {
-          <div class="thumbnails">
-            @for (img of product()!.images; track img.id; let i = $index) {
-              <img
-                [src]="img.url"
-                [alt]="product()!.name"
-                [class.active]="selectedImage() === i"
-                (click)="selectedImage.set(i)"
-              />
-            }
-          </div>
+  <div class="product-layout">
+    <div class="gallery-section">
+      <div class="main-image">
+        @if (product()!.images.length > 0) {
+        <img [src]="product()!.images[selectedImage()].url" [alt]="product()!.name" />
+        } @else {
+        <div class="no-image">Sin imagen</div>
+        }
+        @if (product()!.hasPromotion) {
+        <span class="badge-discount">-{{ product()!.discountPct }}% OFF</span>
         }
       </div>
 
-      <div class="product-info">
+      @if (product()!.images.length > 1) {
+      <div class="thumbnails">
+        @for (img of product()!.images; track img.id; let i = $index) {
+        <div class="thumb-wrapper" [class.active]="selectedImage() === i" (click)="selectedImage.set(i)">
+          <img [src]="img.url" [alt]="product()!.name" />
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="info-section">
+      <div class="info-card">
         <p class="category-tag">{{ product()!.category.name }}</p>
         <h1>{{ product()!.name }}</h1>
+
         <div class="prices">
           @if (product()!.hasPromotion) {
-            <span class="original-price">${{ product()!.originalPrice }}</span>
-            <span class="discount-badge">-{{ product()!.discountPct }}%</span>
+          <span class="original-price">${{ product()!.originalPrice }}</span>
+          <span class="discount-badge">-{{ product()!.discountPct }}%</span>
           }
           <span class="final-price">${{ product()!.finalPrice }}</span>
         </div>
+
         <p class="description">{{ product()!.description }}</p>
+
         <div class="stock-info">
           @if (product()!.stock > 0) {
-            <span class="in-stock">✓ En stock ({{ product()!.stock }} disponibles)</span>
+          <span class="in-stock">✓ En stock ({{ product()!.stock }} disponibles)</span>
           } @else {
-            <span class="out-stock">✗ Sin stock</span>
+          <span class="out-stock">✗ Sin stock</span>
           }
         </div>
+
         @if (product()!.stock > 0) {
+        <div class="action-row">
           <div class="quantity-selector">
             <button (click)="decreaseQty()">−</button>
             <span>{{ quantity() }}</span>
             <button (click)="increaseQty()">+</button>
           </div>
-          @if (auth.isLoggedIn()) {
-            <button class="btn-add-cart" (click)="addToCart()" [disabled]="addedToCart()">
-              {{ addedToCart() ? '✓ Agregado al carrito' : '🛒 Agregar al carrito' }}
-            </button>
-          } @else {
-            <a routerLink="/auth/login" class="btn-login">Inicia sesión para comprar</a>
-          }
-        }
+        </div>
+
         @if (auth.isLoggedIn()) {
-          <button
-            class="btn-favorite"
-            (click)="isFavorite() ? removeFromFavorites() : addToFavorites()">
-            {{ isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
-          </button>
+        <button class="btn-add-cart" (click)="addToCart()" [disabled]="addedToCart()">
+          {{ addedToCart() ? '✓ Agregado al carrito' : '🛒 Agregar al carrito' }}
+        </button>
+        } @else {
+        <a routerLink="/auth/login" class="btn-login">Inicia sesión para comprar</a>
+        }
+        }
+
+        @if (auth.isLoggedIn()) {
+        <button class="btn-favorite" (click)="isFavorite() ? removeFromFavorites() : addToFavorites()">
+          {{ isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
+        </button>
         }
       </div>
     </div>
-    @if (related().length > 0) {
+  </div>
+
+  @if (related().length > 0) {
   <div class="related-section">
     <h2>Productos relacionados</h2>
     <div class="related-grid">
       @for (p of related(); track p.id) {
-        <a [routerLink]="['/products', p.slug]" class="related-card">
-          <div class="related-image">
-            @if (p.images.length > 0) {
-              <img [src]="p.images[0].url" [alt]="p.name" />
-            } @else {
-              <div class="no-image">Sin imagen</div>
-            }
-            @if (p.hasPromotion) {
-              <span class="badge-discount">-{{ p.discountPct }}%</span>
-            }
+      <a [routerLink]="['/products', p.slug]" class="related-card">
+        <div class="related-image">
+          @if (p.images.length > 0) {
+          <img [src]="p.images[0].url" [alt]="p.name" />
+          } @else {
+          <div class="no-image">Sin imagen</div>
+          }
+        </div>
+        <div class="related-info">
+          <h3>{{ p.name }}</h3>
+          <div class="prices">
+            <span class="final-price">${{ p.finalPrice }}</span>
           </div>
-          <div class="related-info">
-            <h3>{{ p.name }}</h3>
-            <div class="prices">
-              @if (p.hasPromotion) {
-                <span class="original-price">${{ p.originalPrice }}</span>
-              }
-              <span class="final-price">${{ p.finalPrice }}</span>
-            </div>
-          </div>
-        </a>
+        </div>
+      </a>
       }
     </div>
   </div>
-}
+  }
   }
 </div>

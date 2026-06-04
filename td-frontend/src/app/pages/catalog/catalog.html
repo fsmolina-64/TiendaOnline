@@ -1,5 +1,8 @@
 <div class="container">
-  <h1>Catálogo</h1>
+  <div class="catalog-header">
+    <h1>Catálogo</h1>
+    <p>Encuentra lo que buscas con nuestros filtros avanzados.</p>
+  </div>
 
   <div class="layout">
     <aside class="filters">
@@ -7,27 +10,29 @@
 
       <div class="filter-group">
         <label>Categoría</label>
-        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
-          <option value="">Todas</option>
-          @for (cat of categories(); track cat.id) {
+        <div class="custom-select-wrapper">
+          <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+            <option value="">Todas las categorías</option>
+            @for (cat of categories(); track cat.id) {
             <option [value]="cat.id">{{ cat.name }}</option>
-          }
-        </select>
+            }
+          </select>
+        </div>
       </div>
 
-      <div class="filter-group">
-        <label>Precio mínimo</label>
-        <input type="number" [(ngModel)]="minPrice" placeholder="0" (change)="applyFilters()" />
-      </div>
-
-      <div class="filter-group">
-        <label>Precio máximo</label>
-        <input type="number" [(ngModel)]="maxPrice" placeholder="9999" (change)="applyFilters()" />
+      <div class="filter-group price-range">
+        <label>Rango de Precio</label>
+        <div class="price-inputs">
+          <input type="number" [(ngModel)]="minPrice" placeholder="Mín ($)" (change)="applyFilters()" />
+          <span class="separator">-</span>
+          <input type="number" [(ngModel)]="maxPrice" placeholder="Máx ($)" (change)="applyFilters()" />
+        </div>
       </div>
 
       <div class="filter-group">
         <label>Buscar</label>
-        <input type="text" [(ngModel)]="search" placeholder="Nombre del producto" (input)="applyFilters()" />
+        <input class="search-input" type="text" [(ngModel)]="search" placeholder="Ej: iPhone, Gallinas..."
+          (input)="applyFilters()" />
       </div>
 
       <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
@@ -46,79 +51,68 @@
       </div>
 
       @if (loading()) {
-        <div class="loading">Cargando productos...</div>
+      <div class="loading">
+        <div class="spinner"></div>
+        Cargando catálogo...
+      </div>
       } @else if (products().length === 0) {
-        <div class="empty">No se encontraron productos</div>
+      <div class="empty">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron productos</h3>
+        <p>Intenta ajustar o limpiar los filtros de búsqueda.</p>
+      </div>
       } @else {
-        <div class="products-grid">
-          @for (product of products(); track product.id) {
-            <div class="product-card">
-              <a [routerLink]="['/products', product.slug]">
-                <div class="product-image">
-                  @if (product.images.length > 0) {
-                    <img [src]="product.images[0].url" [alt]="product.name" />
-                  } @else {
-                    <div class="no-image">Sin imagen</div>
-                  }
-                  @if (product.hasPromotion) {
-                    <span class="badge-discount">-{{ product.discountPct }}%</span>
-                  }
-                </div>
-                <div class="product-info">
-                  <h3>{{ product.name }}</h3>
-                  <p class="category">{{ product.category.name }}</p>
-                  <div class="prices">
-                    @if (product.hasPromotion) {
-                      <span class="original-price">${{ product.originalPrice }}</span>
-                    }
-                    <span class="final-price">${{ product.finalPrice }}</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-          }
-        </div>
-
-        @if (totalPages() > 1) {
-          <div class="pagination">
-            <button
-              (click)="goToPage(currentPage() - 1)"
-              [disabled]="currentPage() === 1"
-              class="page-btn">
-              ←
-            </button>
-
-            @if (getPages()[0] > 1) {
-              <button (click)="goToPage(1)" class="page-btn">1</button>
-              @if (getPages()[0] > 2) {
-                <span class="page-dots">...</span>
-              }
+      <div class="products-grid">
+        @for (product of products(); track product.id) {
+        <div class="product-card" (click)="openDrawer(product.slug)">
+          <div class="product-image">
+            @if (product.images.length > 0) {
+            <img [src]="product.images[0].url" [alt]="product.name" />
+            } @else {
+            <div class="no-image">Sin imagen</div>
             }
-
-            @for (page of getPages(); track page) {
-              <button
-                (click)="goToPage(page)"
-                [class]="page === currentPage() ? 'page-btn active' : 'page-btn'">
-                {{ page }}
-              </button>
+            @if (product.hasPromotion) {
+            <span class="badge-discount">-{{ product.discountPct }}%</span>
             }
-
-            @if (getPages()[getPages().length - 1] < totalPages()) {
-              @if (getPages()[getPages().length - 1] < totalPages() - 1) {
-                <span class="page-dots">...</span>
-              }
-              <button (click)="goToPage(totalPages())" class="page-btn">{{ totalPages() }}</button>
-            }
-
-            <button
-              (click)="goToPage(currentPage() + 1)"
-              [disabled]="currentPage() === totalPages()"
-              class="page-btn">
-              →
-            </button>
           </div>
+          <div class="product-info">
+            <p class="category">{{ product.category.name }}</p>
+            <h3>{{ product.name }}</h3>
+            <div class="prices">
+              @if (product.hasPromotion) {
+              <span class="original-price">${{ product.originalPrice }}</span>
+              }
+              <span class="final-price">${{ product.finalPrice }}</span>
+            </div>
+          </div>
+        </div>
         }
+      </div>
+
+      @if (totalPages() > 1) {
+      <div class="pagination">
+        <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1" class="page-btn">←</button>
+        @if (getPages()[0] > 1) {
+        <button (click)="goToPage(1)" class="page-btn">1</button>
+        @if (getPages()[0] > 2) { <span class="page-dots">...</span> }
+        }
+        @for (page of getPages(); track page) {
+        <button (click)="goToPage(page)" [class.active]="page === currentPage()" class="page-btn">{{ page }}</button>
+        }
+        @if (getPages()[getPages().length - 1] < totalPages()) { @if (getPages()[getPages().length - 1] < totalPages() -
+          1) { <span class="page-dots">...</span> }
+          <button (click)="goToPage(totalPages())" class="page-btn">{{ totalPages() }}</button>
+          }
+          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+            class="page-btn">→</button>
+      </div>
+      }
       }
     </div>
   </div>
 </div>
+
+@if (selectedProductSlug()) {
+<app-product-drawer [productSlug]="selectedProductSlug()" (close)="closeDrawer()">
+</app-product-drawer>
+}
