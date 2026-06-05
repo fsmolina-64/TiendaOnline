@@ -15,15 +15,13 @@ import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private categoriesService: CategoriesService) {}
+  constructor(private categoriesService: CategoriesService) { }
 
-  // Público
   @Get()
   findAll() {
     return this.categoriesService.findAll();
   }
 
-  // Admin
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Get('admin')

@@ -10,7 +10,7 @@ const IVA = 0.15;
 
 @Injectable()
 export class CartService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getCart(userId: string) {
     const cart = await this.getOrCreateCart(userId);
@@ -159,7 +159,6 @@ export class CartService {
     return { message: 'Carrito vaciado' };
   }
 
-  // Obtiene el carrito del usuario o lo crea si no existe
   async getOrCreateCart(userId: string) {
     let cart = await this.prisma.cart.findUnique({
       where: { userId },

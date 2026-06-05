@@ -326,3 +326,36 @@
     padding: 1.2rem 0.8rem;
   }
 }
+
+.meta-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.meta-info .category {
+  margin-bottom: 0;
+}
+
+.stock-badge {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.in-stock {
+  background: #2a713f;
+  color: #1e8e3e;
+}
+
+.low-stock {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.out-stock {
+  background: #f8d7da;
+  color: #721c24;
+}

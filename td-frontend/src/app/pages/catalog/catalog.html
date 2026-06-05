@@ -1,7 +1,7 @@
 <div class="container">
   <div class="catalog-header">
     <h1>Catálogo</h1>
-    <p>Encuentra lo que buscas con nuestros filtros avanzados.</p>
+    <p>Encuentra los mejores productos.</p>
   </div>
 
   <div class="layout">
@@ -10,29 +10,27 @@
 
       <div class="filter-group">
         <label>Categoría</label>
-        <div class="custom-select-wrapper">
-          <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
-            <option value="">Todas las categorías</option>
-            @for (cat of categories(); track cat.id) {
-            <option [value]="cat.id">{{ cat.name }}</option>
-            }
-          </select>
-        </div>
+        <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+          <option value="">Todas</option>
+          @for (cat of categories(); track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
       </div>
 
-      <div class="filter-group price-range">
-        <label>Rango de Precio</label>
-        <div class="price-inputs">
-          <input type="number" [(ngModel)]="minPrice" placeholder="Mín ($)" (change)="applyFilters()" />
-          <span class="separator">-</span>
-          <input type="number" [(ngModel)]="maxPrice" placeholder="Máx ($)" (change)="applyFilters()" />
-        </div>
+      <div class="filter-group">
+        <label>Precio mínimo</label>
+        <input type="number" [(ngModel)]="minPrice" placeholder="0" (change)="applyFilters()" />
+      </div>
+
+      <div class="filter-group">
+        <label>Precio máximo</label>
+        <input type="number" [(ngModel)]="maxPrice" placeholder="9999" (change)="applyFilters()" />
       </div>
 
       <div class="filter-group">
         <label>Buscar</label>
-        <input class="search-input" type="text" [(ngModel)]="search" placeholder="Ej: iPhone, Gallinas..."
-          (input)="applyFilters()" />
+        <input type="text" [(ngModel)]="search" placeholder="Nombre del producto" (input)="applyFilters()" />
       </div>
 
       <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
@@ -40,7 +38,7 @@
 
     <div class="products-area">
       <div class="products-toolbar">
-        <span class="results-count">{{ total() }} productos encontrados</span>
+        <span class="results-count"><span class="highlight-num">{{ total() }}</span> productos encontrados</span>
         <select [(ngModel)]="orderBy" (change)="applyFilters()" class="order-select">
           <option value="newest">Más recientes</option>
           <option value="oldest">Más antiguos</option>
@@ -51,16 +49,9 @@
       </div>
 
       @if (loading()) {
-      <div class="loading">
-        <div class="spinner"></div>
-        Cargando catálogo...
-      </div>
+      <div class="loading">Cargando productos...</div>
       } @else if (products().length === 0) {
-      <div class="empty">
-        <div class="empty-icon">🔍</div>
-        <h3>No se encontraron productos</h3>
-        <p>Intenta ajustar o limpiar los filtros de búsqueda.</p>
-      </div>
+      <div class="empty">No se encontraron productos</div>
       } @else {
       <div class="products-grid">
         @for (product of products(); track product.id) {
@@ -76,13 +67,27 @@
             }
           </div>
           <div class="product-info">
-            <p class="category">{{ product.category.name }}</p>
-            <h3>{{ product.name }}</h3>
-            <div class="prices">
-              @if (product.hasPromotion) {
-              <span class="original-price">${{ product.originalPrice }}</span>
-              }
-              <span class="final-price">${{ product.finalPrice }}</span>
+            <div>
+              <h3>{{ product.name }}</h3>
+              <div class="meta-info">
+                <p class="category">{{ product.category.name }}</p>
+                @if (product.stock > 5) {
+                <span class="stock-badge in-stock">En stock</span>
+                } @else if (product.stock > 0) {
+                <span class="stock-badge low-stock">Poco stock</span>
+                } @else {
+                <span class="stock-badge out-stock">Agotado</span>
+                }
+              </div>
+            </div>
+            <div class="product-actions">
+              <div class="prices">
+                @if (product.hasPromotion) {
+                <span class="original-price">${{ product.originalPrice }}</span>
+                }
+                <span class="final-price">${{ product.finalPrice }}</span>
+              </div>
+              <button class="btn-card">Ver detalles</button>
             </div>
           </div>
         </div>
@@ -91,20 +96,32 @@
 
       @if (totalPages() > 1) {
       <div class="pagination">
-        <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1" class="page-btn">←</button>
+        <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1" class="page-btn">
+          ←
+        </button>
+
         @if (getPages()[0] > 1) {
         <button (click)="goToPage(1)" class="page-btn">1</button>
-        @if (getPages()[0] > 2) { <span class="page-dots">...</span> }
+        @if (getPages()[0] > 2) {
+        <span class="page-dots">...</span>
         }
+        }
+
         @for (page of getPages(); track page) {
-        <button (click)="goToPage(page)" [class.active]="page === currentPage()" class="page-btn">{{ page }}</button>
+        <button (click)="goToPage(page)" [class]="page === currentPage() ? 'page-btn active' : 'page-btn'">
+          {{ page }}
+        </button>
         }
+
         @if (getPages()[getPages().length - 1] < totalPages()) { @if (getPages()[getPages().length - 1] < totalPages() -
-          1) { <span class="page-dots">...</span> }
+          1) { <span class="page-dots">...</span>
+          }
           <button (click)="goToPage(totalPages())" class="page-btn">{{ totalPages() }}</button>
           }
-          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
-            class="page-btn">→</button>
+
+          <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()" class="page-btn">
+            →
+          </button>
       </div>
       }
       }

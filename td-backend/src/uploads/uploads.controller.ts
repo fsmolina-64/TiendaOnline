@@ -22,9 +22,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('uploads')
 export class UploadsController {
-  constructor(private uploadsService: UploadsService) {}
+  constructor(private uploadsService: UploadsService) { }
 
-  // Avatar — cualquier usuario autenticado
   @UseGuards(JwtAuthGuard)
   @Post('avatar')
   @UseInterceptors(
@@ -52,7 +51,6 @@ export class UploadsController {
     return this.uploadsService.uploadAvatar(req.user.id, file);
   }
 
-  // Productos — solo admin
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Post('products/:productId')

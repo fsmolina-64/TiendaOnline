@@ -83,7 +83,7 @@
 
   @if (related().length > 0) {
   <div class="related-section">
-    <h2>Productos relacionados</h2>
+    <h2>Podría interesarte</h2>
     <div class="related-grid">
       @for (p of related(); track p.id) {
       <a [routerLink]="['/products', p.slug]" class="related-card">
@@ -96,6 +96,16 @@
         </div>
         <div class="related-info">
           <h3>{{ p.name }}</h3>
+          <div class="meta-info">
+            <p class="category">{{ p.category.name }}</p>
+            @if (p.stock > 5) {
+            <span class="stock-badge in-stock">En stock</span>
+            } @else if (p.stock > 0) {
+            <span class="stock-badge low-stock">Poco stock</span>
+            } @else {
+            <span class="stock-badge out-stock">Agotado</span>
+            }
+          </div>
           <div class="prices">
             <span class="final-price">${{ p.finalPrice }}</span>
           </div>

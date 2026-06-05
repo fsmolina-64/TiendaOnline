@@ -10,7 +10,7 @@ import { ProductDrawer } from '../../shared/components/product-drawer/product-dr
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule, ProductDrawer],
+  imports: [CommonModule, FormsModule, ProductDrawer],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
@@ -85,6 +85,7 @@ export class Catalog implements OnInit {
     const total = this.totalPages();
     const current = this.currentPage();
     const pages: number[] = [];
+
     const start = Math.max(1, current - 2);
     const end = Math.min(total, current + 2);
 
@@ -97,6 +98,7 @@ export class Catalog implements OnInit {
   openDrawer(slug: string) {
     this.selectedProductSlug.set(slug);
   }
+
   closeDrawer() {
     this.selectedProductSlug.set(null);
   }
