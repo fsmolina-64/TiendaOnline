@@ -137,7 +137,7 @@ export class InvoicesService {
       .fontSize(9)
       .font('Helvetica')
       .fillColor('#aaa')
-      .text('Gracias por tu compra — TiendaOnline Ecuador', 50, 720, { align: 'center' });
+      .text('Gracias por tu compra — FeliMarket Ecuador', 50, 720, { align: 'center' });
 
     doc.end();
   }

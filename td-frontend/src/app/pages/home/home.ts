@@ -47,17 +47,28 @@ export class Home implements OnInit {
 
   getCategoryIcon(name: string): string {
     const text = name.toLowerCase();
-    if (text.includes('animal')) return '🐾';
-    if (text.includes('belleza')) return '💄';
-    if (text.includes('decor')) return '🖼️';
-    if (text.includes('deport')) return '⚽';
-    if (text.includes('electr') || text.includes('tecnol')) return '💻';
-    if (text.includes('herramienta')) return '🛠️';
+
+    if (text.includes('electr')) return '💻';
+    if (text.includes('moda')) return '👕';
     if (text.includes('hogar')) return '🏠';
-    if (text.includes('juguet')) return '🧸';
-    if (text.includes('moda') || text.includes('ropa')) return '👕';
     if (text.includes('muebl')) return '🛋️';
+    if (text.includes('deport')) return '⚽';
+    if (text.includes('belleza')) return '💄';
     if (text.includes('salud')) return '⚕️';
+    if (text.includes('herramienta')) return '🛠️';
+    if (text.includes('decor')) return '🖼️';
+    if (text.includes('mascota')) return '🐶';
+    if (text.includes('juguet')) return '🧸';
+    if (text.includes('videojuego')) return '🎮';
+    if (text.includes('libro')) return '📚';
+    if (text.includes('automotriz')) return '🚗';
+    if (text.includes('oficina')) return '🖨️';
+    if (text.includes('bebé') || text.includes('bebe')) return '👶';
+    if (text.includes('jardín') || text.includes('jardin')) return '🌱';
+    if (text.includes('cocina')) return '🍳';
+    if (text.includes('alimento')) return '🍫';
+    if (text.includes('accesorio')) return '⌚';
+
     return '📦';
   }
 }
