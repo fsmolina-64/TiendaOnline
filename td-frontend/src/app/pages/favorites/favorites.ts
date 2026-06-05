@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { CartService } from '../../core/services/cart.service';
 import { ProductsService } from '../../core/services/products.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-favorites',
@@ -17,6 +18,7 @@ export class Favorites implements OnInit {
   favoritesService = inject(FavoritesService);
   cartService = inject(CartService);
   productsService = inject(ProductsService);
+  toastService = inject(ToastService);
 
   favorites = signal<any[]>([]);
   related = signal<any[]>([]);
@@ -40,15 +42,16 @@ export class Favorites implements OnInit {
 
   remove(productId: string) {
     this.favoritesService.remove(productId).subscribe({
-      next: () => this.loadFavorites(),
+      next: () => { this.loadFavorites(); this.toastService.success('Eliminado de favoritos'); },
+      error: () => this.toastService.error('Error al eliminar favorito'),
     });
   }
 
   addToCart(productId: string) {
     this.addingCart.set(productId);
     this.cartService.addItem(productId, 1).subscribe({
-      next: () => this.addingCart.set(null),
-      error: () => this.addingCart.set(null)
+      next: () => { this.addingCart.set(null); this.toastService.success('Agregado al carrito'); },
+      error: () => { this.addingCart.set(null); this.toastService.error('Error al agregar al carrito'); },
     });
   }
 

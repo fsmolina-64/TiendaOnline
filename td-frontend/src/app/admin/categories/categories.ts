@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CategoriesService } from '../../core/services/categories.service';
 import { Category } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-admin-categories',
@@ -14,13 +15,13 @@ import { Category } from '../../core/models';
 export class Categories implements OnInit {
   categoriesService = inject(CategoriesService);
   fb = inject(FormBuilder);
+  toastService = inject(ToastService);
 
   categories = signal<Category[]>([]);
   loading = signal(true);
   showForm = signal(false);
   editingId = signal<string | null>(null);
-  successMsg = signal('');
-  errorMsg = signal('');
+
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
@@ -58,19 +59,16 @@ export class Categories implements OnInit {
       next: () => {
         this.showForm.set(false);
         this.loadCategories();
-        this.successMsg.set(id ? 'Categoría actualizada' : 'Categoría creada');
-        setTimeout(() => this.successMsg.set(''), 3000);
+        this.toastService.success(id ? 'Categoría actualizada' : 'Categoría creada');
       },
-      error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Error al guardar');
-        setTimeout(() => this.errorMsg.set(''), 3000);
-      },
+      error: (err) => this.toastService.error(err.error?.message || 'Error al guardar'),
     });
   }
 
   toggle(cat: Category) {
     this.categoriesService.toggle(cat.id).subscribe({
-      next: () => this.loadCategories(),
+      next: () => { this.loadCategories(); this.toastService.success(cat.isActive ? 'Categoría desactivada' : 'Categoría activada'); },
+      error: () => this.toastService.error('Error al cambiar estado'),
     });
   }
 }

@@ -4,8 +4,6 @@
     <button (click)="openCreate()" class="btn-primary">+ Nueva Promoción</button>
   </div>
 
-  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
-  @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
 
   @if (showForm()) {
     <div class="form-card">

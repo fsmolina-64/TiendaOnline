@@ -1,7 +1,7 @@
 <div class="container">
   <h1>Mis Pedidos</h1>
 
-  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+
 
   @if (cancellingId()) {
     <div class="modal-overlay">
@@ -13,9 +13,7 @@
           placeholder="Ej: Me arrepentí de la compra, encontré mejor precio, etc."
           rows="4">
         </textarea>
-        @if (errorMsg()) {
-          <div class="error-msg">{{ errorMsg() }}</div>
-        }
+
         <div class="modal-actions">
           <button (click)="confirmCancel()" class="btn-confirm-cancel">Confirmar cancelación</button>
           <button (click)="closeCancel()" class="btn-cancel-modal">Volver</button>

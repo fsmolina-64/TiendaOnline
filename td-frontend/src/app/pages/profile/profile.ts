@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { User, Address } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 type Tab = 'personal' | 'seguridad' | 'direcciones';
 
@@ -24,10 +25,9 @@ export class Profile implements OnInit {
   fb = inject(FormBuilder);
   auth = inject(AuthService);
   http = inject(HttpClient);
+  toastService = inject(ToastService);
 
   activeTab = signal<Tab>('personal');
-  successMsg = signal('');
-  errorMsg = signal('');
   loading = signal(false);
   avatarPreview = signal<string | null>(null);
   selectedAvatarFile: File | null = null;
@@ -79,8 +79,6 @@ export class Profile implements OnInit {
 
   setTab(tab: Tab) {
     this.activeTab.set(tab);
-    this.successMsg.set('');
-    this.errorMsg.set('');
   }
 
   loadAddresses() {
@@ -198,19 +196,20 @@ export class Profile implements OnInit {
 
   setDefault(id: string) {
     this.http.patch(`http://localhost:3000/users/addresses/${id}/default`, {}).subscribe({
-      next: () => this.loadAddresses(),
+      next: () => { this.loadAddresses(); this.toastService.success('Dirección predeterminada actualizada'); },
+      error: () => this.toastService.error('Error al actualizar dirección'),
     });
   }
 
   deleteAddress(id: string) {
     this.http.delete(`http://localhost:3000/users/addresses/${id}`).subscribe({
-      next: () => this.loadAddresses(),
+      next: () => { this.loadAddresses(); this.toastService.success('Dirección eliminada'); },
+      error: () => this.toastService.error('Error al eliminar dirección'),
     });
   }
 
   private notify(type: 'success' | 'error', msg: string) {
-    type === 'success' ? this.successMsg.set(msg) : this.errorMsg.set(msg);
-    setTimeout(() => { this.successMsg.set(''); this.errorMsg.set(''); }, 3000);
+    type === 'success' ? this.toastService.success(msg) : this.toastService.error(msg);
   }
 
   get currentEmail() { return this.auth.currentUser()?.email || ''; }

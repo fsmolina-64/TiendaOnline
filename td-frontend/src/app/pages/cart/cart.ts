@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
 import { Cart as CartModel } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-cart',
@@ -13,6 +14,7 @@ import { Cart as CartModel } from '../../core/models';
 })
 export class Cart implements OnInit {
   cartService = inject(CartService);
+  toastService = inject(ToastService);
 
   cart = signal<CartModel | null>(null);
   loading = signal(true);
@@ -35,18 +37,21 @@ export class Cart implements OnInit {
     if (quantity < 1) return;
     this.cartService.updateItem(productId, quantity).subscribe({
       next: () => this.loadCart(),
+      error: () => this.toastService.error('Error al actualizar cantidad'),
     });
   }
 
   removeItem(productId: string) {
     this.cartService.removeItem(productId).subscribe({
-      next: () => this.loadCart(),
+      next: () => { this.loadCart(); this.toastService.success('Producto eliminado'); },
+      error: () => this.toastService.error('Error al eliminar producto'),
     });
   }
 
   clearCart() {
     this.cartService.clearCart().subscribe({
-      next: () => this.loadCart(),
+      next: () => { this.loadCart(); this.toastService.success('Carrito vaciado'); },
+      error: () => this.toastService.error('Error al vaciar carrito'),
     });
   }
 }
