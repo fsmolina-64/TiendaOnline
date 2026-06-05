@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class FavoritesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll(userId: string) {
     return this.prisma.favorite.findMany({
@@ -15,6 +15,7 @@ export class FavoritesService {
       include: {
         product: {
           include: {
+            category: true, // <-- LÍNEA AÑADIDA: Pide a Prisma incluir la relación de la categoría
             images: { orderBy: { order: 'asc' }, take: 1 },
             promotions: {
               where: {
