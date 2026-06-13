@@ -51,8 +51,8 @@
                 <button class="btn-primary" (click)="addToCart()" [disabled]="product()!.stock === 0 || adding()">
                     {{ adding() ? '✓ Agregado' : '🛒 Agregar al carrito' }}
                 </button>
-                <button class="btn-outline" (click)="toggleFavorite()">
-                    {{ isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos' }}
+                <button class="btn-outline" (click)="toggleFavorite()" [disabled]="favoriteAdding()">
+                    {{ favoriteAdding() ? '⏳' : (isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos') }}
                 </button>
                 } @else {
                 <p class="auth-warning">Inicia sesión para comprar o guardar.</p>

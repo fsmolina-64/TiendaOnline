@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductDrawer } from '../../shared/components/product-drawer/product-drawer';
+import { ProductCard } from '../../shared/components/product-card/product-card';
 import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { Product, Category } from '../../core/models';
@@ -9,7 +10,7 @@ import { Product, Category } from '../../core/models';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, CommonModule, ProductDrawer],
+  imports: [RouterLink, CommonModule, ProductDrawer, ProductCard],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

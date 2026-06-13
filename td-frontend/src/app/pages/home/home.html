@@ -31,42 +31,7 @@
 
     <div class="products-grid">
       @for (product of products(); track product.id) {
-      <article class="product-card" (click)="openDrawer(product.slug)">
-        <div class="card-image-wrapper">
-          @if (product.images.length > 0) {
-          <img [src]="product.images[0].url" [alt]="product.name" class="product-img" />
-          } @else {
-          <div class="no-image-placeholder">Sin imagen</div>
-          }
-          @if (product.hasPromotion) {
-          <span class="discount-tag">-{{ product.discountPct }}%</span>
-          }
-        </div>
-
-        <div class="card-body">
-          <div class="card-meta">
-            <span class="product-category">{{ product.category.name || 'General' }}</span>
-            <span class="meta-divider">•</span>
-            <span class="stock-badge" [class.low-stock]="product.stock > 0 && product.stock <= 5"
-              [class.out-of-stock]="product.stock === 0">
-              {{ product.stock === 0 ? 'Agotado' : (product.stock <= 5 ? 'Poco stock' : 'En stock' ) }} </span>
-          </div>
-
-          <h3 class="product-title">{{ product.name }}</h3>
-
-          <div class="price-action-container">
-            <div class="price-container">
-              @if (product.hasPromotion) {
-              <span class="old-price">${{ product.originalPrice }}</span>
-              }
-              <span class="current-price">${{ product.price }}</span>
-            </div>
-
-            <div class="card-buttons">
-            </div>
-          </div>
-        </div>
-      </article>
+      <app-product-card [product]="product" (clickCard)="openDrawer($event)"></app-product-card>
       }
     </div>
   </section>

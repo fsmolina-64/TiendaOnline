@@ -83,37 +83,20 @@
 
   @if (related().length > 0) {
   <div class="related-section">
-    <h2>Podría interesarte</h2>
-    <div class="related-grid">
-      @for (p of related(); track p.id) {
-      <a [routerLink]="['/products', p.slug]" class="related-card">
-        <div class="related-image">
-          @if (p.images.length > 0) {
-          <img [src]="p.images[0].url" [alt]="p.name" />
-          } @else {
-          <div class="no-image">Sin imagen</div>
-          }
-        </div>
-        <div class="related-info">
-          <h3>{{ p.name }}</h3>
-          <div class="meta-info">
-            <p class="category">{{ p.category.name }}</p>
-            @if (p.stock > 5) {
-            <span class="stock-badge in-stock">En stock</span>
-            } @else if (p.stock > 0) {
-            <span class="stock-badge low-stock">Poco stock</span>
-            } @else {
-            <span class="stock-badge out-stock">Agotado</span>
-            }
-          </div>
-          <div class="prices">
-            <span class="final-price">${{ p.finalPrice }}</span>
-          </div>
-        </div>
-      </a>
+    <h2 class="section-title">Podría interesarte</h2>
+    <div class="products-grid">
+      @for (product of related(); track product.id) {
+      <app-product-card [product]="product" (clickCard)="openDrawer($event)"></app-product-card>
       }
     </div>
   </div>
+  }
+
+  @if (selectedProductSlug()) {
+  <app-product-drawer
+    [productSlug]="selectedProductSlug()"
+    (close)="closeDrawer()">
+  </app-product-drawer>
   }
   }
 </div>

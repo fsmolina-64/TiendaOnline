@@ -93,10 +93,10 @@
 
 .info-card {
   background: #ffffff;
-  border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  border: 1px solid #f1f5f9;
+  border-radius: 16px;
+  padding: 2rem;
+  border: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
 }
 
 .category-tag {
@@ -125,7 +125,7 @@ h1 {
 
 .final-price {
   color: #e94560;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
 }
 
@@ -263,70 +263,24 @@ h1 {
   background: #f8fafc;
 }
 
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 2rem;
+}
+
 .related-section {
   margin-top: 4rem;
   border-top: 1px solid #f1f5f9;
   padding-top: 3rem;
 }
 
-.related-section h2 {
-  color: #0f172a;
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-  font-weight: 800;
-}
-
-.related-grid {
+.products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.5rem;
-}
-
-.related-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  overflow: hidden;
-  text-decoration: none;
-  transition: all 0.2s;
-  display: flex;
-  flex-direction: column;
-}
-
-.related-card:hover {
-  transform: translateY(-4px);
-  border-color: #cbd5e1;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-}
-
-.related-image {
-  height: 180px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-}
-
-.related-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.related-info {
-  padding: 1.25rem;
-}
-
-.related-info h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
-  color: #0f172a;
-  font-weight: 600;
-}
-
-.related-info .prices {
-  margin: 0;
+  align-items: stretch;
 }
 
 @media (max-width: 992px) {
@@ -338,40 +292,4 @@ h1 {
   .info-card {
     padding: 1.5rem;
   }
-}
-
-.meta-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.8rem;
-}
-
-.meta-info .category {
-  margin-bottom: 0;
-}
-
-.stock-badge {
-  display: inline-block;
-  width: fit-content;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.in-stock {
-  background: #e6f4ea;
-  color: #1e8e3e;
-}
-
-.low-stock {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.out-stock {
-  background: #f8d7da;
-  color: #721c24;
 }

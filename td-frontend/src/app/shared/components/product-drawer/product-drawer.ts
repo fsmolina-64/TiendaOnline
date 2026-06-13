@@ -2,6 +2,7 @@ import { Component, EventEmitter, inject, Input, Output, signal, HostListener } 
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductsService } from '../../../core/services/products.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
@@ -24,6 +25,7 @@ export class ProductDrawer {
     cartService = inject(CartService);
     auth = inject(AuthService);
     favoritesService = inject(FavoritesService);
+    toastService = inject(ToastService);
 
     product = signal<Product | null>(null);
     related = signal<Product[]>([]);
@@ -32,6 +34,7 @@ export class ProductDrawer {
     loading = signal(false);
     isFavorite = signal(false);
     adding = signal(false);
+    favoriteAdding = signal(false);
 
     @HostListener('document:keydown.escape')
     onEscape() {
@@ -63,12 +66,27 @@ export class ProductDrawer {
 
     toggleFavorite() {
         const p = this.product();
-        if (!p || !this.auth.isLoggedIn()) return;
+        if (!p || !this.auth.isLoggedIn() || this.favoriteAdding()) return;
 
+        this.favoriteAdding.set(true);
         if (this.isFavorite()) {
-            this.favoritesService.remove(p.id).subscribe(() => this.isFavorite.set(false));
+            this.favoritesService.remove(p.id).subscribe({
+                next: () => {
+                    this.isFavorite.set(false);
+                    this.toastService.success('Favorito removido');
+                    this.favoriteAdding.set(false);
+                },
+                error: () => this.favoriteAdding.set(false)
+            });
         } else {
-            this.favoritesService.add(p.id).subscribe(() => this.isFavorite.set(true));
+            this.favoritesService.add(p.id).subscribe({
+                next: () => {
+                    this.isFavorite.set(true);
+                    this.toastService.success('Favorito agregado');
+                    this.favoriteAdding.set(false);
+                },
+                error: () => this.favoriteAdding.set(false)
+            });
         }
     }
 
@@ -79,6 +97,7 @@ export class ProductDrawer {
         this.adding.set(true);
         this.cartService.addItem(p.id, 1).subscribe({
             next: () => {
+                this.toastService.success('Producto agregado');
                 setTimeout(() => this.adding.set(false), 1500);
             },
             error: () => this.adding.set(false)

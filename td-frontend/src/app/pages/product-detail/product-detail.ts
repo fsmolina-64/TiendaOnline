@@ -1,6 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ProductDrawer } from '../../shared/components/product-drawer/product-drawer';
+import { ProductCard } from '../../shared/components/product-card/product-card';
 import { ProductsService } from '../../core/services/products.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -11,7 +13,7 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ProductDrawer, ProductCard],
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css',
 })
@@ -22,6 +24,8 @@ export class ProductDetail implements OnInit {
   auth = inject(AuthService);
   favoritesService = inject(FavoritesService);
   toastService = inject(ToastService);
+
+  selectedProductSlug = signal<string | null>(null);
 
   product = signal<Product | null>(null);
   loading = signal(true);
@@ -36,6 +40,7 @@ export class ProductDetail implements OnInit {
       const slug = params.get('slug');
       if (!slug) return;
 
+      this.selectedProductSlug.set(null);
       this.loading.set(true);
       this.error.set(null);
 
@@ -103,4 +108,12 @@ export class ProductDetail implements OnInit {
     });
   }
   related = signal<Product[]>([]);
+
+  openDrawer(slug: string) {
+    this.selectedProductSlug.set(slug);
+  }
+
+  closeDrawer() {
+    this.selectedProductSlug.set(null);
+  }
 }
