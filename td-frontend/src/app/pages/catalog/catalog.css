@@ -290,28 +290,31 @@
 .page-btn {
   width: 40px;
   height: 40px;
-  border: 1px solid var(--border);
-  background: #fff;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: all 0.2s;
+  color: #0c2f66;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg-dark);
+  transition: all 0.3s ease;
 }
 
 .page-btn:hover:not(:disabled) {
   background: #f8fafc;
-  border-color: #cbd5e1;
+  border-color: #0c2f66;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(12, 47, 102, 0.15);
 }
 
 .page-btn.active {
-  background: var(--bg-dark);
-  color: white;
-  border-color: var(--bg-dark);
+  background: #0c2f66;
+  color: #ffffff;
+  border-color: #0c2f66;
+  transform: scale(1.1);
 }
 
 .page-btn:disabled {
