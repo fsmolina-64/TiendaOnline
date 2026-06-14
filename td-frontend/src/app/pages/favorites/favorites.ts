@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { forkJoin } from 'rxjs';
+import { ProductDrawer } from '../../shared/components/product-drawer/product-drawer';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { CartService } from '../../core/services/cart.service';
 import { ProductsService } from '../../core/services/products.service';
@@ -10,7 +11,7 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ProductDrawer],
   templateUrl: './favorites.html',
   styleUrl: './favorites.css',
 })
@@ -19,6 +20,8 @@ export class Favorites implements OnInit {
   cartService = inject(CartService);
   productsService = inject(ProductsService);
   toastService = inject(ToastService);
+
+  selectedProductSlug = signal<string | null>(null);
 
   favorites = signal<any[]>([]);
   related = signal<any[]>([]);
@@ -53,6 +56,14 @@ export class Favorites implements OnInit {
       next: () => { this.addingCart.set(null); this.toastService.success('Agregado al carrito'); },
       error: () => { this.addingCart.set(null); this.toastService.error('Error al agregar al carrito'); },
     });
+  }
+
+  openDrawer(slug: string) {
+    this.selectedProductSlug.set(slug);
+  }
+
+  closeDrawer() {
+    this.selectedProductSlug.set(null);
   }
 
   loadRelated() {

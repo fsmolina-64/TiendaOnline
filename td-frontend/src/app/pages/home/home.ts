@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ProductDrawer } from '../../shared/components/product-drawer/product-drawer';
@@ -47,6 +47,14 @@ export class Home implements OnInit {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  @HostListener('wheel', ['$event'])
+  onWheel(event: WheelEvent) {
+    const carousel = (event.target as HTMLElement).closest('.categories-carousel');
+    if (!carousel) return;
+    event.preventDefault();
+    carousel.scrollLeft += event.deltaY;
   }
 
   openDrawer(slug: string) {

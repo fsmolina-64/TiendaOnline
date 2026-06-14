@@ -14,71 +14,73 @@
     </header>
 
     <div class="drawer-content">
-        <div class="drawer-gallery">
-            <div class="main-image-wrapper">
-                <img [src]="activeImage() || '/assets/no-image.png'" class="main-img" [alt]="product()!.name" />
-                @if (product()!.hasPromotion) {
-                <span class="badge-discount">-{{ product()!.discountPct }}%</span>
-                }
-            </div>
-            <div class="thumbnails">
-                @for (img of product()!.images; track img.id) {
-                <img [src]="img.url" (click)="setImage(img.url)" [class.active]="activeImage() === img.url"
-                    [alt]="product()!.name" />
-                }
-            </div>
-        </div>
-
-        <div class="drawer-info">
-            <span class="category-tag">{{ product()!.category.name }}</span>
-            <h2 class="product-name">{{ product()!.name }}</h2>
-
-            <div class="price-container">
-                @if (product()!.hasPromotion) {
-                <span class="old-price">${{ product()!.originalPrice }}</span>
-                }
-                <span class="current-price">${{ product()!.finalPrice || product()!.price }}</span>
-            </div>
-
-            <div class="stock-status" [class.out]="product()!.stock === 0">
-                ✓ {{ product()!.stock > 0 ? 'En stock (' + product()!.stock + ' disponibles)' : 'Agotado' }}
-            </div>
-
-            <p class="product-desc">{{ product()!.description }}</p>
-
-            <div class="drawer-actions">
-                @if (auth.isLoggedIn()) {
-                <button class="btn-primary" (click)="addToCart()" [disabled]="product()!.stock === 0 || adding()">
-                    {{ adding() ? '✓ Agregado' : '🛒 Agregar al carrito' }}
-                </button>
-                <button class="btn-outline" (click)="toggleFavorite()" [disabled]="favoriteAdding()">
-                    {{ favoriteAdding() ? '⏳' : (isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos') }}
-                </button>
-                } @else {
-                <p class="auth-warning">Inicia sesión para comprar o guardar.</p>
-                }
-                <a [routerLink]="['/products', product()!.slug]" class="btn-link-detail">
-                    Ver producto completo →
-                </a>
-            </div>
-
-            @if (related().length > 0) {
-            <div class="drawer-related">
-                <h3>Podría interesarte</h3>
-                <div class="related-scroller">
-                    @for (rel of related(); track rel.id) {
-                    <div class="related-mini-card" (click)="loadRelated(rel.slug)">
-                        <img [src]="rel.images[0]?.url" [alt]="rel.name">
-                        <div class="rel-info">
-                            <p class="rel-name">{{ rel.name }}</p>
-                            <p class="rel-price">${{ rel.finalPrice || rel.price }}</p>
-                        </div>
-                    </div>
+        <div class="drawer-body">
+            <div class="drawer-gallery">
+                <div class="main-image-wrapper">
+                    <img [src]="activeImage() || '/assets/no-image.png'" class="main-img" [alt]="product()!.name" />
+                    @if (product()!.hasPromotion) {
+                    <span class="badge-discount">-{{ product()!.discountPct }}%</span>
+                    }
+                </div>
+                <div class="thumbnails">
+                    @for (img of product()!.images; track img.id) {
+                    <img [src]="img.url" (click)="setImage(img.url)" [class.active]="activeImage() === img.url"
+                        [alt]="product()!.name" />
                     }
                 </div>
             </div>
-            }
+
+            <div class="drawer-info">
+                <span class="category-tag">{{ product()!.category.name }}</span>
+                <h2 class="product-name">{{ product()!.name }}</h2>
+
+                <div class="price-container">
+                    @if (product()!.hasPromotion) {
+                    <span class="old-price">${{ product()!.originalPrice }}</span>
+                    }
+                    <span class="current-price">${{ product()!.finalPrice || product()!.price }}</span>
+                </div>
+
+                <div class="stock-status" [class.out]="product()!.stock === 0">
+                    ✓ {{ product()!.stock > 0 ? 'En stock (' + product()!.stock + ' disponibles)' : 'Agotado' }}
+                </div>
+
+                <p class="product-desc">{{ product()!.description }}</p>
+
+                <div class="drawer-actions">
+                    @if (auth.isLoggedIn()) {
+                    <button class="btn-primary" (click)="addToCart()" [disabled]="product()!.stock === 0 || adding()">
+                        {{ adding() ? '✓ Agregado' : '🛒 Agregar al carrito' }}
+                    </button>
+                    <button class="btn-outline" (click)="toggleFavorite()" [disabled]="favoriteAdding()">
+                        {{ favoriteAdding() ? '⏳' : (isFavorite() ? '❤️ Quitar de favoritos' : '🤍 Agregar a favoritos') }}
+                    </button>
+                    } @else {
+                    <p class="auth-warning">Inicia sesión para comprar o guardar.</p>
+                    }
+                    <a [routerLink]="['/products', product()!.slug]" class="btn-link-detail">
+                        Ver producto completo →
+                    </a>
+                </div>
+            </div>
         </div>
+
+        @if (related().length > 0) {
+        <div class="drawer-related">
+            <h3>Podría interesarte</h3>
+            <div class="related-scroller" (wheel)="onWheel($event)">
+                @for (rel of related(); track rel.id) {
+                <div class="related-mini-card" (click)="loadRelated(rel.slug)">
+                    <img [src]="rel.images[0]?.url" [alt]="rel.name">
+                    <div class="rel-info">
+                        <p class="rel-name">{{ rel.name }}</p>
+                        <p class="rel-price">${{ rel.finalPrice || rel.price }}</p>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+        }
     </div>
     }
 </div>

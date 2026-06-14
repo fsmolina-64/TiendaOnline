@@ -111,4 +111,10 @@ export class ProductDrawer {
     loadRelated(slug: string) {
         this.loadProduct(slug);
     }
+
+    onWheel(event: WheelEvent) {
+        event.preventDefault();
+        const element = event.currentTarget as HTMLElement;
+        element.scrollLeft += event.deltaY;
+    }
 }

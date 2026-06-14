@@ -83,7 +83,7 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   gap: 1.25rem;
-  padding-bottom: 1rem;
+  padding: 1rem 0.5rem;
   scrollbar-width: thin;
   scrollbar-color: #e94560 #f0f0f3;
 }
