@@ -26,6 +26,9 @@ export class Cart implements OnInit {
   loadCart() {
     this.cartService.getCart().subscribe({
       next: (cart) => {
+        if (cart && cart.items) {
+          cart.items.sort((a, b) => a.productId.localeCompare(b.productId));
+        }
         this.cart.set(cart);
         this.loading.set(false);
       },

@@ -68,10 +68,23 @@
 }
 
 .section-title {
-  font-size: 2rem;
-  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 1.75rem;
+  font-weight: 800;
   color: #1a1a2e;
-  margin-bottom: 2rem;
+  margin: 0 0 2rem 0;
+  border-bottom: 2px solid #cbd5e1;
+  padding-bottom: 0.85rem;
+  width: 100%;
+}
+
+.section-subtitle {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
 }
 
 .categories-section {

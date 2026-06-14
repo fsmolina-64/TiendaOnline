@@ -1,13 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { DashboardStats } from '../../core/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, DecimalPipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -26,7 +26,8 @@ export class Dashboard implements OnInit {
   getStars(rating: number): string {
     return '★'.repeat(rating) + '☆'.repeat(5 - rating);
   }
+
   roundRating(rating: number): number {
-  return Math.round(rating);
-}
+    return Math.round(rating);
+  }
 }

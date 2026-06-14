@@ -103,7 +103,7 @@ export class OrderDetail implements OnInit {
 
   downloadInvoice() {
     const o = this.order();
-    if (!o?.invoice) return;
+    if (!o) return;
 
     this.downloadingPdf.set(true);
 
@@ -111,9 +111,12 @@ export class OrderDetail implements OnInit {
       next: (blob: Blob) => {
         const url = window.URL.createObjectURL(blob);
 
+        const docNumber = o.invoice ? o.invoice.number : o.id.slice(0, 8).toUpperCase();
+        const docType = o.invoice ? 'factura' : 'pedido';
+
         const link = document.createElement('a');
         link.href = url;
-        link.download = `factura-${o.invoice!.number}.pdf`;
+        link.download = `${docType}-${docNumber}.pdf`;
         link.click();
 
         window.URL.revokeObjectURL(url);

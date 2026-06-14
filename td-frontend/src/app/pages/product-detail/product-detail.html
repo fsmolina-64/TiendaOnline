@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container fade-in">
   @if (loading()) {
   <div class="loading">Cargando producto...</div>
   } @else if (!product()) {
@@ -86,7 +86,7 @@
     <h2 class="section-title">Podría interesarte</h2>
     <div class="products-grid">
       @for (product of related(); track product.id) {
-      <app-product-card [product]="product" (clickCard)="openDrawer($event)"></app-product-card>
+      <app-product-card class="slide-up" [product]="product" (clickCard)="openDrawer($event)"></app-product-card>
       }
     </div>
   </div>

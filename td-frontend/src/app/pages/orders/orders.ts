@@ -20,6 +20,17 @@ export class Orders implements OnInit {
   loading = signal(true);
   cancellingId = signal<string | null>(null);
   cancelReason = '';
+  searchTerm = '';
+  statusFilter = '';
+
+  getFilteredOrders() {
+    const term = this.searchTerm.toLowerCase().trim();
+    return this.orders().filter(o => {
+      const matchesSearch = o.id.toLowerCase().includes(term);
+      const matchesStatus = this.statusFilter ? o.status === this.statusFilter : true;
+      return matchesSearch && matchesStatus;
+    });
+  }
 
   ngOnInit() { this.loadOrders(); }
 

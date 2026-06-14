@@ -247,7 +247,7 @@ export class Profile implements OnInit {
       'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End',
     ];
     if (allowed.includes(event.key)) return;
-    if (event.ctrlKey || event.metaKey) return; // Ctrl+A/C/V/X
+    if (event.ctrlKey || event.metaKey) return;
     if (!/^\d$/.test(event.key)) event.preventDefault();
   }
 

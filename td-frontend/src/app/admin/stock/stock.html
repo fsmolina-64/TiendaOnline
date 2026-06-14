@@ -1,6 +1,8 @@
-<div class="container">
-  <h1>Gestión de Stock</h1>
-
+<div class="container fade-in">
+  <header class="page-header">
+    <h1>Gestión de Stock</h1>
+    <span class="header-subtitle">Control de inventario y movimientos</span>
+  </header>
 
   <div class="layout">
     <div class="products-list">
@@ -10,7 +12,7 @@
       } @else {
         @for (product of products(); track product.id) {
           <div
-            class="product-item"
+            class="product-item slide-up"
             [class.selected]="selectedProduct()?.id === product.id"
             (click)="selectProduct(product)">
             <span class="product-name">{{ product.name }}</span>

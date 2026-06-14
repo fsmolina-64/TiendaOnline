@@ -15,7 +15,7 @@ export class FavoritesService {
       include: {
         product: {
           include: {
-            category: true, // <-- LÍNEA AÑADIDA: Pide a Prisma incluir la relación de la categoría
+            category: true,
             images: { orderBy: { order: 'asc' }, take: 1 },
             promotions: {
               where: {

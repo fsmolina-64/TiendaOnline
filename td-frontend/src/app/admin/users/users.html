@@ -1,7 +1,8 @@
-<div class="container">
-  <h1>Usuarios</h1>
-
-
+<div class="container fade-in">
+  <header class="page-header">
+    <h1>Usuarios</h1>
+    <span class="header-subtitle">Administración de cuentas y perfiles</span>
+  </header>
 
   <div class="layout">
     <div class="users-panel">
@@ -26,7 +27,7 @@
         <div class="users-list">
           @for (user of users(); track user.id) {
             <div
-              class="user-item"
+              class="user-item slide-up"
               [class.selected]="selectedUser()?.id === user.id"
               [class.inactive]="!user.isActive"
               (click)="selectUser(user.id)">

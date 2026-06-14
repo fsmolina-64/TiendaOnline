@@ -25,36 +25,59 @@ export class InvoicesService {
 
     if (!order) throw new NotFoundException('Orden no encontrada');
     if (order.userId !== userId) throw new ForbiddenException('No tienes permiso');
-    if (!order.invoice) throw new NotFoundException('Factura no disponible');
+
+    const documentNumber = order.invoice ? order.invoice.number : order.id.slice(0, 8).toUpperCase();
+    const documentType = order.invoice ? 'factura' : 'pedido';
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="factura-${order.invoice.number}.pdf"`,
+      `attachment; filename="${documentType}-${documentNumber}.pdf"`,
     );
 
     const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
 
+    if (order.status === 'CANCELLED') {
+      doc.save()
+        .fontSize(45)
+        .font('Helvetica-Bold')
+        .fillColor('#e63946')
+        .opacity(0.15)
+        .translate(100, 350)
+        .rotate(-35)
+        .text('PEDIDO CANCELADO', 0, 0)
+        .restore();
+
+      doc.fontSize(12)
+        .font('Helvetica-Bold')
+        .fillColor('#e63946')
+        .text('ESTADO DEL DOCUMENTO: CANCELADO', 50, 30);
+    }
+
     doc
       .fontSize(24)
       .font('Helvetica-Bold')
-      .text('TiendaOnline', 50, 50)
+      .text('FeliMarket', 50, 50)
       .fontSize(10)
       .font('Helvetica')
       .fillColor('#666')
       .text('Ecuador', 50, 80);
 
+    const title = order.invoice ? 'FACTURA' : 'COMPROBANTE';
     doc
       .fontSize(20)
       .font('Helvetica-Bold')
       .fillColor('#1a1a2e')
-      .text('FACTURA', 400, 50, { align: 'right' })
+      .text(title, 400, 50, { align: 'right' })
       .fontSize(10)
       .font('Helvetica')
       .fillColor('#666')
-      .text(`N°: ${order.invoice.number}`, 400, 80, { align: 'right' })
-      .text(`Fecha: ${new Date(order.invoice.issuedAt).toLocaleDateString('es-EC')}`, 400, 95, { align: 'right' });
+      .text(`N°: ${documentNumber}`, 400, 80, { align: 'right' });
+
+    if (order.invoice) {
+      doc.text(`Fecha: ${new Date(order.invoice.issuedAt).toLocaleDateString('es-EC')}`, 400, 95, { align: 'right' });
+    }
 
     doc.moveTo(50, 120).lineTo(550, 120).strokeColor('#e0e0e0').stroke();
 

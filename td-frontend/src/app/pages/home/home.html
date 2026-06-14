@@ -9,12 +9,15 @@
   </div>
 </div>
 
-<div class="main-container">
+<div class="main-container fade-in">
   <section class="categories-section">
-    <h2 class="section-title">Explorar Categorías</h2>
+    <h2 class="section-title">
+      Explorar Categorías
+      <span class="section-subtitle">Encuentra tu estilo ideal</span>
+    </h2>
     <div class="categories-carousel">
       @for (cat of categories(); track cat.id) {
-      <a [routerLink]="['/catalog']" [queryParams]="{ categoryId: cat.id }" class="category-card">
+      <a [routerLink]="['/catalog']" [queryParams]="{ categoryId: cat.id }" class="category-card slide-up">
         <div class="category-icon">{{ getCategoryIcon(cat.name) }}</div>
         <span class="category-name">{{ cat.name }}</span>
       </a>
@@ -23,7 +26,10 @@
   </section>
 
   <section class="products-section">
-    <h2 class="section-title">Productos Destacados</h2>
+    <h2 class="section-title">
+      Productos Destacados
+      <span class="section-subtitle">Selección exclusiva para ti</span>
+    </h2>
 
     @if (loading()) {
     <div class="loading-state">Cargando catálogo destacado...</div>
@@ -31,7 +37,7 @@
 
     <div class="products-grid">
       @for (product of products(); track product.id) {
-      <app-product-card [product]="product" (clickCard)="openDrawer($event)"></app-product-card>
+      <app-product-card class="slide-up" [product]="product" (clickCard)="openDrawer($event)"></app-product-card>
       }
     </div>
   </section>

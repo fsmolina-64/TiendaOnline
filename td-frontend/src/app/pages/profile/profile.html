@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container fade-in">
 
   <div class="avatar-card">
     <div class="avatar-ring">
@@ -413,7 +413,7 @@
 
     <div class="address-list">
       @for (addr of addresses(); track addr.id) {
-      <div class="address-card" [class.is-default]="addr.isDefault">
+      <div class="address-card slide-up" [class.is-default]="addr.isDefault">
         <div class="address-card-header">
           <div class="address-label">
             <span class="label-badge">{{ addr.label }}</span>

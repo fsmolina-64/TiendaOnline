@@ -1,8 +1,11 @@
-<div class="container">
-  <div class="page-header">
-    <h1>Promociones</h1>
+<div class="container fade-in">
+  <header class="page-header">
+    <div class="page-header-left">
+      <h1>Promociones</h1>
+      <span class="header-subtitle">Control de ofertas y descuentos</span>
+    </div>
     <button (click)="openCreate()" class="btn-primary">+ Nueva Promoción</button>
-  </div>
+  </header>
 
 
   @if (showForm()) {
@@ -70,7 +73,7 @@
         </thead>
         <tbody>
           @for (promo of promotions(); track promo.id) {
-            <tr>
+            <tr class="slide-up">
               <td>{{ promo.product.name }}</td>
               <td class="discount">{{ promo.discount }}%</td>
               <td>{{ promo.startDate | date:'dd/MM/yyyy' }}</td>

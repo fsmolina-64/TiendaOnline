@@ -1,74 +1,104 @@
-<div class="container">
-  <h1>Mis Pedidos</h1>
+<div class="container fade-in">
+  <header class="page-header">
+    <h1>Mis Pedidos</h1>
+    <span class="header-subtitle">Historial de compras</span>
+  </header>
 
-
+  <div class="filters-bar">
+    <input type="text" class="filter-input" [(ngModel)]="searchTerm" placeholder="Buscar por número de pedido...">
+    <select class="filter-input" [(ngModel)]="statusFilter" style="max-width: 200px;">
+      <option value="">Todos los estados</option>
+      <option value="PENDING">Pendientes</option>
+      <option value="PAID">Pagados</option>
+      <option value="DELIVERED">Entregados</option>
+      <option value="CANCELLED">Cancelados</option>
+    </select>
+  </div>
 
   @if (cancellingId()) {
-    <div class="modal-overlay">
-      <div class="modal">
-        <h3>Cancelar pedido</h3>
-        <p>Por favor indica el motivo de cancelación:</p>
-        <textarea
-          [(ngModel)]="cancelReason"
-          placeholder="Ej: Me arrepentí de la compra, encontré mejor precio, etc."
-          rows="4">
+  <div class="modal-overlay">
+    <div class="modal">
+      <h3>Cancelar pedido</h3>
+      <p>Por favor, cuéntanos el motivo de la cancelación para ayudarnos a mejorar:</p>
+      <textarea [(ngModel)]="cancelReason" placeholder="Ej: Me arrepentí de la compra, encontré mejor precio, etc."
+        rows="4">
         </textarea>
-
-        <div class="modal-actions">
-          <button (click)="confirmCancel()" class="btn-confirm-cancel">Confirmar cancelación</button>
-          <button (click)="closeCancel()" class="btn-cancel-modal">Volver</button>
-        </div>
+      <div class="modal-actions">
+        <button (click)="closeCancel()" class="btn-cancel-modal">Mantener pedido</button>
+        <button (click)="confirmCancel()" class="btn-confirm-cancel">Confirmar cancelación</button>
       </div>
     </div>
+  </div>
   }
 
   @if (loading()) {
-    <div class="loading">Cargando pedidos...</div>
+  <div class="loading">Cargando historial de pedidos...</div>
   } @else if (orders().length === 0) {
-    <div class="empty">
-      <p>No tienes pedidos aún</p>
-      <a routerLink="/catalog">Ir al catálogo</a>
-    </div>
+  <div class="empty-state">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+    <h2>Aún no tienes pedidos</h2>
+    <p>Explora nuestro catálogo y encuentra productos increíbles.</p>
+    <a routerLink="/catalog" class="btn-primary">Comenzar a comprar</a>
+  </div>
   } @else {
-    <div class="orders-list">
-      @for (order of orders(); track order.id) {
-        <div class="order-card">
-          <div class="order-header">
-            <div>
-              <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
-              <span [class]="'status ' + getStatusClass(order.status)">
-                {{ getStatusLabel(order.status) }}
-              </span>
-            </div>
-            <span class="order-date">{{ order.createdAt | date:'dd/MM/yyyy' }}</span>
-          </div>
+  <div class="orders-list">
+    @for (order of getFilteredOrders(); track order.id; let i = $index) {
+    <article class="order-card slide-up" [style.animation-delay]="(i * 0.1) + 's'">
 
-          <div class="order-items-preview">
-            @for (item of order.items.slice(0, 2); track item.id) {
-              <span>{{ item.product.name }} x{{ item.quantity }}</span>
-            }
-            @if (order.items.length > 2) {
-              <span class="more">+{{ order.items.length - 2 }} más</span>
-            }
-          </div>
-
-          @if (order.cancelReason) {
-            <div class="cancel-reason">
-              <strong>Motivo:</strong> {{ order.cancelReason }}
-            </div>
-          }
-
-          <div class="order-footer">
-            <span class="total">Total: ${{ order.total }}</span>
-            <div class="order-actions">
-              @if (order.status === 'PENDING') {
-                <button (click)="openCancel(order.id)" class="btn-cancel-order">Cancelar</button>
-              }
-              <a [routerLink]="['/orders', order.id]" class="btn-detail">Ver detalle</a>
-            </div>
-          </div>
+      <div class="order-header">
+        <div class="order-meta">
+          <span class="order-id">Pedido #{{ order.id.slice(0, 8).toUpperCase() }}</span>
+          <span class="order-date">{{ order.createdAt | date:'dd MMM yyyy, HH:mm' }}</span>
         </div>
+        <span class="status-badge" [ngClass]="{
+          'pending': order.status === 'PENDING',
+          'paid': order.status === 'PAID',
+          'delivered': order.status === 'DELIVERED',
+          'cancelled': order.status === 'CANCELLED'
+        }">
+          @if (order.status === 'PENDING') { <span aria-hidden="true">⏳</span> }
+          @if (order.status === 'PAID') { <span aria-hidden="true">💳</span> }
+          @if (order.status === 'DELIVERED') { <span aria-hidden="true">📦</span> }
+          @if (order.status === 'CANCELLED') { <span aria-hidden="true">✕</span> }
+          {{ getStatusLabel(order.status) }}
+        </span>
+      </div>
+
+      <div class="order-body">
+        <div class="items-preview">
+          @for (item of order.items.slice(0, 2); track item.id) {
+          <div class="item-line">
+            <span class="item-qty">{{ item.quantity }}x</span>
+            <span class="item-name">{{ item.product.name }}</span>
+          </div>
+          }
+          @if (order.items.length > 2) {
+          <span class="more-items">+ {{ order.items.length - 2 }} artículos adicionales</span>
+          }
+        </div>
+      </div>
+
+      @if (order.cancelReason) {
+      <div class="cancel-reason">
+        <strong>Cancelado por:</strong> {{ order.cancelReason }}
+      </div>
       }
-    </div>
+
+      <div class="order-footer">
+        <div class="order-total-block">
+          <span class="total-label">Total pagado</span>
+          <span class="total-amount">${{ order.total }}</span>
+        </div>
+        <div class="order-actions">
+          @if (order.status === 'PENDING') {
+          <button (click)="openCancel(order.id)" class="btn-cancel-order">Cancelar Pedido</button>
+          }
+          <a [routerLink]="['/orders', order.id]" class="btn-detail">Ver Detalles</a>
+        </div>
+      </div>
+
+    </article>
+    }
+  </div>
   }
 </div>
