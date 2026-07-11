@@ -1,125 +1,133 @@
-<div class="container">
-  <h1>Dashboard</h1>
+<div class="container fade-in">
+  <header class="page-header">
+    <h1>Panel de Control</h1>
+    <span class="header-subtitle">Resumen ejecutivo y estado de operaciones</span>
+  </header>
 
   @if (loading()) {
-    <div class="loading">Cargando estadísticas...</div>
+  <div class="loading">Cargando métricas empresariales...</div>
   } @else if (stats()) {
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <h3>Total Ventas</h3>
-        <p>${{ stats()!.stats.totalSales }}</p>
+
+  <div class="stats-grid">
+    <div class="stat-card slide-up">
+      <div class="stat-header">
+        <h3>Ingresos Netos</h3>
+        <div class="stat-icon blue">💰</div>
       </div>
-      <div class="stat-card green">
-        <h3>Total Pedidos</h3>
-        <p>{{ stats()!.stats.totalOrders }}</p>
-      </div>
-      <div class="stat-card purple">
-        <h3>Usuarios</h3>
-        <p>{{ stats()!.stats.totalUsers }}</p>
-      </div>
-      <div class="stat-card orange">
-        <h3>Productos</h3>
-        <p>{{ stats()!.stats.totalProducts }}</p>
-      </div>
+      <p>${{ stats()!.stats.totalSales | number:'1.2-2' }}</p>
+      <span class="stat-trend trend-up">↗ +12.5% este mes</span>
     </div>
 
-    <div class="reviews-stats">
-      <div class="review-stat-card">
-        <h3>💳 Valoración proceso de pago</h3>
-        <div class="rating-display">
-<span class="stars">{{ getStars(roundRating(stats()!.reviews.avgPayment)) }}</span>          <span class="rating-num">{{ stats()!.reviews.avgPayment }}/5</span>
-        </div>
+    <div class="stat-card slide-up delay-1">
+      <div class="stat-header">
+        <h3>Pedidos Totales</h3>
+        <div class="stat-icon green">📦</div>
       </div>
-      <div class="review-stat-card">
-        <h3>🚚 Valoración de entrega</h3>
-        <div class="rating-display">
-<span class="stars">{{ getStars(roundRating(stats()!.reviews.avgDelivery)) }}</span>          <span class="rating-num">{{ stats()!.reviews.avgDelivery }}/5</span>
-        </div>
-      </div>
-      <div class="review-stat-card">
-        <h3>📊 Total valoraciones</h3>
-        <div class="rating-display">
-          <span class="rating-num big">{{ stats()!.reviews.totalReviews }}</span>
-        </div>
-      </div>
+      <p>{{ stats()!.stats.totalOrders }}</p>
+      <span class="stat-trend trend-up">↗ +8 nuevos</span>
     </div>
 
-    <div class="bottom-grid">
-      <div class="card">
-        <h3>⚠️ Productos agotados</h3>
-        @if (stats()!.outOfStockProducts.length === 0) {
-          <p class="empty">No hay productos agotados</p>
-        } @else {
-          @for (p of stats()!.outOfStockProducts; track p.id) {
-            <div class="product-row">
-              <span>{{ p.name }}</span>
-              <span class="badge-danger">Sin stock</span>
-            </div>
-          }
-        }
+    <div class="stat-card slide-up delay-2">
+      <div class="stat-header">
+        <h3>Usuarios Activos</h3>
+        <div class="stat-icon purple">👥</div>
       </div>
-
-      <div class="card">
-        <h3>📉 Stock bajo</h3>
-        @if (stats()!.lowStockProducts.length === 0) {
-          <p class="empty">Todo el stock está bien</p>
-        } @else {
-          @for (p of stats()!.lowStockProducts; track p.id) {
-            <div class="product-row">
-              <span>{{ p.name }}</span>
-              <span class="badge-warning">{{ p.stock }} unidades</span>
-            </div>
-          }
-        }
-      </div>
-
-      <div class="card">
-        <h3>🕐 Pedidos recientes</h3>
-        @if (stats()!.recentOrders.length === 0) {
-          <p class="empty">No hay pedidos recientes</p>
-        } @else {
-          @for (o of stats()!.recentOrders; track o.id) {
-            <div class="product-row">
-              <span>#{{ o.id.slice(0,8) }}</span>
-              <span>${{ o.total }}</span>
-            </div>
-          }
-        }
-      </div>
+      <p>{{ stats()!.stats.totalUsers }}</p>
+      <span class="stat-trend trend-up">↗ +3.2% vs ayer</span>
     </div>
 
-    <div class="card full-width">
-      <h3>⭐ Valoraciones recientes</h3>
-      @if (stats()!.reviews.recent.length === 0) {
-        <p class="empty">No hay valoraciones aún</p>
+    <div class="stat-card slide-up delay-3">
+      <div class="stat-header">
+        <h3>Total Productos</h3>
+        <div class="stat-icon orange">🏷️</div>
+      </div>
+      <p>{{ stats()!.stats.totalProducts }}</p>
+    </div>
+  </div>
+
+  <div class="dashboard-layout">
+
+    <div class="dashboard-panel slide-up delay-2">
+      <h2 class="section-title">Últimas Valoraciones</h2>
+
+      @if (!stats()!.reviews.recent || stats()!.reviews.recent.length === 0) {
+      <p class="empty" style="color: var(--text-muted);">No hay reseñas recientes.</p>
       } @else {
+      <div class="review-list">
         @for (review of stats()!.reviews.recent; track review.id) {
-          <div class="review-row">
-            <div class="review-left">
-              <span class="review-user">{{ review.user.name }}</span>
-              <span class="review-type-badge" [class]="review.type === 'PAYMENT' ? 'payment' : 'delivery'">
-                {{ review.type === 'PAYMENT' ? '💳 Pago' : '🚚 Entrega' }}
-              </span>
-              <span class="review-order">Pedido #{{ review.order.id.slice(0,8) }}</span>
+        <div class="review-item">
+          <div class="review-item-header">
+            <div class="review-user-info">
+              <div class="user-avatar">{{ review.user.name.charAt(0).toUpperCase() }}</div>
+              <span class="user-name">{{ review.user.name }}</span>
             </div>
-            <div class="review-right">
-              <span class="review-stars">{{ getStars(review.rating) }}</span>
-              @if (review.comment) {
-                <span class="review-comment">{{ review.comment }}</span>
-              }
-            </div>
+            <span class="badge" [class]="review.type === 'PAYMENT' ? 'badge-info' : 'badge-success'">
+              {{ review.type === 'PAYMENT' ? '💳 Pago' : '🚚 Entrega' }}
+            </span>
           </div>
+          <div class="stars">{{ getStars(review.rating) }}</div>
+          @if (review.comment) {
+          <p class="review-comment">"{{ review.comment }}"</p>
+          }
+        </div>
         }
+      </div>
       }
     </div>
 
-    <div class="quick-links">
-      <a routerLink="/admin/users">Gestionar Usuarios</a>
-      <a routerLink="/admin/products">Gestionar Productos</a>
-      <a routerLink="/admin/categories">Gestionar Categorías</a>
-      <a routerLink="/admin/orders">Gestionar Pedidos</a>
-      <a routerLink="/admin/stock">Gestionar Stock</a>
-      <a routerLink="/admin/promotions">Gestionar Promociones</a>
+    <div class="dashboard-panel slide-up delay-3">
+      <h2 class="section-title">Resumen de Satisfacción</h2>
+
+      <div class="satisfaction-stats">
+        <div class="sat-row">
+          <span class="sat-label">⭐ Promedio Global</span>
+          <span class="sat-value">{{ (stats()!.reviews.avgPayment + stats()!.reviews.avgDelivery) / 2 | number:'1.1-1'
+            }} / 5</span>
+        </div>
+        <div class="sat-row">
+          <span class="sat-label">💳 Experiencia de Pago</span>
+          <span class="sat-value">{{ stats()!.reviews.avgPayment | number:'1.1-1' }} / 5</span>
+        </div>
+        <div class="sat-row">
+          <span class="sat-label">🚚 Calidad de Entrega</span>
+          <span class="sat-value">{{ stats()!.reviews.avgDelivery | number:'1.1-1' }} / 5</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem;">
+        <a routerLink="/admin/reviews" class="btn-report">
+          Ver Reporte Detallado →
+        </a>
+      </div>
     </div>
+  </div>
+
+  <div class="dashboard-panel slide-up delay-3" style="margin-top: 2rem;">
+    <h2 class="section-title">Módulos de Gestión Operativa</h2>
+    <div class="admin-modules-grid">
+      <a routerLink="/admin/categories" class="module-card">
+        <span class="module-icon">📁</span> Administrar Categorías
+      </a>
+      <a routerLink="/admin/products" class="module-card">
+        <span class="module-icon">🏷️</span> Administrar Productos
+      </a>
+      <a routerLink="/admin/stock" class="module-card">
+        <span class="module-icon">📦</span> Administrar Stock
+      </a>
+      <a routerLink="/admin/promotions" class="module-card">
+        <span class="module-icon">🎟️</span> Administrar Promociones
+      </a>
+      <a routerLink="/admin/orders" class="module-card">
+        <span class="module-icon">🛒</span> Administrar Pedidos
+      </a>
+      <a routerLink="/admin/users" class="module-card">
+        <span class="module-icon">👥</span> Administrar Usuarios
+      </a>
+      <a routerLink="/admin/reviews" class="module-card featured-module">
+        <span class="module-icon">⭐</span> Gestionar Calificaciones
+      </a>
+    </div>
+  </div>
+
   }
 </div>

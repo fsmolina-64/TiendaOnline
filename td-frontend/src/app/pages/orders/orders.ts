@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrdersService } from '../../core/services/orders.service';
 import { Order } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-orders',
@@ -14,12 +15,22 @@ import { Order } from '../../core/models';
 })
 export class Orders implements OnInit {
   ordersService = inject(OrdersService);
+  toastService = inject(ToastService);
   orders = signal<Order[]>([]);
   loading = signal(true);
   cancellingId = signal<string | null>(null);
   cancelReason = '';
-  errorMsg = signal('');
-  successMsg = signal('');
+  searchTerm = '';
+  statusFilter = '';
+
+  getFilteredOrders() {
+    const term = this.searchTerm.toLowerCase().trim();
+    return this.orders().filter(o => {
+      const matchesSearch = o.id.toLowerCase().includes(term);
+      const matchesStatus = this.statusFilter ? o.status === this.statusFilter : true;
+      return matchesSearch && matchesStatus;
+    });
+  }
 
   ngOnInit() { this.loadOrders(); }
 
@@ -33,7 +44,6 @@ export class Orders implements OnInit {
   openCancel(orderId: string) {
     this.cancellingId.set(orderId);
     this.cancelReason = '';
-    this.errorMsg.set('');
   }
 
   closeCancel() {
@@ -45,20 +55,12 @@ export class Orders implements OnInit {
     const id = this.cancellingId();
     if (!id) return;
     if (this.cancelReason.trim().length < 5) {
-      this.errorMsg.set('El motivo debe tener al menos 5 caracteres');
+      this.toastService.error('El motivo debe tener al menos 5 caracteres');
       return;
     }
-
     this.ordersService.cancelOrder(id, this.cancelReason).subscribe({
-      next: () => {
-        this.closeCancel();
-        this.successMsg.set('Orden cancelada correctamente');
-        this.loadOrders();
-        setTimeout(() => this.successMsg.set(''), 3000);
-      },
-      error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Error al cancelar');
-      },
+      next: () => { this.closeCancel(); this.toastService.success('Orden cancelada correctamente'); this.loadOrders(); },
+      error: (err) => this.toastService.error(err.error?.message || 'Error al cancelar'),
     });
   }
 

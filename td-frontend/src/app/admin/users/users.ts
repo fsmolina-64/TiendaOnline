@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../core/services/user.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -12,6 +13,7 @@ import { UsersService } from '../../core/services/user.service';
 })
 export class Users implements OnInit {
   usersService = inject(UsersService);
+  toastService = inject(ToastService);
 
   users = signal<any[]>([]);
   selectedUser = signal<any | null>(null);
@@ -19,7 +21,6 @@ export class Users implements OnInit {
   loadingDetail = signal(false);
   search = '';
   showInactive = false;
-  successMsg = signal('');
 
   ngOnInit() { this.loadUsers(); }
 
@@ -57,13 +58,11 @@ export class Users implements OnInit {
   toggle(user: any) {
     this.usersService.toggleUser(user.id).subscribe({
       next: () => {
-        this.successMsg.set(`Usuario ${user.isActive ? 'desactivado' : 'activado'} correctamente`);
+        this.toastService.success(`Usuario ${user.isActive ? 'desactivado' : 'activado'} correctamente`);
         this.loadUsers();
-        if (this.selectedUser()?.id === user.id) {
-          this.selectUser(user.id);
-        }
-        setTimeout(() => this.successMsg.set(''), 3000);
+        if (this.selectedUser()?.id === user.id) this.selectUser(user.id);
       },
+      error: () => this.toastService.error('Error al cambiar estado del usuario'),
     });
   }
 

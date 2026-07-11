@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { Product, Category } from '../../core/models';
+import { ProductDrawer } from '../../shared/components/product-drawer/product-drawer';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProductDrawer],
   templateUrl: './catalog.html',
   styleUrl: './catalog.css',
 })
@@ -31,6 +32,8 @@ export class Catalog implements OnInit {
   search = '';
   orderBy = 'newest';
   limit = 12;
+
+  selectedProductSlug = signal<string | null>(null);
 
   ngOnInit() {
     this.categoriesService.getAll().subscribe((cats) => this.categories.set(cats));
@@ -75,11 +78,9 @@ export class Catalog implements OnInit {
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages()) return;
     this.applyFilters(page);
-    // Scroll al inicio de los productos
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Genera array de páginas para mostrar en el paginador
   getPages(): number[] {
     const total = this.totalPages();
     const current = this.currentPage();
@@ -92,5 +93,13 @@ export class Catalog implements OnInit {
       pages.push(i);
     }
     return pages;
+  }
+
+  openDrawer(slug: string) {
+    this.selectedProductSlug.set(slug);
+  }
+
+  closeDrawer() {
+    this.selectedProductSlug.set(null);
   }
 }

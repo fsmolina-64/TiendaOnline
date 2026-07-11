@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ProductsService } from '../../core/services/products.service';
 import { Product } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-admin-promotions',
@@ -16,14 +17,13 @@ export class Promotions implements OnInit {
   http = inject(HttpClient);
   productsService = inject(ProductsService);
   fb = inject(FormBuilder);
+  toastService = inject(ToastService);
 
   promotions = signal<any[]>([]);
   products = signal<Product[]>([]);
   loading = signal(true);
   showForm = signal(false);
   editingId = signal<string | null>(null);
-  successMsg = signal('');
-  errorMsg = signal('');
 
   form = this.fb.group({
     productId: ['', Validators.required],
@@ -67,42 +67,33 @@ export class Promotions implements OnInit {
     if (this.form.invalid) return;
     const id = this.editingId();
     const val = this.form.value;
-
     const body = {
       discount: val.discount,
       startDate: new Date(val.startDate!).toISOString(),
       endDate: new Date(val.endDate!).toISOString(),
       isActive: val.isActive,
     };
-
     const request = id
       ? this.http.patch(`http://localhost:3000/promotions/${id}`, body)
       : this.http.post(`http://localhost:3000/promotions/${val.productId}`, body);
-
     request.subscribe({
-      next: () => {
-        this.showForm.set(false);
-        this.loadPromotions();
-        this.successMsg.set(id ? 'Promoción actualizada' : 'Promoción creada');
-        setTimeout(() => this.successMsg.set(''), 3000);
-      },
-      error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Error al guardar');
-        setTimeout(() => this.errorMsg.set(''), 3000);
-      },
+      next: () => { this.showForm.set(false); this.loadPromotions(); this.toastService.success(id ? 'Promoción actualizada' : 'Promoción creada'); },
+      error: (err) => this.toastService.error(err.error?.message || 'Error al guardar'),
     });
   }
 
   toggle(id: string) {
     this.http.patch(`http://localhost:3000/promotions/${id}/toggle`, {}).subscribe({
-      next: () => this.loadPromotions(),
+      next: () => { this.loadPromotions(); this.toastService.success('Estado actualizado'); },
+      error: () => this.toastService.error('Error al cambiar estado'),
     });
   }
 
   remove(id: string) {
     if (!confirm('¿Eliminar esta promoción?')) return;
     this.http.delete(`http://localhost:3000/promotions/${id}`).subscribe({
-      next: () => this.loadPromotions(),
+      next: () => { this.loadPromotions(); this.toastService.success('Promoción eliminada'); },
+      error: () => this.toastService.error('Error al eliminar'),
     });
   }
 }

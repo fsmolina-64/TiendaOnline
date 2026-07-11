@@ -1,0 +1,390 @@
+.drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+}
+
+.drawer-panel {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 450px;
+    background: #ffffff;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+    transform: translateX(0);
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drawer-panel.expanded {
+    width: 800px;
+}
+
+.drawer-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #64748b;
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #334155;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background: #e94560;
+    color: white;
+    border-color: #e94560;
+}
+
+.drawer-content {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.expanded .drawer-content {
+    flex-direction: column;
+}
+
+.drawer-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.expanded .drawer-body {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.expanded .drawer-gallery {
+    flex: 0 0 45%;
+}
+
+.expanded .drawer-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.drawer-gallery {
+    flex: 1;
+    width: 100%;
+}
+
+.main-image-wrapper {
+    background: #f8fafc;
+    border-radius: 16px;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.main-img {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    padding: 1rem;
+}
+
+.badge-discount {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #e94560;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.thumbnails {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.thumbnails img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+    background: #f8fafc;
+}
+
+.thumbnails img.active {
+    border-color: #e94560;
+}
+
+.drawer-info {
+    flex: 1.2;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.category-tag {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.product-name {
+    color: #0f172a;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.25rem 0 1rem;
+    line-height: 1.2;
+}
+
+.price-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.current-price {
+    color: #e94560;
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+.old-price {
+    color: #94a3b8;
+    text-decoration: line-through;
+    font-size: 1.1rem;
+}
+
+.stock-status {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stock-status.out {
+    color: #e94560;
+}
+
+.product-desc {
+    color: #475569;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+}
+
+.drawer-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.btn-primary,
+.btn-outline {
+    padding: 0.9rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #0f172a;
+    color: white;
+}
+
+.btn-primary:hover:not([disabled]) {
+    background: #1e293b;
+    transform: translateY(-2px);
+}
+
+.btn-primary[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+}
+
+.btn-outline:hover:not([disabled]) {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+}
+
+.btn-outline[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-link-detail {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem;
+    background: #f1f5f9;
+    color: #3b82f6;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 0.25rem;
+    transition: all 0.2s;
+}
+
+.btn-link-detail:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+}
+
+.auth-warning {
+    color: #64748b;
+    font-size: 0.9rem;
+    text-align: center;
+    background: #f1f5f9;
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.drawer-related {
+    width: 100%;
+}
+
+.drawer-related h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #0f172a;
+}
+
+.related-scroller {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+}
+
+.related-mini-card {
+    flex: 0 0 140px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.related-mini-card:hover {
+    transform: translateY(-3px);
+    border-color: #cbd5e1;
+}
+
+.related-mini-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    background: #f8fafc;
+}
+
+.rel-info {
+    padding: 0.75rem;
+}
+
+.rel-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rel-price {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #e94560;
+    margin: 0;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .drawer-panel {
+        width: 100%;
+    }
+
+    .drawer-panel.expanded {
+        width: 100%;
+    }
+
+    .expanded .drawer-content {
+        flex-direction: column;
+    }
+}

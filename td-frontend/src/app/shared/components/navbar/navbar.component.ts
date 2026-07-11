@@ -105,7 +105,7 @@ import { CommonModule } from '@angular/common';
       position: absolute;
       inset: -2px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #e94560, #3b82f6);
+      background: linear-gradient(135deg, #e82f4eff, #2e3e56ff);
       z-index: -1;
       opacity: 0;
       transition: opacity 0.3s ease;

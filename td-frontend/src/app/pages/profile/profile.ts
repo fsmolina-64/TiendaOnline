@@ -1,17 +1,43 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder, Validators, ReactiveFormsModule,
+  AbstractControl, ValidatorFn,
+} from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { User, Address } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 type Tab = 'personal' | 'seguridad' | 'direcciones';
 
-function passwordMatchValidator(control: any) {
+
+function passwordMatchValidator(control: AbstractControl) {
   const n = control.get('newPassword')?.value;
   const c = control.get('confirmPassword')?.value;
   return n && c && n !== c ? { mismatch: true } : null;
 }
+
+function exactDigitsValidator(length: number): ValidatorFn {
+  return (control: AbstractControl) => {
+    const val = String(control.value ?? '').trim();
+    if (!val) return null;
+    if (!/^\d+$/.test(val)) return { onlyNumbers: true };
+    if (val.length !== length) return { exactLength: { required: length, actual: val.length } };
+    return null;
+  };
+}
+
+function maxDigitsValidator(maxLength: number): ValidatorFn {
+  return (control: AbstractControl) => {
+    const val = String(control.value ?? '').trim();
+    if (!val) return null;
+    if (!/^\d+$/.test(val)) return { onlyNumbers: true };
+    if (val.length > maxLength) return { tooLong: true };
+    return null;
+  };
+}
+
 
 @Component({
   selector: 'app-profile',
@@ -24,10 +50,9 @@ export class Profile implements OnInit {
   fb = inject(FormBuilder);
   auth = inject(AuthService);
   http = inject(HttpClient);
+  toastService = inject(ToastService);
 
   activeTab = signal<Tab>('personal');
-  successMsg = signal('');
-  errorMsg = signal('');
   loading = signal(false);
   avatarPreview = signal<string | null>(null);
   selectedAvatarFile: File | null = null;
@@ -36,10 +61,16 @@ export class Profile implements OnInit {
   editingAddressId = signal<string | null>(null);
   addresses = signal<Address[]>([]);
 
+  showCurrentPwd = signal(false);
+  showNewPwd = signal(false);
+  showConfirmPwd = signal(false);
+  showDeletePwd = signal(false);
+
+
   personalForm = this.fb.group({
     name: ['', Validators.required],
-    phone: [''],
-    cedula: [''],
+    phone: ['', [maxDigitsValidator(10)]],
+    cedula: ['', [exactDigitsValidator(10)]],
   });
 
   passwordForm = this.fb.group(
@@ -61,9 +92,10 @@ export class Profile implements OnInit {
     city: ['', Validators.required],
     address: ['', Validators.required],
     reference: [''],
-    postalCode: [''],
+    postalCode: ['', [maxDigitsValidator(6)]],
     isDefault: [false],
   });
+
 
   ngOnInit() {
     const user = this.auth.currentUser();
@@ -77,11 +109,9 @@ export class Profile implements OnInit {
     this.loadAddresses();
   }
 
-  setTab(tab: Tab) {
-    this.activeTab.set(tab);
-    this.successMsg.set('');
-    this.errorMsg.set('');
-  }
+
+  setTab(tab: Tab) { this.activeTab.set(tab); }
+
 
   loadAddresses() {
     this.http.get<Address[]>('http://localhost:3000/users/addresses').subscribe({
@@ -89,8 +119,61 @@ export class Profile implements OnInit {
     });
   }
 
-  onAvatarSelected(event: any) {
-    const file = event.target.files[0];
+  openNewAddress() {
+    this.editingAddressId.set(null);
+    this.addressForm.reset({ label: 'Casa', isDefault: false });
+    this.showAddressForm.set(true);
+  }
+
+  editAddress(addr: Address) {
+    this.editingAddressId.set(addr.id);
+    this.addressForm.patchValue({
+      label: addr.label,
+      province: addr.province,
+      city: addr.city,
+      address: addr.address,
+      reference: addr.reference || '',
+      postalCode: addr.postalCode || '',
+      isDefault: addr.isDefault,
+    });
+    this.showAddressForm.set(true);
+  }
+
+  saveAddress() {
+    if (this.addressForm.invalid) return;
+    this.loading.set(true);
+    const id = this.editingAddressId();
+    const req = id
+      ? this.http.patch<Address>(`http://localhost:3000/users/addresses/${id}`, this.addressForm.value)
+      : this.http.post<Address>('http://localhost:3000/users/addresses', this.addressForm.value);
+    req.subscribe({
+      next: () => {
+        this.loadAddresses();
+        this.showAddressForm.set(false);
+        this.loading.set(false);
+        this.notify('success', id ? 'Dirección actualizada' : 'Dirección agregada');
+      },
+      error: () => { this.loading.set(false); this.notify('error', 'Error al guardar dirección'); },
+    });
+  }
+
+  setDefault(id: string) {
+    this.http.patch(`http://localhost:3000/users/addresses/${id}/default`, {}).subscribe({
+      next: () => { this.loadAddresses(); this.toastService.success('Dirección predeterminada actualizada'); },
+      error: () => this.toastService.error('Error al actualizar dirección'),
+    });
+  }
+
+  deleteAddress(id: string) {
+    this.http.delete(`http://localhost:3000/users/addresses/${id}`).subscribe({
+      next: () => { this.loadAddresses(); this.toastService.success('Dirección eliminada'); },
+      error: () => this.toastService.error('Error al eliminar dirección'),
+    });
+  }
+
+
+  onAvatarSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     this.selectedAvatarFile = file;
     const reader = new FileReader();
@@ -112,6 +195,7 @@ export class Profile implements OnInit {
       error: () => this.notify('error', 'Error al subir la foto'),
     });
   }
+
 
   savePersonal() {
     if (this.personalForm.invalid) return;
@@ -157,60 +241,37 @@ export class Profile implements OnInit {
     });
   }
 
-  openNewAddress() {
-    this.editingAddressId.set(null);
-    this.addressForm.reset({ label: 'Casa', isDefault: false });
-    this.showAddressForm.set(true);
+  blockNonNumeric(event: KeyboardEvent) {
+    const allowed = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End',
+    ];
+    if (allowed.includes(event.key)) return;
+    if (event.ctrlKey || event.metaKey) return;
+    if (!/^\d$/.test(event.key)) event.preventDefault();
   }
 
-  editAddress(addr: Address) {
-    this.editingAddressId.set(addr.id);
-    this.addressForm.patchValue({
-      label: addr.label,
-      province: addr.province,
-      city: addr.city,
-      address: addr.address,
-      reference: addr.reference || '',
-      postalCode: addr.postalCode || '',
-      isDefault: addr.isDefault,
-    });
-    this.showAddressForm.set(true);
+  enforceMaxLength(event: Event, control: AbstractControl | null, maxLen: number) {
+    if (!control) return;
+    const input = event.target as HTMLInputElement;
+    const filtered = input.value.replace(/\D/g, '').slice(0, maxLen);
+    if (input.value !== filtered) {
+      input.value = filtered;
+      control.setValue(filtered, { emitEvent: false });
+      control.markAsDirty();
+    }
   }
 
-  saveAddress() {
-    if (this.addressForm.invalid) return;
-    this.loading.set(true);
-    const id = this.editingAddressId();
-    const req = id
-      ? this.http.patch<Address>(`http://localhost:3000/users/addresses/${id}`, this.addressForm.value)
-      : this.http.post<Address>('http://localhost:3000/users/addresses', this.addressForm.value);
-
-    req.subscribe({
-      next: () => {
-        this.loadAddresses();
-        this.showAddressForm.set(false);
-        this.loading.set(false);
-        this.notify('success', id ? 'Dirección actualizada' : 'Dirección agregada');
-      },
-      error: () => { this.loading.set(false); this.notify('error', 'Error al guardar dirección'); },
-    });
-  }
-
-  setDefault(id: string) {
-    this.http.patch(`http://localhost:3000/users/addresses/${id}/default`, {}).subscribe({
-      next: () => this.loadAddresses(),
-    });
-  }
-
-  deleteAddress(id: string) {
-    this.http.delete(`http://localhost:3000/users/addresses/${id}`).subscribe({
-      next: () => this.loadAddresses(),
-    });
+  handleNumericPaste(event: ClipboardEvent, control: AbstractControl | null, maxLen: number) {
+    event.preventDefault();
+    if (!control) return;
+    const pasted = (event.clipboardData?.getData('text') ?? '').replace(/\D/g, '').slice(0, maxLen);
+    control.setValue(pasted);
+    control.markAsDirty();
   }
 
   private notify(type: 'success' | 'error', msg: string) {
-    type === 'success' ? this.successMsg.set(msg) : this.errorMsg.set(msg);
-    setTimeout(() => { this.successMsg.set(''); this.errorMsg.set(''); }, 3000);
+    type === 'success' ? this.toastService.success(msg) : this.toastService.error(msg);
   }
 
   get currentEmail() { return this.auth.currentUser()?.email || ''; }

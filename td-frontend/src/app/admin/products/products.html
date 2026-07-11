@@ -1,11 +1,12 @@
-<div class="container">
-  <div class="page-header">
-    <h1>Productos</h1>
+<div class="container fade-in">
+  <header class="page-header">
+    <div class="page-header-left">
+      <h1>Productos</h1>
+      <span class="header-subtitle">Gestión de catálogo y artículos</span>
+    </div>
     <button (click)="openCreate()" class="btn-primary">+ Nuevo Producto</button>
-  </div>
+  </header>
 
-  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
-  @if (errorMsg()) { <div class="error-msg">{{ errorMsg() }}</div> }
 
   @if (showForm()) {
     <div class="form-card">
@@ -66,7 +67,7 @@
         </thead>
         <tbody>
           @for (product of products(); track product.id) {
-            <tr [class.inactive]="!product.isActive">
+            <tr class="slide-up" [class.inactive]="!product.isActive">
               <td>
                 <div class="product-images">
                   @if (product.images.length > 0) {

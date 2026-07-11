@@ -17,9 +17,8 @@ import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private productsService: ProductsService) {}
+  constructor(private productsService: ProductsService) { }
 
-  // Público
   @Get()
   findAll(@Query() filters: FilterProductDto) {
     return this.productsService.findAll(filters);
@@ -30,7 +29,6 @@ export class ProductsController {
     return this.productsService.findBySlug(slug);
   }
 
-  // Admin
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Get('admin/all')

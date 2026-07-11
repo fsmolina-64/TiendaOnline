@@ -1,7 +1,8 @@
-<div class="container">
-  <h1>Pedidos</h1>
-
-  @if (successMsg()) { <div class="success-msg">{{ successMsg() }}</div> }
+<div class="container fade-in">
+  <header class="page-header">
+    <h1>Pedidos</h1>
+    <span class="header-subtitle">Administración y seguimiento de pedidos</span>
+  </header>
 
   @if (loading()) {
     <div class="loading">Cargando pedidos...</div>
@@ -22,7 +23,7 @@
         </thead>
         <tbody>
           @for (order of orders(); track order.id) {
-            <tr>
+            <tr class="slide-up">
               <td class="order-id">#{{ order.id.slice(0,8) }}</td>
               <td>
                 <div class="client-info">

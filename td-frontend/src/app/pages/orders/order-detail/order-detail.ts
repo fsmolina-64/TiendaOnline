@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrdersService } from '../../../core/services/orders.service';
 import { Order } from '../../../core/models';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-order-detail',
@@ -15,37 +16,36 @@ import { Order } from '../../../core/models';
 export class OrderDetail implements OnInit {
   route = inject(ActivatedRoute);
   ordersService = inject(OrdersService);
+  toastService = inject(ToastService);
 
   order = signal<Order | null>(null);
   loading = signal(true);
-  successMsg = signal('');
-  errorMsg = signal('');
 
   reviewType = signal<'PAYMENT' | 'DELIVERY' | null>(null);
   reviewRating = 5;
   reviewComment = '';
 
-ngOnInit() {
-  const id = this.route.snapshot.paramMap.get('id')!;
-  const reviewPayment = this.route.snapshot.queryParamMap.get('reviewPayment');
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id')!;
+    const reviewPayment = this.route.snapshot.queryParamMap.get('reviewPayment');
 
-  this.loadOrder(id, () => {
-    if (reviewPayment === 'true' && this.canReviewPayment()) {
-      this.openReview('PAYMENT');
-    }
-  });
-}
+    this.loadOrder(id, () => {
+      if (reviewPayment === 'true' && this.canReviewPayment()) {
+        this.openReview('PAYMENT');
+      }
+    });
+  }
 
-loadOrder(id: string, callback?: () => void) {
-  this.ordersService.getOrder(id).subscribe({
-    next: (order) => {
-      this.order.set(order);
-      this.loading.set(false);
-      if (callback) callback();
-    },
-    error: () => this.loading.set(false),
-  });
-}
+  loadOrder(id: string, callback?: () => void) {
+    this.ordersService.getOrder(id).subscribe({
+      next: (order) => {
+        this.order.set(order);
+        this.loading.set(false);
+        if (callback) callback();
+      },
+      error: () => this.loading.set(false),
+    });
+  }
 
   canReviewPayment(): boolean {
     const o = this.order();
@@ -65,7 +65,6 @@ loadOrder(id: string, callback?: () => void) {
     this.reviewType.set(type);
     this.reviewRating = 5;
     this.reviewComment = '';
-    this.errorMsg.set('');
   }
 
   submitReview() {
@@ -80,13 +79,10 @@ loadOrder(id: string, callback?: () => void) {
     }).subscribe({
       next: () => {
         this.reviewType.set(null);
-        this.successMsg.set('Valoración enviada correctamente');
+        this.toastService.success('Valoración enviada correctamente');
         this.loadOrder(o.id);
-        setTimeout(() => this.successMsg.set(''), 3000);
       },
-      error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Error al enviar valoración');
-      },
+      error: (err) => this.toastService.error(err.error?.message || 'Error al enviar valoración'),
     });
   }
 
@@ -105,25 +101,28 @@ loadOrder(id: string, callback?: () => void) {
   }
   downloadingPdf = signal(false);
 
-downloadInvoice() {
-  const o = this.order();
-  if (!o?.invoice) return;
+  downloadInvoice() {
+    const o = this.order();
+    if (!o) return;
 
-  this.downloadingPdf.set(true);
+    this.downloadingPdf.set(true);
 
-  this.ordersService.downloadInvoice(o.id).subscribe({
-    next: (blob: Blob) => {
-      const url = window.URL.createObjectURL(blob);
+    this.ordersService.downloadInvoice(o.id).subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
 
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `factura-${o.invoice!.number}.pdf`;
-      link.click();
+        const docNumber = o.invoice ? o.invoice.number : o.id.slice(0, 8).toUpperCase();
+        const docType = o.invoice ? 'factura' : 'pedido';
 
-      window.URL.revokeObjectURL(url);
-      this.downloadingPdf.set(false);
-    },
-    error: () => this.downloadingPdf.set(false),
-  });
-}
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${docType}-${docNumber}.pdf`;
+        link.click();
+
+        window.URL.revokeObjectURL(url);
+        this.downloadingPdf.set(false);
+      },
+      error: () => this.downloadingPdf.set(false),
+    });
+  }
 }

@@ -1,147 +1,145 @@
-<div class="container">
+<div class="container fade-in">
   @if (loading()) {
-    <div class="loading">Cargando pedido...</div>
+  <div style="text-align: center; padding: 4rem;">Cargando detalles del pedido...</div>
   } @else if (!order()) {
-    <div class="not-found">
-      <p>Pedido no encontrado</p>
-      <a routerLink="/orders">Volver a mis pedidos</a>
-    </div>
+  <div style="text-align: center; padding: 4rem;">
+    <h2>Pedido no encontrado</h2>
+    <a routerLink="/orders" class="btn-outline" style="max-width: 200px; margin: 1rem auto;">Volver a mis pedidos</a>
+  </div>
   } @else {
-    @if (successMsg()) {
-      <div class="success-msg">{{ successMsg() }}</div>
-    }
 
-    @if (reviewType()) {
-      <div class="modal-overlay">
-        <div class="modal">
-          <h3>{{ reviewType() === 'PAYMENT' ? 'Valorar proceso de pago' : 'Valorar entrega' }}</h3>
-          <div class="stars-selector">
-            @for (star of [1,2,3,4,5]; track star) {
-              <span
-                [class]="star <= reviewRating ? 'star active' : 'star'"
-                (click)="reviewRating = star">★</span>
-            }
-          </div>
-          <textarea
-            [(ngModel)]="reviewComment"
-            placeholder="Deja un comentario opcional..."
-            rows="3">
-          </textarea>
-          @if (errorMsg()) {
-            <div class="error-msg">{{ errorMsg() }}</div>
-          }
-          <div class="modal-actions">
-            <button (click)="submitReview()" class="btn-submit-review">Enviar valoración</button>
-            <button (click)="reviewType.set(null)" class="btn-cancel-modal">Cancelar</button>
-          </div>
-        </div>
+  @if (reviewType()) {
+  <div class="modal-overlay">
+    <div class="modal slide-up">
+      <h3 style="text-align: center; margin-top:0;">{{ reviewType() === 'PAYMENT' ? '¿Cómo fue tu experiencia de pago?'
+        : '¿Cómo calificarías la entrega?' }}</h3>
+      <div class="stars-selector">
+        @for (star of [1,2,3,4,5]; track star) {
+        <span [class]="star <= reviewRating ? 'star active' : 'star'" (click)="reviewRating = star">★</span>
+        }
       </div>
-    }
+      <textarea [(ngModel)]="reviewComment" placeholder="Déjanos un comentario adicional (opcional)..."
+        rows="3"></textarea>
+      <div class="modal-actions">
+        <button (click)="reviewType.set(null)" class="btn-cancel-modal">Cancelar</button>
+        <button (click)="submitReview()" class="btn-submit-review">Enviar valoración</button>
+      </div>
+    </div>
+  </div>
+  }
 
-    <div class="header">
-      <a routerLink="/orders" class="back">← Mis pedidos</a>
-      <h1>Pedido #{{ order()!.id.slice(0, 8) }}</h1>
-      <span [class]="'status status-' + order()!.status.toLowerCase()">
-        {{ getStatusLabel(order()!.status) }}
-      </span>
+  <div class="header-nav">
+    <a routerLink="/orders" class="btn-back">← Volver al listado</a>
+  </div>
+
+  <div class="detail-header">
+    <div class="detail-title">
+      <h1>Pedido #{{ order()!.id.slice(0, 8).toUpperCase() }}</h1>
+      <p>Realizado el {{ order()!.createdAt | date:'dd de MMMM, yyyy' }}</p>
     </div>
 
-    @if (order()!.cancelReason) {
-      <div class="cancel-reason-box">
-        <strong>Motivo de cancelación:</strong> {{ order()!.cancelReason }}
+  </div>
+
+  <div class="timeline-wrapper">
+    <div class="timeline">
+      <div class="timeline-step" [class.completed]="order()!.status !== 'PENDING'" [class.active]="order()!.status === 'PENDING'">
+        <div class="step-dot">1</div>
+        <span class="step-label">Pendiente</span>
       </div>
-    }
+      <div class="timeline-step" [class.completed]="order()!.status === 'DELIVERED'" [class.active]="order()!.status === 'PAID'">
+        <div class="step-dot">2</div>
+        <span class="step-label">Pago Confirmado</span>
+      </div>
+      <div class="timeline-step" [class.completed]="order()!.status === 'DELIVERED'" [class.active]="order()!.status === 'DELIVERED'">
+        <div class="step-dot">3</div>
+        <span class="step-label">Entregado</span>
+      </div>
+    </div>
+  </div>
 
-    <div class="detail-layout">
-      <div class="items-section">
-        <h3>Productos</h3>
-        @for (item of order()!.items; track item.id) {
-          <div class="order-item">
-            <div class="item-image">
-              @if (item.product.images.length > 0) {
-                <img [src]="item.product.images[0].url" [alt]="item.product.name" />
-              } @else {
-                <div class="no-image">Sin imagen</div>
-              }
-            </div>
-            <div class="item-info">
-              <h4>{{ item.product.name }}</h4>
-              <p>Cantidad: {{ item.quantity }}</p>
-              @if (item.discountPct > 0) {
-                <p class="discount">-{{ item.discountPct }}% descuento</p>
-              }
-            </div>
-            <div class="item-price">${{ item.finalPrice * item.quantity }}</div>
-          </div>
-        }
-
-        @if (order()!.reviews.length > 0) {
-          <div class="reviews-section">
-            <h3>Tus valoraciones</h3>
-            @for (review of order()!.reviews; track review.id) {
-              <div class="review-card">
-                <div class="review-header">
-                  <span class="review-type">
-                    {{ review.type === 'PAYMENT' ? '💳 Proceso de pago' : '🚚 Entrega' }}
-                  </span>
-                  <span class="review-stars">{{ getStars(review.rating) }}</span>
-                </div>
-                @if (review.comment) {
-                  <p class="review-comment">{{ review.comment }}</p>
-                }
-              </div>
+  <div class="detail-layout">
+    <div class="main-col">
+      <div class="table-container">
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio Unit.</th>
+              <th>Cant.</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of order()!.items; track item.id) {
+              <tr>
+                <td>
+                  <div class="item-cell" style="display: flex; align-items: center; gap: 12px;">
+                    @if (item.product.images && item.product.images.length > 0) {
+                      <img [src]="item.product.images[0].url" 
+                           [alt]="item.product.name" 
+                           style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #eaeaea;" />
+                    } @else {
+                      <div style="width: 50px; height: 50px; background: #f0f0f3; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #888;">
+                        Sin img
+                      </div>
+                    }
+                    <span class="item-name" style="font-weight: 500;">{{ item.product.name }}</span>
+                  </div>
+                </td>
+                <td>${{ item.finalPrice }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.finalPrice * item.quantity }}</td>
+              </tr>
             }
-          </div>
-        }
+          </tbody>
+        </table>
+      </div>
 
-        <div class="review-actions">
+      <div class="reviews-card">
+        <div class="reviews-header">
+          <h3>⭐ Valorar pedido</h3>
+          <p class="reviews-subtitle">Tu experiencia es clave para seguir mejorando.</p>
+        </div>
+        <div class="reviews-actions">
           @if (canReviewPayment()) {
-            <button (click)="openReview('PAYMENT')" class="btn-review">
-              💳 Valorar proceso de pago
+            <button (click)="openReview('PAYMENT')" class="btn-review payment-btn">
+              💳 Experiencia de pago
             </button>
           }
           @if (canReviewDelivery()) {
-            <button (click)="openReview('DELIVERY')" class="btn-review">
-              🚚 Valorar entrega
+            <button (click)="openReview('DELIVERY')" class="btn-review delivery-btn">
+              🚚 Entrega del producto
             </button>
           }
         </div>
       </div>
-
-      <div class="side-info">
-        <div class="summary-card">
-          <h3>Resumen</h3>
-          <div class="row"><span>Subtotal</span><span>${{ order()!.subtotal }}</span></div>
-          <div class="row"><span>IVA (15%)</span><span>${{ order()!.tax }}</span></div>
-          <div class="row total"><span>Total</span><span>${{ order()!.total }}</span></div>
-        </div>
-
-@if (order()!.invoice) {
-  <div class="invoice-card">
-    <h3>Factura</h3>
-    <p>N°: {{ order()!.invoice!.number }}</p>
-    <p>Fecha: {{ order()!.invoice!.issuedAt | date:'dd/MM/yyyy' }}</p>
-    <p>Total: ${{ order()!.invoice!.total }}</p>
-    <button
-      (click)="downloadInvoice()"
-      [disabled]="downloadingPdf()"
-      class="btn-download-pdf">
-      {{ downloadingPdf() ? 'Generando PDF...' : '📄 Descargar Factura PDF' }}
-    </button>
-  </div>
-}
-
-        @if (order()!.address) {
-          <div class="address-card">
-            <h3>Dirección de entrega</h3>
-            <p>{{ order()!.address }}</p>
-            <p>{{ order()!.city }}, {{ order()!.province }}</p>
-            @if (order()!.reference) {
-              <p class="reference">Ref: {{ order()!.reference }}</p>
-            }
-          </div>
-        }
-      </div>
     </div>
+
+    <aside class="side-col">
+      <section class="card-section">
+        <h3>Resumen Financiero</h3>
+        <div class="summary-row"><span>Subtotal productos</span><span>${{ order()!.subtotal }}</span></div>
+        <div class="summary-row"><span>Impuestos (15%)</span><span>${{ order()!.tax }}</span></div>
+        <div class="summary-row"><span>Envío</span><span>Calculado al pagar</span></div>
+        <div class="summary-total"><span>Total</span><span>${{ order()!.total }}</span></div>
+      </section>
+
+      @if (order()!.address) {
+      <section class="card-section info-block">
+        <h3>Información de Envío</h3>
+        <p><strong>Dirección:</strong></p>
+        <p style="color: var(--c-text-muted);">{{ order()!.address }}</p>
+      </section>
+      }
+
+      <section class="card-section info-block">
+        <h3>Exportar Documento</h3>
+        <p>Descarga un comprobante detallado de tu pedido.</p>
+        <button (click)="downloadInvoice()" [disabled]="downloadingPdf()" class="btn-outline">
+          {{ downloadingPdf() ? 'Generando PDF...' : '📄 Descargar Pedido en PDF' }}
+        </button>
+      </section>
+    </aside>
+  </div>
   }
 </div>

@@ -1,242 +1,451 @@
-<div class="container">
-  @if (successMsg()) {
-    <div class="alert alert-success">{{ successMsg() }}</div>
-  }
-  @if (errorMsg()) {
-    <div class="alert alert-error">{{ errorMsg() }}</div>
-  }
+<div class="container fade-in">
 
-  <!-- Avatar -->
   <div class="avatar-card">
-    <div class="avatar-wrapper">
-      @if (avatarPreview()) {
-        <img [src]="avatarPreview()!" alt="Preview" class="avatar-img" />
-      } @else if (currentAvatar) {
+    <div class="avatar-ring">
+      <div class="avatar-inner">
+        @if (avatarPreview()) {
+        <img [src]="avatarPreview()!" alt="Vista previa" class="avatar-img" />
+        } @else if (currentAvatar) {
         <img [src]="currentAvatar" alt="Avatar" class="avatar-img" />
-      } @else {
+        } @else {
         <div class="avatar-placeholder">{{ avatarInitial }}</div>
-      }
+        }
+      </div>
     </div>
+
     <div class="avatar-info">
       <p class="avatar-name">{{ currentName }}</p>
       <p class="avatar-email">{{ currentEmail }}</p>
       <div class="avatar-actions">
         <label class="btn-avatar">
-          📷 Cambiar foto
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+          Cambiar foto
           <input type="file" accept="image/*" (change)="onAvatarSelected($event)" hidden />
         </label>
         @if (selectedAvatarFile) {
-          <button class="btn-save-avatar" (click)="uploadAvatar()">Guardar foto</button>
+        <button class="btn-save-avatar" (click)="uploadAvatar()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Guardar foto
+        </button>
         }
       </div>
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab" [class.active]="activeTab() === 'personal'" (click)="setTab('personal')">
-      👤 Información personal
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" [class.active]="activeTab() === 'personal'" (click)="setTab('personal')">
+      <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      Información personal
     </button>
-    <button class="tab" [class.active]="activeTab() === 'seguridad'" (click)="setTab('seguridad')">
-      🔒 Seguridad
+
+    <button class="tab" role="tab" [class.active]="activeTab() === 'seguridad'" (click)="setTab('seguridad')">
+      <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+      Seguridad
     </button>
-    <button class="tab" [class.active]="activeTab() === 'direcciones'" (click)="setTab('direcciones')">
-      📍 Direcciones
+
+    <button class="tab" role="tab" [class.active]="activeTab() === 'direcciones'" (click)="setTab('direcciones')">
+      <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+      Direcciones
     </button>
   </div>
 
-  <!-- Tab: Personal -->
   @if (activeTab() === 'personal') {
-    <div class="card">
-      <h3>Información personal</h3>
-      <form [formGroup]="personalForm" (ngSubmit)="savePersonal()">
-        <div class="grid-2">
-          <div class="field">
-            <label>Nombre</label>
-            <input type="text" formControlName="name" />
-          </div>
-          <div class="field">
-            <label>Teléfono</label>
-            <input type="text" formControlName="phone" placeholder="09XXXXXXXX" />
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label>Cédula</label>
-            <input type="text" formControlName="cedula" placeholder="1234567890" />
-          </div>
-          <div class="field">
-            <label>Correo electrónico</label>
-            <input type="email" [value]="currentEmail" readonly class="input-readonly" />
-            <span class="field-hint">🔐 El correo no puede modificarse</span>
-          </div>
-        </div>
-        <div class="field">
-          <label>Miembro desde</label>
-          <input type="text" [value]="auth.currentUser()?.createdAt | date:'dd/MM/yyyy'" readonly class="input-readonly" />
-        </div>
-        <button type="submit" class="btn-primary" [disabled]="personalForm.invalid || loading()">
-          {{ loading() ? 'Guardando...' : 'Guardar cambios' }}
-        </button>
-      </form>
-    </div>
-  }
+  <div class="card" role="tabpanel">
+    <h3>Información personal</h3>
+    <form [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+      <div class="grid-2">
 
-  <!-- Tab: Seguridad -->
-  @if (activeTab() === 'seguridad') {
-    <div class="card">
-      <h3>Cambiar contraseña</h3>
-      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
         <div class="field">
-          <label>Contraseña actual</label>
-          <input type="password" formControlName="currentPassword" />
+          <label for="name">Nombre</label>
+          <input id="name" type="text" formControlName="name"
+            [class.input-error]="personalForm.get('name')?.invalid && personalForm.get('name')?.dirty"
+            placeholder="Tu nombre completo" />
+          @if (personalForm.get('name')?.errors?.['required'] && personalForm.get('name')?.dirty) {
+          <span class="field-error">El nombre es requerido</span>
+          }
         </div>
-        <div class="grid-2">
-          <div class="field">
-            <label>Nueva contraseña</label>
-            <input type="password" formControlName="newPassword" placeholder="Mínimo 6 caracteres" />
-          </div>
-          <div class="field">
-            <label>Confirmar contraseña</label>
-            <input type="password" formControlName="confirmPassword"
-              [class.input-error]="passwordMismatch" />
-            @if (passwordMismatch) {
-              <span class="field-error">Las contraseñas no coinciden</span>
-            }
-          </div>
-        </div>
-        <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || loading()">
-          {{ loading() ? 'Actualizando...' : 'Actualizar contraseña' }}
-        </button>
-      </form>
 
-      <div class="danger-zone">
-        <div class="danger-header">
-          <span class="danger-icon">⚠️</span>
-          <div>
-            <p class="danger-title">Eliminar cuenta</p>
-            <p class="danger-desc">Acción permanente e irreversible.</p>
-          </div>
+        <div class="field">
+          <label for="phone">Teléfono</label>
+          <input id="phone" type="text" inputmode="numeric" formControlName="phone" placeholder="09XXXXXXXX"
+            maxlength="10" (keydown)="blockNonNumeric($event)"
+            (input)="enforceMaxLength($event, personalForm.get('phone'), 10)"
+            (paste)="handleNumericPaste($event, personalForm.get('phone'), 10)"
+            [class.input-error]="personalForm.get('phone')?.invalid && personalForm.get('phone')?.dirty" />
+          @if (personalForm.get('phone')?.errors?.['onlyNumbers'] && personalForm.get('phone')?.dirty) {
+          <span class="field-error">Solo se permiten números</span>
+          }
+          @if (personalForm.get('phone')?.errors?.['tooLong'] && personalForm.get('phone')?.dirty) {
+          <span class="field-error">Máximo 10 dígitos</span>
+          }
         </div>
-        @if (!showDeleteConfirm()) {
-          <button class="btn-danger-outline" (click)="showDeleteConfirm.set(true)">
-            Eliminar mi cuenta
-          </button>
+
+      </div>
+      <div class="grid-2">
+
+        <div class="field">
+          <label for="cedula">Cédula</label>
+          <input id="cedula" type="text" inputmode="numeric" formControlName="cedula" placeholder="1234567890"
+            maxlength="10" (keydown)="blockNonNumeric($event)"
+            (input)="enforceMaxLength($event, personalForm.get('cedula'), 10)"
+            (paste)="handleNumericPaste($event, personalForm.get('cedula'), 10)"
+            [class.input-error]="personalForm.get('cedula')?.invalid && personalForm.get('cedula')?.dirty" />
+          @if (personalForm.get('cedula')?.errors?.['onlyNumbers'] && personalForm.get('cedula')?.dirty) {
+          <span class="field-error">Solo se permiten números</span>
+          }
+          @if (personalForm.get('cedula')?.errors?.['exactLength'] && personalForm.get('cedula')?.dirty) {
+          <span class="field-error">
+            La cédula debe tener exactamente 10 dígitos
+            ({{ personalForm.get('cedula')?.value?.length || 0 }}/10)
+          </span>
+          }
+        </div>
+
+        <div class="field">
+          <label>Correo electrónico</label>
+          <input type="email" [value]="currentEmail" readonly class="input-readonly" />
+          <span class="field-hint">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            El correo no puede modificarse
+          </span>
+        </div>
+
+      </div>
+
+      <div class="field">
+        <label>Miembro desde</label>
+        <input type="text" [value]="auth.currentUser()?.createdAt | date:'dd/MM/yyyy'" readonly
+          class="input-readonly" />
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="personalForm.invalid || loading()">
+        @if (loading()) {
+        <span class="btn-spinner"></span> Guardando...
         } @else {
-          <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()" class="delete-form">
-            <div class="field">
-              <label>Confirma tu contraseña</label>
-              <input type="password" formControlName="password" />
-            </div>
-            <div class="delete-actions">
-              <button type="button" class="btn-cancel" (click)="showDeleteConfirm.set(false)">
-                Cancelar
-              </button>
-              <button type="submit" class="btn-danger" [disabled]="deleteForm.invalid || loading()">
-                {{ loading() ? 'Eliminando...' : 'Sí, eliminar cuenta' }}
-              </button>
-            </div>
-          </form>
+        Guardar cambios
         }
-      </div>
-    </div>
+      </button>
+    </form>
+  </div>
   }
 
-  <!-- Tab: Direcciones -->
-  @if (activeTab() === 'direcciones') {
-    <div class="card">
-      <div class="card-header">
-        <h3>Mis direcciones</h3>
-        @if (!showAddressForm()) {
-          <button class="btn-add" (click)="openNewAddress()">+ Agregar dirección</button>
-        }
-      </div>
+  @if (activeTab() === 'seguridad') {
+  <div class="card" role="tabpanel">
+    <h3>Cambiar contraseña</h3>
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
 
-      @if (showAddressForm()) {
-        <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form">
-          <div class="grid-2">
-            <div class="field">
-              <label>Etiqueta</label>
-              <select formControlName="label" class="select-input">
-                <option value="Casa">🏠 Casa</option>
-                <option value="Trabajo">💼 Trabajo</option>
-                <option value="Otro">📍 Otro</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Código postal</label>
-              <input type="text" formControlName="postalCode" placeholder="010101" />
-            </div>
-          </div>
-          <div class="grid-2">
-            <div class="field">
-              <label>Provincia</label>
-              <input type="text" formControlName="province" />
-            </div>
-            <div class="field">
-              <label>Ciudad</label>
-              <input type="text" formControlName="city" />
-            </div>
-          </div>
-          <div class="field">
-            <label>Dirección</label>
-            <input type="text" formControlName="address" placeholder="Calle, número, sector" />
-          </div>
-          <div class="field">
-            <label>Referencia</label>
-            <input type="text" formControlName="reference" placeholder="Frente al parque, casa azul..." />
-          </div>
-          <div class="field-check">
-            <input type="checkbox" formControlName="isDefault" id="isDefault" />
-            <label for="isDefault">Usar como dirección predeterminada</label>
-          </div>
-          <div class="form-actions">
-            <button type="button" class="btn-cancel" (click)="showAddressForm.set(false)">
-              Cancelar
-            </button>
-            <button type="submit" class="btn-primary-sm" [disabled]="addressForm.invalid || loading()">
-              {{ loading() ? 'Guardando...' : editingAddressId() ? 'Actualizar' : 'Agregar' }}
-            </button>
-          </div>
-        </form>
-      }
-
-      @if (addresses().length === 0 && !showAddressForm()) {
-        <div class="empty-state">
-          <p>📍 No tienes direcciones guardadas</p>
-          <span>Agrega una dirección para agilizar tus pedidos</span>
+      <div class="field">
+        <label for="currentPassword">Contraseña actual</label>
+        <div class="input-pwd-wrap">
+          <input id="currentPassword" [type]="showCurrentPwd() ? 'text' : 'password'" formControlName="currentPassword"
+            autocomplete="current-password" />
+          <button type="button" class="btn-eye" (click)="showCurrentPwd.set(!showCurrentPwd())"
+            [attr.aria-label]="showCurrentPwd() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+            @if (showCurrentPwd()) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+            } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            }
+          </button>
         </div>
-      }
+      </div>
 
-      <div class="address-list">
-        @for (addr of addresses(); track addr.id) {
-          <div class="address-card" [class.is-default]="addr.isDefault">
-            <div class="address-card-header">
-              <div class="address-label">
-                <span class="label-badge">{{ addr.label }}</span>
-                @if (addr.isDefault) {
-                  <span class="default-badge">✓ Predeterminada</span>
-                }
-              </div>
-              <div class="address-actions">
-                @if (!addr.isDefault) {
-                  <button class="btn-link" (click)="setDefault(addr.id)">Predeterminar</button>
-                }
-                <button class="btn-link" (click)="editAddress(addr)">Editar</button>
-                <button class="btn-link danger" (click)="deleteAddress(addr.id)">Eliminar</button>
-              </div>
-            </div>
-            <p class="address-text">{{ addr.province }}, {{ addr.city }}</p>
-            <p class="address-text">{{ addr.address }}</p>
-            @if (addr.reference) {
-              <p class="address-ref">Ref: {{ addr.reference }}</p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="newPassword">Nueva contraseña</label>
+          <div class="input-pwd-wrap">
+            <input id="newPassword" [type]="showNewPwd() ? 'text' : 'password'" formControlName="newPassword"
+              placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+            <button type="button" class="btn-eye" (click)="showNewPwd.set(!showNewPwd())"
+              [attr.aria-label]="showNewPwd() ? 'Ocultar' : 'Mostrar'">
+              @if (showNewPwd()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+              } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              }
+            </button>
+          </div>
+          @if (passwordForm.get('newPassword')?.errors?.['minlength'] && passwordForm.get('newPassword')?.dirty) {
+          <span class="field-error">Mínimo 6 caracteres</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="confirmPassword">Confirmar contraseña</label>
+          <div class="input-pwd-wrap">
+            <input id="confirmPassword" [type]="showConfirmPwd() ? 'text' : 'password'"
+              formControlName="confirmPassword" autocomplete="new-password" [class.input-error]="passwordMismatch" />
+            <button type="button" class="btn-eye" (click)="showConfirmPwd.set(!showConfirmPwd())"
+              [attr.aria-label]="showConfirmPwd() ? 'Ocultar' : 'Mostrar'">
+              @if (showConfirmPwd()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+              } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              }
+            </button>
+          </div>
+          @if (passwordMismatch) {
+          <span class="field-error">Las contraseñas no coinciden</span>
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="passwordForm.invalid || loading()">
+        @if (loading()) {
+        <span class="btn-spinner"></span> Actualizando...
+        } @else {
+        Actualizar contraseña
+        }
+      </button>
+    </form>
+
+    <div class="danger-zone">
+      <div class="danger-header">
+        <span class="danger-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </span>
+        <div>
+          <p class="danger-title">Eliminar cuenta</p>
+          <p class="danger-desc">Acción permanente e irreversible. Todos tus datos serán eliminados.</p>
+        </div>
+      </div>
+
+      @if (!showDeleteConfirm()) {
+      <button class="btn-danger-outline" (click)="showDeleteConfirm.set(true)">
+        Eliminar mi cuenta
+      </button>
+      } @else {
+      <form [formGroup]="deleteForm" (ngSubmit)="deleteAccount()" class="delete-form">
+        <div class="field">
+          <label for="deletePassword">Confirma tu contraseña para continuar</label>
+          <div class="input-pwd-wrap">
+            <input id="deletePassword" [type]="showDeletePwd() ? 'text' : 'password'" formControlName="password"
+              autocomplete="current-password" />
+            <button type="button" class="btn-eye" (click)="showDeletePwd.set(!showDeletePwd())"
+              aria-label="Mostrar/ocultar">
+              @if (showDeletePwd()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+              } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              }
+            </button>
+          </div>
+        </div>
+        <div class="delete-actions">
+          <button type="button" class="btn-cancel" (click)="showDeleteConfirm.set(false)">
+            Cancelar
+          </button>
+          <button type="submit" class="btn-danger" [disabled]="deleteForm.invalid || loading()">
+            @if (loading()) {
+            <span class="btn-spinner"></span> Eliminando...
+            } @else {
+            Sí, eliminar cuenta
             }
-            @if (addr.postalCode) {
-              <p class="address-ref">CP: {{ addr.postalCode }}</p>
+          </button>
+        </div>
+      </form>
+      }
+    </div>
+  </div>
+  }
+
+  @if (activeTab() === 'direcciones') {
+  <div class="card" role="tabpanel">
+    <div class="card-header">
+      <h3>Mis direcciones</h3>
+      @if (!showAddressForm()) {
+      <button class="btn-add" (click)="openNewAddress()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Agregar dirección
+      </button>
+      }
+    </div>
+
+    @if (showAddressForm()) {
+    <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="address-form">
+      <div class="grid-2">
+        <div class="field">
+          <label for="addrLabel">Etiqueta</label>
+          <select id="addrLabel" formControlName="label" class="select-input">
+            <option value="Casa">🏠 Casa</option>
+            <option value="Trabajo">💼 Trabajo</option>
+            <option value="Otro">📍 Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="postalCode">Código postal</label>
+          <input id="postalCode" type="text" inputmode="numeric" formControlName="postalCode" placeholder="010101"
+            maxlength="6" (keydown)="blockNonNumeric($event)"
+            (input)="enforceMaxLength($event, addressForm.get('postalCode'), 6)"
+            (paste)="handleNumericPaste($event, addressForm.get('postalCode'), 6)"
+            [class.input-error]="addressForm.get('postalCode')?.invalid && addressForm.get('postalCode')?.dirty" />
+          @if (addressForm.get('postalCode')?.errors?.['onlyNumbers'] && addressForm.get('postalCode')?.dirty) {
+          <span class="field-error">Solo se permiten números</span>
+          }
+          @if (addressForm.get('postalCode')?.errors?.['tooLong'] && addressForm.get('postalCode')?.dirty) {
+          <span class="field-error">Máximo 6 dígitos</span>
+          }
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="province">Provincia</label>
+          <input id="province" type="text" formControlName="province" placeholder="Azuay" />
+        </div>
+        <div class="field">
+          <label for="city">Ciudad</label>
+          <input id="city" type="text" formControlName="city" placeholder="Cuenca" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="addrStreet">Dirección</label>
+        <input id="addrStreet" type="text" formControlName="address" placeholder="Calle, número, sector" />
+      </div>
+
+      <div class="field">
+        <label for="reference">Referencia</label>
+        <input id="reference" type="text" formControlName="reference" placeholder="Frente al parque, casa azul..." />
+      </div>
+
+      <div class="field-check">
+        <input type="checkbox" formControlName="isDefault" id="isDefault" />
+        <label for="isDefault">Usar como dirección predeterminada</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="showAddressForm.set(false)">
+          Cancelar
+        </button>
+        <button type="submit" class="btn-primary-sm" [disabled]="addressForm.invalid || loading()">
+          @if (loading()) {
+          <span class="btn-spinner btn-spinner-sm"></span>
+          } @else {
+          {{ editingAddressId() ? 'Actualizar' : 'Agregar' }}
+          }
+        </button>
+      </div>
+    </form>
+    }
+
+    @if (addresses().length === 0 && !showAddressForm()) {
+    <div class="empty-state">
+      <span class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      </span>
+      <p>No tienes direcciones guardadas</p>
+      <span>Agrega una dirección para agilizar tus pedidos</span>
+    </div>
+    }
+
+    <div class="address-list">
+      @for (addr of addresses(); track addr.id) {
+      <div class="address-card slide-up" [class.is-default]="addr.isDefault">
+        <div class="address-card-header">
+          <div class="address-label">
+            <span class="label-badge">{{ addr.label }}</span>
+            @if (addr.isDefault) {
+            <span class="default-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Predeterminada
+            </span>
             }
           </div>
+          <div class="address-actions">
+            @if (!addr.isDefault) {
+            <button class="btn-link" (click)="setDefault(addr.id)">Predeterminar</button>
+            }
+            <button class="btn-link" (click)="editAddress(addr)">Editar</button>
+            <button class="btn-link danger" (click)="deleteAddress(addr.id)">Eliminar</button>
+          </div>
+        </div>
+        <p class="address-text">{{ addr.province }}, {{ addr.city }}</p>
+        <p class="address-text">{{ addr.address }}</p>
+        @if (addr.reference) {
+        <p class="address-ref">Ref: {{ addr.reference }}</p>
+        }
+        @if (addr.postalCode) {
+        <p class="address-ref">CP: {{ addr.postalCode }}</p>
         }
       </div>
+      }
     </div>
+  </div>
   }
 </div>

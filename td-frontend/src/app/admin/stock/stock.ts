@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { ProductsService } from '../../core/services/products.service';
 import { Product } from '../../core/models';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-admin-stock',
@@ -16,13 +17,12 @@ export class Stock implements OnInit {
   http = inject(HttpClient);
   productsService = inject(ProductsService);
   fb = inject(FormBuilder);
+  toastService = inject(ToastService);
 
   products = signal<Product[]>([]);
   selectedProduct = signal<Product | null>(null);
   movements = signal<any[]>([]);
   loading = signal(true);
-  successMsg = signal('');
-  errorMsg = signal('');
 
   addForm = this.fb.group({
     quantity: [1, [Validators.required, Validators.min(1)]],
@@ -57,19 +57,15 @@ export class Stock implements OnInit {
     const productId = this.selectedProduct()!.id;
     this.http.post(`http://localhost:3000/stock/${productId}/add`, this.addForm.value).subscribe({
       next: () => {
-        this.successMsg.set('Stock agregado correctamente');
+        this.toastService.success('Stock agregado correctamente');
         this.addForm.reset({ quantity: 1 });
         this.loadMovements(productId);
         this.productsService.getAllAdmin().subscribe((p) => {
           this.products.set(p);
           this.selectedProduct.set(p.find((x) => x.id === productId) || null);
         });
-        setTimeout(() => this.successMsg.set(''), 3000);
       },
-      error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Error al agregar stock');
-        setTimeout(() => this.errorMsg.set(''), 3000);
-      },
+      error: (err) => this.toastService.error(err.error?.message || 'Error al agregar stock'),
     });
   }
 
@@ -78,19 +74,15 @@ export class Stock implements OnInit {
     const productId = this.selectedProduct()!.id;
     this.http.post(`http://localhost:3000/stock/${productId}/adjust`, this.adjustForm.value).subscribe({
       next: () => {
-        this.successMsg.set('Ajuste realizado correctamente');
+        this.toastService.success('Ajuste realizado correctamente');
         this.adjustForm.reset({ quantity: 1 });
         this.loadMovements(productId);
         this.productsService.getAllAdmin().subscribe((p) => {
           this.products.set(p);
           this.selectedProduct.set(p.find((x) => x.id === productId) || null);
         });
-        setTimeout(() => this.successMsg.set(''), 3000);
       },
-      error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Error al ajustar stock');
-        setTimeout(() => this.errorMsg.set(''), 3000);
-      },
+      error: (err) => this.toastService.error(err.error?.message || 'Error al ajustar stock'),
     });
   }
 }

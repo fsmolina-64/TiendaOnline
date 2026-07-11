@@ -1,65 +1,142 @@
-<div class="container">
-  <h1>Mi Carrito</h1>
+<div class="cart-wrapper fade-in">
+  <div class="cart-header">
+    <h1>Mi Carrito</h1>
+    @if (cart() && cart()!.items.length > 0) {
+    <span class="items-count">{{ cart()!.items.length }} artículos</span>
+    }
+  </div>
 
   @if (loading()) {
-    <div class="loading">Cargando carrito...</div>
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Preparando tu carrito...</p>
+  </div>
   } @else if (!cart() || cart()!.items.length === 0) {
-    <div class="empty">
-      <p>Tu carrito está vacío</p>
-      <a routerLink="/catalog" class="btn-catalog">Ver catálogo</a>
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+      </svg>
     </div>
+    <h2>Tu carrito está vacío</h2>
+    <p>Parece que aún no has añadido nada. ¡Explora nuestro catálogo y descubre productos increíbles!</p>
+    <a routerLink="/catalog" class="btn-primary">Ver catálogo de productos</a>
+  </div>
   } @else {
-    <div class="cart-layout">
-      <div class="cart-items">
-        @for (item of cart()!.items; track item.id) {
-          <div class="cart-item">
-            <div class="item-image">
-              @if (item.product.images.length > 0) {
-                <img [src]="item.product.images[0].url" [alt]="item.product.name" />
-              } @else {
-                <div class="no-image">Sin imagen</div>
-              }
+  <div class="cart-layout">
+    <div class="cart-items-container">
+      <div class="cart-items-list">
+        @for (item of cart()!.items; track item.productId) {
+        <div class="cart-item slide-up">
+
+          <div class="item-image-wrapper">
+            @if (item.product.images.length > 0) {
+            <img [src]="item.product.images[0].url" [alt]="item.product.name" class="item-image" />
+            } @else {
+            <div class="no-image">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
             </div>
-
-            <div class="item-info">
-              <h3>{{ item.product.name }}</h3>
-              <p class="category">{{ item.product.category.name }}</p>
-              @if (item.discountPct > 0) {
-                <p class="discount">-{{ item.discountPct }}% descuento</p>
-              }
-            </div>
-
-            <div class="item-quantity">
-              <button (click)="updateQuantity(item.productId, item.quantity - 1)">−</button>
-              <span>{{ item.quantity }}</span>
-              <button (click)="updateQuantity(item.productId, item.quantity + 1)">+</button>
-            </div>
-
-
-
-            <button class="btn-remove" (click)="removeItem(item.productId)">✕</button>
+            }
           </div>
-        }
 
-        <button class="btn-clear" (click)="clearCart()">Vaciar carrito</button>
+          <div class="item-details">
+            <div class="item-header">
+              <div>
+                <h3 class="item-title">{{ item.product.name }}</h3>
+                <div class="item-meta">
+                  <p class="item-category">{{ item.product.category.name }}</p>
+                  <span class="meta-divider">•</span>
+                  <span class="stock-badge" [class.low-stock]="item.product.stock > 0 && item.product.stock <= 5"
+                    [class.out-of-stock]="item.product.stock === 0">
+                    {{ item.product.stock === 0 ? 'Agotado' : (item.product.stock <= 5 ? 'Poco stock' : 'En stock' ) }}
+                  </span>
+                </div>
+              </div>
+              <button class="btn-remove-icon" (click)="removeItem(item.productId)" aria-label="Eliminar producto"
+                title="Eliminar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+
+            @if (item.discountPct > 0) {
+            <span class="badge-discount">-{{ item.discountPct }}% Descuento</span>
+            }
+
+            <div class="item-actions">
+              <div class="quantity-control">
+                <button (click)="updateQuantity(item.productId, item.quantity - 1)"
+                  aria-label="Reducir cantidad">−</button>
+                <span>{{ item.quantity }}</span>
+                <button (click)="updateQuantity(item.productId, item.quantity + 1)"
+                  aria-label="Aumentar cantidad">+</button>
+              </div>
+
+              <div class="item-pricing">
+                <span class="unit-price">Precio c/u</span>
+                <span class="line-total-price">${{ item.finalPrice }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
       </div>
 
-      <div class="cart-summary">
-        <h3>Resumen</h3>
-        <div class="summary-row">
-          <span>Subtotal</span>
-          <span>${{ cart()!.subtotal }}</span>
-        </div>
-        <div class="summary-row">
-          <span>IVA (15%)</span>
-          <span>${{ cart()!.tax }}</span>
-        </div>
-        <div class="summary-row total">
-          <span>Total</span>
-          <span>${{ cart()!.total }}</span>
-        </div>
-        <a routerLink="/checkout" class="btn-checkout">Proceder al pago</a>
+      <div class="cart-footer-actions">
+        <button class="btn-text-danger" (click)="clearCart()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16"
+            height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          Vaciar todo el carrito
+        </button>
       </div>
     </div>
+
+    <div class="cart-summary-wrapper">
+      <div class="cart-summary">
+        <h3>Resumen de compra</h3>
+
+        <div class="summary-details">
+          <div class="summary-row">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value">${{ cart()!.subtotal }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">IVA (15%)</span>
+            <span class="summary-value">${{ cart()!.tax }}</span>
+          </div>
+          <div class="summary-row highlight">
+            <span class="summary-label">Envío</span>
+            <span class="summary-value success">Calculado en checkout</span>
+          </div>
+        </div>
+
+        <div class="summary-total">
+          <span class="total-label">Total a pagar</span>
+          <span class="total-value">${{ cart()!.total }}</span>
+        </div>
+
+        <a routerLink="/checkout" class="btn-checkout">Proceder al pago seguro</a>
+
+        <div class="trust-indicator">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+              clip-rule="evenodd" />
+          </svg>
+          <span>Transacción 100% segura y encriptada</span>
+        </div>
+      </div>
+    </div>
+  </div>
   }
 </div>

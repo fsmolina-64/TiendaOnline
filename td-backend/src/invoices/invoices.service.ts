@@ -5,10 +5,9 @@ import type { Response } from 'express';
 
 @Injectable()
 export class InvoicesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async generatePdf(orderId: string, userId: string, res: Response) {
-    // Verificar que la orden existe y pertenece al usuario
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -26,45 +25,62 @@ export class InvoicesService {
 
     if (!order) throw new NotFoundException('Orden no encontrada');
     if (order.userId !== userId) throw new ForbiddenException('No tienes permiso');
-    if (!order.invoice) throw new NotFoundException('Factura no disponible');
 
-    // Configurar headers para descarga
+    const documentNumber = order.invoice ? order.invoice.number : order.id.slice(0, 8).toUpperCase();
+    const documentType = order.invoice ? 'factura' : 'pedido';
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename="factura-${order.invoice.number}.pdf"`,
+      `attachment; filename="${documentType}-${documentNumber}.pdf"`,
     );
 
-    // Crear el PDF
     const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
 
-    // Header
+    if (order.status === 'CANCELLED') {
+      doc.save()
+        .fontSize(45)
+        .font('Helvetica-Bold')
+        .fillColor('#e63946')
+        .opacity(0.15)
+        .translate(100, 350)
+        .rotate(-35)
+        .text('PEDIDO CANCELADO', 0, 0)
+        .restore();
+
+      doc.fontSize(12)
+        .font('Helvetica-Bold')
+        .fillColor('#e63946')
+        .text('ESTADO DEL DOCUMENTO: CANCELADO', 50, 30);
+    }
+
     doc
       .fontSize(24)
       .font('Helvetica-Bold')
-      .text('TiendaOnline', 50, 50)
+      .text('FeliMarket', 50, 50)
       .fontSize(10)
       .font('Helvetica')
       .fillColor('#666')
       .text('Ecuador', 50, 80);
 
-    // Título factura
+    const title = order.invoice ? 'FACTURA' : 'COMPROBANTE';
     doc
       .fontSize(20)
       .font('Helvetica-Bold')
       .fillColor('#1a1a2e')
-      .text('FACTURA', 400, 50, { align: 'right' })
+      .text(title, 400, 50, { align: 'right' })
       .fontSize(10)
       .font('Helvetica')
       .fillColor('#666')
-      .text(`N°: ${order.invoice.number}`, 400, 80, { align: 'right' })
-      .text(`Fecha: ${new Date(order.invoice.issuedAt).toLocaleDateString('es-EC')}`, 400, 95, { align: 'right' });
+      .text(`N°: ${documentNumber}`, 400, 80, { align: 'right' });
 
-    // Línea separadora
+    if (order.invoice) {
+      doc.text(`Fecha: ${new Date(order.invoice.issuedAt).toLocaleDateString('es-EC')}`, 400, 95, { align: 'right' });
+    }
+
     doc.moveTo(50, 120).lineTo(550, 120).strokeColor('#e0e0e0').stroke();
 
-    // Datos del cliente
     doc
       .fontSize(11)
       .font('Helvetica-Bold')
@@ -80,7 +96,6 @@ export class InvoicesService {
       doc.text(`${order.address}, ${order.city}, ${order.province}`, 50, 188);
     }
 
-    // Datos de la orden
     doc
       .font('Helvetica-Bold')
       .fillColor('#1a1a2e')
@@ -90,10 +105,8 @@ export class InvoicesService {
       .text(`ID: #${order.id.slice(0, 8).toUpperCase()}`, 350, 158)
       .text(`Estado: ${this.getStatusLabel(order.status)}`, 350, 173);
 
-    // Línea separadora
     doc.moveTo(50, 215).lineTo(550, 215).strokeColor('#e0e0e0').stroke();
 
-    // Cabecera tabla productos
     doc
       .fillColor('#1a1a2e')
       .font('Helvetica-Bold')
@@ -106,7 +119,6 @@ export class InvoicesService {
 
     doc.moveTo(50, 245).lineTo(550, 245).strokeColor('#e0e0e0').stroke();
 
-    // Items
     let y = 258;
     for (const item of order.items) {
       doc
@@ -121,10 +133,8 @@ export class InvoicesService {
       y += 20;
     }
 
-    // Línea separadora
     doc.moveTo(50, y + 5).lineTo(550, y + 5).strokeColor('#e0e0e0').stroke();
 
-    // Totales
     y += 20;
     doc
       .font('Helvetica')
@@ -146,12 +156,11 @@ export class InvoicesService {
       .text('TOTAL:', 400, y)
       .text(`$${Number(order.total).toFixed(2)}`, 510, y);
 
-    // Footer
     doc
       .fontSize(9)
       .font('Helvetica')
       .fillColor('#aaa')
-      .text('Gracias por tu compra — TiendaOnline Ecuador', 50, 720, { align: 'center' });
+      .text('Gracias por tu compra — FeliMarket Ecuador', 50, 720, { align: 'center' });
 
     doc.end();
   }
