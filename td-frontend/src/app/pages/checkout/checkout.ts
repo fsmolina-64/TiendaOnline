@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
 import { OrdersService } from '../../core/services/orders.service';
 import { AddressesService } from '../../core/services/addresses.service';
+import { DeliveryService, DeliveryEstimate } from '../../core/services/delivery.service';
 import { Cart as CartModel, Address } from '../../core/models';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -18,10 +19,12 @@ export class Checkout implements OnInit {
   cartService = inject(CartService);
   ordersService = inject(OrdersService);
   addressesService = inject(AddressesService);
+  deliveryService = inject(DeliveryService);
   router = inject(Router);
 
   cart = signal<CartModel | null>(null);
   defaultAddress = signal<Address | null>(null);
+  deliveryEstimate = signal<DeliveryEstimate | null>(null);
   loading = signal(true);
   processing = signal(false);
   error = signal('');
@@ -64,6 +67,11 @@ export class Checkout implements OnInit {
       next: (addresses) => {
         const def = addresses.find((a) => a.isDefault) || addresses[0] || null;
         this.defaultAddress.set(def);
+        if (def?.latitude && def?.longitude) {
+          this.deliveryService.estimate(def.id).subscribe({
+            next: (est) => this.deliveryEstimate.set(est),
+          });
+        }
       },
     });
   }

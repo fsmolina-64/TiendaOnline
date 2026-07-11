@@ -6,6 +6,8 @@ export interface Address {
   address: string;
   reference?: string;
   postalCode?: string;
+  latitude?: number;
+  longitude?: number;
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;

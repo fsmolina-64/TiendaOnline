@@ -356,20 +356,14 @@
         </div>
       </div>
 
-      <div class="grid-2">
-        <div class="field">
-          <label for="province">Provincia</label>
-          <input id="province" type="text" formControlName="province" placeholder="Azuay" />
-        </div>
-        <div class="field">
-          <label for="city">Ciudad</label>
-          <input id="city" type="text" formControlName="city" placeholder="Cuenca" />
-        </div>
-      </div>
-
       <div class="field">
-        <label for="addrStreet">Dirección</label>
-        <input id="addrStreet" type="text" formControlName="address" placeholder="Calle, número, sector" />
+        <label>Ubicación en el mapa</label>
+        <app-location-picker
+          [initialLat]="addressForm.get('latitude')?.value ?? undefined"
+          [initialLng]="addressForm.get('longitude')?.value ?? undefined"
+          [initialAddress]="addressForm.get('address')?.value ?? undefined"
+          (locationChange)="onLocationChanged($event)"
+        />
       </div>
 
       <div class="field">
@@ -439,6 +433,9 @@
         <p class="address-text">{{ addr.address }}</p>
         @if (addr.reference) {
         <p class="address-ref">Ref: {{ addr.reference }}</p>
+        }
+        @if (addr.latitude && addr.longitude) {
+        <p class="address-ref">📍 {{ addr.latitude.toFixed(5) }}, {{ addr.longitude.toFixed(5) }}</p>
         }
         @if (addr.postalCode) {
         <p class="address-ref">CP: {{ addr.postalCode }}</p>

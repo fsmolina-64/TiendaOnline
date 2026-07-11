@@ -113,6 +113,16 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./admin/users').then((m) => m.Users),
       },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./admin/reviews/reviews').then((m) => m.Reviews),
+      },
+      {
+        path: 'warehouses',
+        loadComponent: () =>
+          import('./admin/warehouses/warehouses').then((m) => m.AdminWarehouses),
+      },
     ],
   },
   { path: '**', redirectTo: 'home' },

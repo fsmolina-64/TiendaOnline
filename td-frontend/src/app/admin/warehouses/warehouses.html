@@ -1,0 +1,57 @@
+<div class="container fade-in">
+  <header class="page-header">
+    <div class="page-header-left">
+      <h1>🏭 Gestión de Bodega</h1>
+      <span class="header-subtitle">Configura la ubicación de tu bodega principal</span>
+    </div>
+    @if (!editing()) {
+      @if (warehouse()) {
+        <button class="btn-primary" (click)="openEdit()">Editar bodega</button>
+      } @else {
+        <button class="btn-primary" (click)="openCreate()">Crear bodega</button>
+      }
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="loading">Cargando información de la bodega...</div>
+  } @else if (editing()) {
+    <div class="form-card slide-up">
+      <h3>{{ warehouse() ? 'Editar bodega' : 'Registrar bodega' }}</h3>
+
+      <div class="field">
+        <label>Nombre de la bodega</label>
+        <input type="text" [ngModel]="form.name" (ngModelChange)="form.name = $event" placeholder="Bodega Principal" />
+      </div>
+
+      <div class="field">
+        <label>Ubicación en el mapa</label>
+        <app-location-picker
+          [initialLat]="form.latitude ?? undefined"
+          [initialLng]="form.longitude ?? undefined"
+          [initialAddress]="form.address"
+          (locationChange)="onLocationChanged($event)"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-primary" (click)="save()">Guardar</button>
+        <button class="btn-cancel" (click)="cancelEdit()">Cancelar</button>
+      </div>
+    </div>
+  } @else if (warehouse()) {
+    <div class="info-card slide-up">
+      <div class="info-body">
+        <h4>{{ warehouse()!.name }}</h4>
+        <p>📍 {{ warehouse()!.address }}</p>
+        <p>🗺️ {{ warehouse()!.latitude.toFixed(5) }}, {{ warehouse()!.longitude.toFixed(5) }}</p>
+        <p>📅 Registrada: {{ warehouse()!.createdAt | date:'dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state">
+      <p>No hay ninguna bodega registrada</p>
+      <span>Configura la bodega principal para poder calcular tiempos de entrega</span>
+    </div>
+  }
+</div>

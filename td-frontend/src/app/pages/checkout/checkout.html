@@ -49,6 +49,18 @@
           <p class="address-ref">Referencia: {{ defaultAddress()!.reference }}</p>
           }
         </div>
+
+        @if (deliveryEstimate()) {
+        <div class="delivery-estimate-box">
+          <span class="delivery-icon">🚚</span>
+          <div class="delivery-info">
+            <strong>Tiempo estimado de entrega:</strong>
+            <span class="delivery-time">{{ deliveryEstimate()!.estimatedArrival }}</span>
+            <span class="delivery-distance">({{ deliveryEstimate()!.distanceKm }} km)</span>
+          </div>
+        </div>
+        }
+
         <a routerLink="/profile" class="edit-link">Cambiar dirección</a>
         } @else {
         <div class="no-address-alert">

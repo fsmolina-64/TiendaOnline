@@ -1,0 +1,53 @@
+.container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #cbd5e1;
+  padding-bottom: 1rem;
+}
+.page-header-left { display: flex; align-items: baseline; gap: 1rem; }
+.page-header h1 { font-size: 2rem; font-weight: 800; color: #1a1a2e; margin: 0; }
+.header-subtitle { color: #64748b; font-weight: 500; font-size: 1rem; }
+
+.form-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 2rem;
+}
+.form-card h3 { margin: 0 0 1.5rem; color: #1a1a2e; }
+.field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.field label { color: #555; font-size: 0.9rem; }
+.field input { padding: 0.7rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+.form-actions { display: flex; gap: 1rem; margin-top: 1rem; }
+.btn-primary { background: #1a1a2e; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
+.btn-primary:hover { background: #e94560; }
+.btn-cancel { background: transparent; border: 1px solid #ddd; padding: 0.7rem 1.5rem; border-radius: 8px; cursor: pointer; }
+.btn-edit { background: #1a1a2e; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+.btn-delete { background: #e94560; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.info-body h4 { margin: 0 0 0.5rem; color: #1a1a2e; }
+.info-body p { margin: 0.2rem 0; color: #64748b; font-size: 0.9rem; }
+.info-actions { display: flex; gap: 0.5rem; }
+
+.loading { text-align: center; padding: 3rem; color: #888; }
+.empty-state { text-align: center; padding: 3rem; color: #888; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+.fade-in { animation: fadeIn 0.4s ease-out forwards; }
+.slide-up { animation: slideUp 0.4s ease-out forwards; opacity: 0; transform: translateY(8px); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
