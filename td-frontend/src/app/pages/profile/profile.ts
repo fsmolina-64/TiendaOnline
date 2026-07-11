@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { User, Address } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
+import { LocationPicker, LocationResult } from '../../shared/components/location-picker/location-picker';
 
 type Tab = 'personal' | 'seguridad' | 'direcciones';
 
@@ -42,7 +43,7 @@ function maxDigitsValidator(maxLength: number): ValidatorFn {
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LocationPicker],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css'],
 })
@@ -93,6 +94,8 @@ export class Profile implements OnInit {
     address: ['', Validators.required],
     reference: [''],
     postalCode: ['', [maxDigitsValidator(6)]],
+    latitude: [<number | null>null, Validators.required],
+    longitude: [<number | null>null, Validators.required],
     isDefault: [false],
   });
 
@@ -134,9 +137,31 @@ export class Profile implements OnInit {
       address: addr.address,
       reference: addr.reference || '',
       postalCode: addr.postalCode || '',
+      latitude: addr.latitude ?? null,
+      longitude: addr.longitude ?? null,
       isDefault: addr.isDefault,
     });
     this.showAddressForm.set(true);
+  }
+
+  onLocationChanged(result: LocationResult | null) {
+    if (!result) {
+      this.addressForm.patchValue({
+        province: '',
+        city: '',
+        address: '',
+        latitude: null,
+        longitude: null,
+      });
+      return;
+    }
+    this.addressForm.patchValue({
+      province: result.province,
+      city: result.city,
+      address: result.address,
+      latitude: result.lat,
+      longitude: result.lng,
+    });
   }
 
   saveAddress() {

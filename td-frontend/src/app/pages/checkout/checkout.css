@@ -109,6 +109,46 @@
   font-weight: 500;
 }
 
+.delivery-estimate-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.delivery-icon {
+  font-size: 1.5rem;
+}
+
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.delivery-info strong {
+  font-size: 0.8rem;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.delivery-time {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #166534;
+}
+
+.delivery-distance {
+  font-size: 0.8rem;
+  color: #4ade80;
+  font-weight: 500;
+}
+
 .no-address-alert {
   background: var(--c-accent);
   color: var(--c-accent-text);

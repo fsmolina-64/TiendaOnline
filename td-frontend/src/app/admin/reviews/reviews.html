@@ -1,0 +1,78 @@
+<div class="container fade-in">
+  <header class="page-header">
+    <div class="page-header-left">
+      <h1>Calificaciones</h1>
+      <span class="header-subtitle">Gestión de reseñas y valoraciones de clientes</span>
+    </div>
+  </header>
+
+  @if (stats()) {
+    <div class="stats-row">
+      <div class="stat-card-mini">
+        <span class="stat-label">Total Reseñas</span>
+        <span class="stat-value">{{ stats()!.total }}</span>
+      </div>
+      <div class="stat-card-mini">
+        <span class="stat-label">Promedio Global</span>
+        <span class="stat-value stars">{{ getStars(stats()!.avgRating) }} {{ stats()!.avgRating }}</span>
+      </div>
+      <div class="stat-card-mini">
+        <span class="stat-label">💳 Pago</span>
+        <span class="stat-value">{{ stats()!.payment.total }} resenas ({{ stats()!.payment.avg }}★)</span>
+      </div>
+      <div class="stat-card-mini">
+        <span class="stat-label">🚚 Entrega</span>
+        <span class="stat-value">{{ stats()!.delivery.total }} resenas ({{ stats()!.delivery.avg }}★)</span>
+      </div>
+    </div>
+  }
+
+  <div class="filter-bar">
+    <button [class.active]="filterType() === 'ALL'" (click)="setFilter('ALL')">Todas</button>
+    <button [class.active]="filterType() === 'PAYMENT'" (click)="setFilter('PAYMENT')">💳 Pago</button>
+    <button [class.active]="filterType() === 'DELIVERY'" (click)="setFilter('DELIVERY')">🚚 Entrega</button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Cargando calificaciones...</div>
+  } @else if (filteredReviews().length === 0) {
+    <div class="empty-state">No hay calificaciones registradas.</div>
+  } @else {
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Tipo</th>
+            <th>Calificacion</th>
+            <th>Comentario</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (review of filteredReviews(); track review.id) {
+            <tr class="slide-up">
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar">{{ review.user?.name?.charAt(0)?.toUpperCase() || '?' }}</div>
+                  <div>
+                    <span class="user-name">{{ review.user?.name || 'N/A' }}</span>
+                    <span class="user-email">{{ review.user?.email || '' }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span [class]="review.type === 'PAYMENT' ? 'badge-payment' : 'badge-delivery'">
+                  {{ review.type === 'PAYMENT' ? '💳 Pago' : '🚚 Entrega' }}
+                </span>
+              </td>
+              <td><span class="stars">{{ getStars(review.rating) }}</span></td>
+              <td class="comment-cell">{{ review.comment || '—' }}</td>
+              <td class="date-cell">{{ review.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

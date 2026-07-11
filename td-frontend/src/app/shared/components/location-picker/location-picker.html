@@ -1,0 +1,18 @@
+<div class="map-container">
+  @if (loadingAddress) {
+    <div class="loading-overlay">
+      <span>Obteniendo dirección...</span>
+    </div>
+  }
+</div>
+<div class="map-footer">
+  <p class="map-hint">Haz clic en el mapa para indicar tu ubicación exacta</p>
+  @if (hasMarker()) {
+    <button type="button" class="btn-clear-marker" (click)="clearMarker()">✕ Quitar ubicación</button>
+  }
+</div>
+@if (selectedAddress) {
+  <div class="selected-address">
+    📍 {{ selectedAddress }}
+  </div>
+}
