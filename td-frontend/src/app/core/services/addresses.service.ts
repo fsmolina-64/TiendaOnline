@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Address } from '../models';
-
-const API = 'http://localhost:3000';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AddressesService {
+  private readonly api = environment.apiUrl;
+
   constructor(private http: HttpClient) {}
 
   getAll() {
-    return this.http.get<Address[]>(`${API}/users/addresses`);
+    return this.http.get<Address[]>(`${this.api}/users/addresses`);
   }
 }

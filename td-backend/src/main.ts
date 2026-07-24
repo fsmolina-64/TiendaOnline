@@ -1,16 +1,13 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
-import { join } from 'path';
-import { cwd } from 'process';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: 'http://localhost:4200',
+    origin: process.env.FRONTEND_URL || 'http://localhost:4200',
     credentials: true,
   });
 
@@ -19,17 +16,9 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
 
-  app.useStaticAssets(join(cwd(), 'uploads'), {
-    prefix: '/uploads',
-    setHeaders: (res: any) => {
-      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-      res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-    },
-  });
-
-  await app.listen(3000);
-  console.log('Backend corriendo en http://localhost:3000');
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Backend corriendo en http://localhost:${port}`);
 }
 
 bootstrap();

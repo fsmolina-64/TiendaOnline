@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { LocationPicker, LocationResult } from '../../shared/components/location-picker/location-picker';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -49,7 +50,7 @@ export class AdminWarehouses implements OnInit {
 
   loadWarehouse() {
     this.loading.set(true);
-    this.http.get<Warehouse[]>('http://localhost:3000/warehouses').subscribe({
+    this.http.get<Warehouse[]>(`${environment.apiUrl}/warehouses`).subscribe({
       next: (list) => {
         this.warehouse.set(list[0] || null);
         if (list[0]) {
@@ -110,7 +111,7 @@ export class AdminWarehouses implements OnInit {
     };
 
     if (existing) {
-      this.http.patch<Warehouse>(`http://localhost:3000/warehouses/${existing.id}`, body).subscribe({
+      this.http.patch<Warehouse>(`${environment.apiUrl}/warehouses/${existing.id}`, body).subscribe({
         next: (w) => {
           this.warehouse.set(w);
           this.editing.set(false);
@@ -119,7 +120,7 @@ export class AdminWarehouses implements OnInit {
         error: () => this.toastService.error('Error al actualizar bodega'),
       });
     } else {
-      this.http.post<Warehouse>('http://localhost:3000/warehouses', body).subscribe({
+      this.http.post<Warehouse>(`${environment.apiUrl}/warehouses`, body).subscribe({
         next: (w) => {
           this.warehouse.set(w);
           this.form = { name: w.name, address: w.address, latitude: w.latitude, longitude: w.longitude };

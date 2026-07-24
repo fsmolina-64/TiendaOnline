@@ -5,6 +5,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { Product, Category } from '../../core/models';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -93,14 +94,14 @@ export class Products implements OnInit {
     if (this.selectedFiles.length === 0) return;
     const formData = new FormData();
     this.selectedFiles.forEach((f) => formData.append('images', f));
-    this.http.post(`http://localhost:3000/uploads/products/${productId}`, formData).subscribe({
+    this.http.post(`${environment.apiUrl}/uploads/products/${productId}`, formData).subscribe({
       next: () => { this.loadProducts(); this.selectedFiles = []; this.toastService.success('Imágenes subidas correctamente'); },
       error: () => this.toastService.error('Error al subir imágenes'),
     });
   }
 
   deleteImage(imageId: string) {
-    this.http.delete(`http://localhost:3000/uploads/images/${imageId}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/uploads/images/${imageId}`).subscribe({
       next: () => { this.loadProducts(); this.toastService.success('Imagen eliminada'); },
       error: () => this.toastService.error('Error al eliminar imagen'),
     });

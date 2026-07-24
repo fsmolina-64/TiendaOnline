@@ -6,6 +6,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
+import { environment } from '../../../environments/environment';
 import { User, Address } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
 import { LocationPicker, LocationResult } from '../../shared/components/location-picker/location-picker';
@@ -117,7 +118,7 @@ export class Profile implements OnInit {
 
 
   loadAddresses() {
-    this.http.get<Address[]>('http://localhost:3000/users/addresses').subscribe({
+    this.http.get<Address[]>(`${environment.apiUrl}/users/addresses`).subscribe({
       next: (list) => this.addresses.set(list),
     });
   }
@@ -169,8 +170,8 @@ export class Profile implements OnInit {
     this.loading.set(true);
     const id = this.editingAddressId();
     const req = id
-      ? this.http.patch<Address>(`http://localhost:3000/users/addresses/${id}`, this.addressForm.value)
-      : this.http.post<Address>('http://localhost:3000/users/addresses', this.addressForm.value);
+      ? this.http.patch<Address>(`${environment.apiUrl}/users/addresses/${id}`, this.addressForm.value)
+      : this.http.post<Address>(`${environment.apiUrl}/users/addresses`, this.addressForm.value);
     req.subscribe({
       next: () => {
         this.loadAddresses();
@@ -183,14 +184,14 @@ export class Profile implements OnInit {
   }
 
   setDefault(id: string) {
-    this.http.patch(`http://localhost:3000/users/addresses/${id}/default`, {}).subscribe({
+    this.http.patch(`${environment.apiUrl}/users/addresses/${id}/default`, {}).subscribe({
       next: () => { this.loadAddresses(); this.toastService.success('Dirección predeterminada actualizada'); },
       error: () => this.toastService.error('Error al actualizar dirección'),
     });
   }
 
   deleteAddress(id: string) {
-    this.http.delete(`http://localhost:3000/users/addresses/${id}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/users/addresses/${id}`).subscribe({
       next: () => { this.loadAddresses(); this.toastService.success('Dirección eliminada'); },
       error: () => this.toastService.error('Error al eliminar dirección'),
     });
@@ -210,7 +211,7 @@ export class Profile implements OnInit {
     if (!this.selectedAvatarFile) return;
     const formData = new FormData();
     formData.append('avatar', this.selectedAvatarFile);
-    this.http.post<User>('http://localhost:3000/uploads/avatar', formData).subscribe({
+    this.http.post<User>(`${environment.apiUrl}/uploads/avatar`, formData).subscribe({
       next: (user) => {
         this.auth.updateUser(user);
         this.selectedAvatarFile = null;
@@ -225,7 +226,7 @@ export class Profile implements OnInit {
   savePersonal() {
     if (this.personalForm.invalid) return;
     this.loading.set(true);
-    this.http.patch<User>('http://localhost:3000/users/profile', this.personalForm.value).subscribe({
+    this.http.patch<User>(`${environment.apiUrl}/users/profile`, this.personalForm.value).subscribe({
       next: (user) => {
         this.auth.updateUser(user);
         this.loading.set(false);
@@ -239,7 +240,7 @@ export class Profile implements OnInit {
     if (this.passwordForm.invalid) return;
     this.loading.set(true);
     const { currentPassword, newPassword } = this.passwordForm.value;
-    this.http.patch('http://localhost:3000/users/change-password', { currentPassword, newPassword }).subscribe({
+    this.http.patch(`${environment.apiUrl}/users/change-password`, { currentPassword, newPassword }).subscribe({
       next: () => {
         this.passwordForm.reset();
         this.loading.set(false);
@@ -255,7 +256,7 @@ export class Profile implements OnInit {
   deleteAccount() {
     if (this.deleteForm.invalid) return;
     this.loading.set(true);
-    this.http.delete('http://localhost:3000/users/me', {
+    this.http.delete(`${environment.apiUrl}/users/me`, {
       body: { password: this.deleteForm.value.password },
     }).subscribe({
       next: () => this.auth.logout(),

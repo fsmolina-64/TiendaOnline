@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { DashboardStats } from '../../core/models';
 
 @Component({
@@ -17,7 +18,7 @@ export class Dashboard implements OnInit {
   loading = signal(true);
 
   ngOnInit() {
-    this.http.get<DashboardStats>('http://localhost:3000/dashboard').subscribe({
+    this.http.get<DashboardStats>(`${environment.apiUrl}/dashboard`).subscribe({
       next: (data) => { this.stats.set(data); this.loading.set(false); },
       error: () => this.loading.set(false),
     });

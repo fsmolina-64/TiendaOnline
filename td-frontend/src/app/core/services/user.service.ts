@@ -1,24 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-
-const API = 'http://localhost:3000';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
+  private readonly api = environment.apiUrl;
+
   constructor(private http: HttpClient) {}
 
   getAllAdmin(search?: string, showInactive?: boolean) {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     if (showInactive) params = params.set('showInactive', 'true');
-    return this.http.get<any[]>(`${API}/users/admin/all`, { params });
+    return this.http.get<any[]>(`${this.api}/users/admin/all`, { params });
   }
 
   getOneAdmin(id: string) {
-    return this.http.get<any>(`${API}/users/admin/${id}`);
+    return this.http.get<any>(`${this.api}/users/admin/${id}`);
   }
 
   toggleUser(id: string) {
-    return this.http.patch<any>(`${API}/users/admin/${id}/toggle`, {});
+    return this.http.patch<any>(`${this.api}/users/admin/${id}/toggle`, {});
   }
 }

@@ -4,8 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import { cloudinary } from './cloudinary.config';
 
 @Injectable()
 export class UploadsService {
@@ -17,10 +16,20 @@ export class UploadsService {
       include: { images: true },
     });
 
-    if (!product) throw new NotFoundException('Producto no encontrado');
+    if (!product) {
+      // Destroy uploaded files since product doesn't exist
+      for (const file of files) {
+        if (file.filename) await cloudinary.uploader.destroy(file.filename);
+      }
+      throw new NotFoundException('Producto no encontrado');
+    }
 
-    if (!files || files.length === 0) {
-      throw new BadRequestException('No se enviaron imágenes');
+    if (product.images.length + files.length > 3) {
+      // Destroy uploaded files since limit exceeded
+      for (const file of files) {
+        if (file.filename) await cloudinary.uploader.destroy(file.filename);
+      }
+      throw new BadRequestException(`El producto ya tiene ${product.images.length} imágenes. Máximo permitido: 3`);
     }
 
     const startOrder = product.images.length;
@@ -30,7 +39,8 @@ export class UploadsService {
         this.prisma.productImage.create({
           data: {
             productId,
-            url: `/uploads/products/${file.filename}`,
+            url: file.path, // Cloudinary URL
+            publicId: file.filename, // Cloudinary public_id
             order: startOrder + index,
           },
         }),
@@ -50,9 +60,8 @@ export class UploadsService {
 
     if (!image) throw new NotFoundException('Imagen no encontrada');
 
-    const filePath = path.join(process.cwd(), image.url);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    if (image.publicId) {
+      await cloudinary.uploader.destroy(image.publicId).catch(console.error);
     }
 
     await this.prisma.productImage.delete({ where: { id: imageId } });
@@ -81,28 +90,23 @@ export class UploadsService {
       orderBy: { order: 'asc' },
     });
   }
-  async uploadAvatar(userId: string, file: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('No se envió ninguna imagen');
-    }
 
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { avatar: true },
+      select: { avatarPublicId: true },
     });
 
-    if (user?.avatar) {
-      const oldPath = path.join(process.cwd(), user.avatar);
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
-      }
+    if (user?.avatarPublicId) {
+      await cloudinary.uploader.destroy(user.avatarPublicId).catch(console.error);
     }
-
-    const avatarUrl = `/uploads/avatars/${file.filename}`;
 
     const updated = await this.prisma.user.update({
       where: { id: userId },
-      data: { avatar: avatarUrl },
+      data: {
+        avatar: file.path, // Cloudinary URL
+        avatarPublicId: file.filename, // Cloudinary public_id
+      },
     });
 
     const { password, ...rest } = updated;

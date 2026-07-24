@@ -13,12 +13,28 @@ import {
   Request,
 } from '@nestjs/common';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import { cloudinary } from './cloudinary.config';
 import { UploadsService } from './uploads.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+
+const avatarStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'tienda-online/avatars',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  } as any,
+});
+
+const productsStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'tienda-online/products',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+  } as any,
+});
 
 @Controller('uploads')
 export class UploadsController {
@@ -26,56 +42,24 @@ export class UploadsController {
 
   @UseGuards(JwtAuthGuard)
   @Post('avatar')
-  @UseInterceptors(
-    FileInterceptor('avatar', {
-      storage: diskStorage({
-        destination: './uploads/avatars',
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `avatar-${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        const allowed = /\.(jpg|jpeg|png|webp)$/i;
-        if (!allowed.test(file.originalname)) {
-          return cb(new BadRequestException('Solo se permiten imágenes jpg, png, webp'), false);
-        }
-        cb(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('avatar', { storage: avatarStorage }))
   uploadAvatar(
     @Request() req: any,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) throw new BadRequestException('No se envió ninguna imagen o formato inválido');
     return this.uploadsService.uploadAvatar(req.user.id, file);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Post('products/:productId')
-  @UseInterceptors(
-    FilesInterceptor('images', 3, {
-      storage: diskStorage({
-        destination: './uploads/products',
-        filename: (req, file, cb) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `product-${uniqueSuffix}${extname(file.originalname)}`);
-        },
-      }),
-      fileFilter: (req, file, cb) => {
-        const allowed = /\.(jpg|jpeg|png|webp)$/i;
-        if (!allowed.test(file.originalname)) {
-          return cb(new BadRequestException('Solo se permiten imágenes jpg, png, webp'), false);
-        }
-        cb(null, true);
-      },
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('images', 3, { storage: productsStorage }))
   addImages(
     @Param('productId') productId: string,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
+    if (!files || files.length === 0) throw new BadRequestException('No se enviaron imágenes o formato inválido');
     return this.uploadsService.addImages(productId, files);
   }
 

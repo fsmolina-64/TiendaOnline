@@ -37,6 +37,7 @@ model User {
   phone       String?
   cedula      String?
   avatar      String?
+  avatarPublicId String?
   role        Role     @default(USER)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -124,6 +125,7 @@ model Product {
 model ProductImage {
   id        String   @id @default(uuid())
   url       String
+  publicId  String?
   order     Int      @default(0)
   createdAt DateTime @default(now())
 

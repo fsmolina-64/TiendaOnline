@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { ProductsService } from '../../core/services/products.service';
 import { Product } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
@@ -39,7 +40,7 @@ export class Promotions implements OnInit {
   }
 
   loadPromotions() {
-    this.http.get<any[]>('http://localhost:3000/promotions').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/promotions`).subscribe({
       next: (data) => { this.promotions.set(data); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
@@ -74,8 +75,8 @@ export class Promotions implements OnInit {
       isActive: val.isActive,
     };
     const request = id
-      ? this.http.patch(`http://localhost:3000/promotions/${id}`, body)
-      : this.http.post(`http://localhost:3000/promotions/${val.productId}`, body);
+      ? this.http.patch(`${environment.apiUrl}/promotions/${id}`, body)
+      : this.http.post(`${environment.apiUrl}/promotions/${val.productId}`, body);
     request.subscribe({
       next: () => { this.showForm.set(false); this.loadPromotions(); this.toastService.success(id ? 'Promoción actualizada' : 'Promoción creada'); },
       error: (err) => this.toastService.error(err.error?.message || 'Error al guardar'),
@@ -83,7 +84,7 @@ export class Promotions implements OnInit {
   }
 
   toggle(id: string) {
-    this.http.patch(`http://localhost:3000/promotions/${id}/toggle`, {}).subscribe({
+    this.http.patch(`${environment.apiUrl}/promotions/${id}/toggle`, {}).subscribe({
       next: () => { this.loadPromotions(); this.toastService.success('Estado actualizado'); },
       error: () => this.toastService.error('Error al cambiar estado'),
     });
@@ -91,7 +92,7 @@ export class Promotions implements OnInit {
 
   remove(id: string) {
     if (!confirm('¿Eliminar esta promoción?')) return;
-    this.http.delete(`http://localhost:3000/promotions/${id}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/promotions/${id}`).subscribe({
       next: () => { this.loadPromotions(); this.toastService.success('Promoción eliminada'); },
       error: () => this.toastService.error('Error al eliminar'),
     });

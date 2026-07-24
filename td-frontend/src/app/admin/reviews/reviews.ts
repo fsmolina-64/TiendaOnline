@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { OrderReview } from '../../core/models';
 
 interface ReviewStats {
@@ -31,11 +32,11 @@ export class Reviews implements OnInit {
 
   loadData() {
     this.loading.set(true);
-    this.http.get<OrderReview[]>('http://localhost:3000/reviews/admin/all').subscribe({
+    this.http.get<OrderReview[]>(`${environment.apiUrl}/reviews/admin/all`).subscribe({
       next: (data) => { this.reviews.set(data); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
-    this.http.get<ReviewStats>('http://localhost:3000/reviews/admin/stats').subscribe({
+    this.http.get<ReviewStats>(`${environment.apiUrl}/reviews/admin/stats`).subscribe({
       next: (data) => this.stats.set(data),
     });
   }

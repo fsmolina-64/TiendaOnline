@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 import { ProductsService } from '../../core/services/products.service';
 import { Product } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
@@ -47,7 +48,7 @@ export class Stock implements OnInit {
   }
 
   loadMovements(productId: string) {
-    this.http.get<any>(`http://localhost:3000/stock/${productId}/movements`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/stock/${productId}/movements`).subscribe({
       next: (data) => this.movements.set(data.movements),
     });
   }
@@ -55,7 +56,7 @@ export class Stock implements OnInit {
   addStock() {
     if (this.addForm.invalid || !this.selectedProduct()) return;
     const productId = this.selectedProduct()!.id;
-    this.http.post(`http://localhost:3000/stock/${productId}/add`, this.addForm.value).subscribe({
+    this.http.post(`${environment.apiUrl}/stock/${productId}/add`, this.addForm.value).subscribe({
       next: () => {
         this.toastService.success('Stock agregado correctamente');
         this.addForm.reset({ quantity: 1 });
@@ -72,7 +73,7 @@ export class Stock implements OnInit {
   adjustStock() {
     if (this.adjustForm.invalid || !this.selectedProduct()) return;
     const productId = this.selectedProduct()!.id;
-    this.http.post(`http://localhost:3000/stock/${productId}/adjust`, this.adjustForm.value).subscribe({
+    this.http.post(`${environment.apiUrl}/stock/${productId}/adjust`, this.adjustForm.value).subscribe({
       next: () => {
         this.toastService.success('Ajuste realizado correctamente');
         this.adjustForm.reset({ quantity: 1 });

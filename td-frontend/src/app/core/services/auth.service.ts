@@ -3,11 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { AuthResponse, User } from '../models';
-
-const API = 'http://localhost:3000';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly api = environment.apiUrl;
   currentUser = signal<User | null>(null);
 
   constructor(private http: HttpClient, private router: Router) {
@@ -15,13 +15,13 @@ export class AuthService {
   }
 
   register(data: { name: string; email: string; password: string }) {
-    return this.http.post<AuthResponse>(`${API}/auth/register`, data).pipe(
+    return this.http.post<AuthResponse>(`${this.api}/auth/register`, data).pipe(
       tap((res) => this.saveSession(res)),
     );
   }
 
   login(data: { email: string; password: string }) {
-    return this.http.post<AuthResponse>(`${API}/auth/login`, data).pipe(
+    return this.http.post<AuthResponse>(`${this.api}/auth/login`, data).pipe(
       tap((res) => this.saveSession(res)),
     );
   }
@@ -52,7 +52,7 @@ export class AuthService {
     if (user) this.currentUser.set(JSON.parse(user));
   }
   updateUser(user: User) {
-  localStorage.setItem('user', JSON.stringify(user));
-  this.currentUser.set(user);
-}
+    localStorage.setItem('user', JSON.stringify(user));
+    this.currentUser.set(user);
+  }
 }
