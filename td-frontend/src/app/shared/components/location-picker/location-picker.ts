@@ -1,5 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, afterNextRender, NgZone, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import * as L from 'leaflet';
 
 export interface LocationResult {
   lat: number;
@@ -27,7 +28,6 @@ export class LocationPicker implements OnChanges, OnDestroy {
   hasMarker = signal(false);
   map: any;
   marker: any;
-  private leaflet: any;
   private resizeObserver?: ResizeObserver;
 
   constructor(private host: ElementRef, private zone: NgZone) {
@@ -49,60 +49,52 @@ export class LocationPicker implements OnChanges, OnDestroy {
     }
   }
 
-  async initMap() {
+  initMap() {
     const container = this.host.nativeElement.querySelector('.map-container') as HTMLElement;
     if (!container) return;
 
-    try {
-      const L = await import('leaflet');
-      this.leaflet = L;
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    });
 
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      });
+    const cuenca: [number, number] = [-2.9006, -79.0046];
 
-      const cuenca: [number, number] = [-2.9006, -79.0046];
+    this.map = L.map(container, {
+      center: this.initialLat && this.initialLng ? [this.initialLat, this.initialLng] : cuenca,
+      zoom: this.initialLat && this.initialLng ? 16 : 14,
+      zoomControl: true,
+    });
 
-      this.map = L.map(container, {
-        center: this.initialLat && this.initialLng ? [this.initialLat, this.initialLng] : cuenca,
-        zoom: this.initialLat && this.initialLng ? 16 : 14,
-        zoomControl: true,
-      });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19,
+    }).addTo(this.map);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19,
-      }).addTo(this.map);
-
-      if (this.initialLat && this.initialLng) {
-        this.placeMarker(this.initialLat, this.initialLng);
-        this.selectedAddress = this.initialAddress ?? '';
-        if (!this.selectedAddress) {
-          this.reverseGeocode(this.initialLat, this.initialLng);
-        }
+    if (this.initialLat && this.initialLng) {
+      this.placeMarker(this.initialLat, this.initialLng);
+      this.selectedAddress = this.initialAddress ?? '';
+      if (!this.selectedAddress) {
+        this.reverseGeocode(this.initialLat, this.initialLng);
       }
-
-      this.map.on('click', (e: any) => {
-        this.zone.run(() => {
-          this.addMarker(e.latlng.lat, e.latlng.lng);
-        });
-      });
-
-      this.resizeObserver = new ResizeObserver(() => {
-        this.map?.invalidateSize();
-      });
-      this.resizeObserver.observe(container);
-    } catch {
-      /* Leaflet failed to load */
     }
+
+    this.map.on('click', (e: any) => {
+      this.zone.run(() => {
+        this.addMarker(e.latlng.lat, e.latlng.lng);
+      });
+    });
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.map?.invalidateSize();
+    });
+    this.resizeObserver.observe(container);
   }
 
   private placeMarker(lat: number, lng: number) {
-    const L = this.leaflet;
-    if (!L || !this.map) return;
+    if (!this.map) return;
 
     if (this.marker) {
       this.marker.setLatLng([lat, lng]);
