@@ -1,7 +1,7 @@
 <article class="product-card" (click)="onClick()">
     <div class="card-image-wrapper">
         @if (product?.images?.length > 0) {
-        <img [src]="product.images[0].url" [alt]="product.name" class="product-img" />
+        <img [src]="getImageUrl(product.images[0].url)" [alt]="product.name" class="product-img" />
         } @else {
         <div class="no-image-placeholder">Sin imagen</div>
         }

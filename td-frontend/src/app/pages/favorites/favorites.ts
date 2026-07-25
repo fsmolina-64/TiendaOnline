@@ -7,6 +7,7 @@ import { FavoritesService } from '../../core/services/favorites.service';
 import { CartService } from '../../core/services/cart.service';
 import { ProductsService } from '../../core/services/products.service';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-favorites',
@@ -27,6 +28,11 @@ export class Favorites implements OnInit {
   related = signal<any[]>([]);
   loading = signal(true);
   addingCart = signal<string | null>(null);
+
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
 
   ngOnInit() {
     this.loadFavorites();

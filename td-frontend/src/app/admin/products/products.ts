@@ -42,6 +42,11 @@ export class Products implements OnInit {
     this.categoriesService.getAllAdmin().subscribe((cats) => this.categories.set(cats));
   }
 
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
+
   loadProducts() {
     this.productsService.getAllAdmin().subscribe({
       next: (products) => { this.products.set(products); this.loading.set(false); },

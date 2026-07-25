@@ -32,7 +32,7 @@
 
           <div class="item-image-wrapper">
             @if (item.product.images.length > 0) {
-            <img [src]="item.product.images[0].url" [alt]="item.product.name" class="item-image" />
+            <img [src]="getImageUrl(item.product.images[0].url)" [alt]="item.product.name" class="item-image" />
             } @else {
             <div class="no-image">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

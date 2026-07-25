@@ -56,9 +56,9 @@
       <div class="products-grid">
         @for (product of products(); track product.id) {
         <div class="product-card slide-up" (click)="openDrawer(product.slug)">
-          <div class="product-image">
+<div class="product-image">
             @if (product.images.length > 0) {
-            <img [src]="product.images[0].url" [alt]="product.name" />
+            <img [src]="getImageUrl(product.images[0].url)" [alt]="product.name" />
             } @else {
             <div class="no-image">Sin imagen</div>
             }

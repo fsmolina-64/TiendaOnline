@@ -74,8 +74,8 @@
               <tr>
                 <td>
                   <div class="item-cell" style="display: flex; align-items: center; gap: 12px;">
-                    @if (item.product.images && item.product.images.length > 0) {
-                      <img [src]="item.product.images[0].url" 
+@if (item.product.images && item.product.images.length > 0) {
+                      <img [src]="getImageUrl(item.product.images[0].url)" 
                            [alt]="item.product.name" 
                            style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #eaeaea;" />
                     } @else {

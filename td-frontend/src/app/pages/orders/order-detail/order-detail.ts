@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { OrdersService } from '../../../core/services/orders.service';
 import { Order } from '../../../core/models';
 import { ToastService } from '../../../core/services/toast.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-order-detail',
@@ -24,6 +25,11 @@ export class OrderDetail implements OnInit {
   reviewType = signal<'PAYMENT' | 'DELIVERY' | null>(null);
   reviewRating = 5;
   reviewComment = '';
+
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;

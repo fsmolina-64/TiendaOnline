@@ -7,6 +7,7 @@ import { CartService } from '../../../core/services/cart.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { Product } from '../../../core/models';
+import { environment } from '../../../../environments/environment';
 
 @Component({
     selector: 'app-product-drawer',
@@ -35,6 +36,11 @@ export class ProductDrawer {
     isFavorite = signal(false);
     adding = signal(false);
     favoriteAdding = signal(false);
+
+    getImageUrl(url: string): string {
+        if (!url) return '';
+        return url.startsWith('http') ? url : environment.apiUrl + url;
+    }
 
     @HostListener('document:keydown.escape')
     onEscape() {

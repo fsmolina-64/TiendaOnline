@@ -11,7 +11,7 @@
     <div class="gallery-section">
       <div class="main-image">
         @if (product()!.images.length > 0) {
-        <img [src]="product()!.images[selectedImage()].url" [alt]="product()!.name" />
+        <img [src]="getImageUrl(product()!.images[selectedImage()].url)" [alt]="product()!.name" />
         } @else {
         <div class="no-image">Sin imagen</div>
         }
@@ -24,7 +24,7 @@
       <div class="thumbnails">
         @for (img of product()!.images; track img.id; let i = $index) {
         <div class="thumb-wrapper" [class.active]="selectedImage() === i" (click)="selectedImage.set(i)">
-          <img [src]="img.url" [alt]="product()!.name" />
+          <img [src]="getImageUrl(img.url)" [alt]="product()!.name" />
         </div>
         }
       </div>

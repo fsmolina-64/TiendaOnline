@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { CartService } from '../../core/services/cart.service';
 import { Cart as CartModel } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cart',
@@ -18,6 +19,11 @@ export class Cart implements OnInit {
 
   cart = signal<CartModel | null>(null);
   loading = signal(true);
+
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
 
   ngOnInit() {
     this.loadCart();

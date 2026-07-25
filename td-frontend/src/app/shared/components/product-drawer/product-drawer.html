@@ -17,14 +17,14 @@
         <div class="drawer-body">
             <div class="drawer-gallery">
                 <div class="main-image-wrapper">
-                    <img [src]="activeImage() || '/assets/no-image.png'" class="main-img" [alt]="product()!.name" />
+                    <img [src]="getImageUrl(activeImage()) || '/assets/no-image.png'" class="main-img" [alt]="product()!.name" />
                     @if (product()!.hasPromotion) {
                     <span class="badge-discount">-{{ product()!.discountPct }}%</span>
                     }
                 </div>
                 <div class="thumbnails">
                     @for (img of product()!.images; track img.id) {
-                    <img [src]="img.url" (click)="setImage(img.url)" [class.active]="activeImage() === img.url"
+                    <img [src]="getImageUrl(img.url)" (click)="setImage(img.url)" [class.active]="activeImage() === img.url"
                         [alt]="product()!.name" />
                     }
                 </div>
@@ -71,7 +71,7 @@
             <div class="related-scroller" (wheel)="onWheel($event)">
                 @for (rel of related(); track rel.id) {
                 <div class="related-mini-card" (click)="loadRelated(rel.slug)">
-                    <img [src]="rel.images[0]?.url" [alt]="rel.name">
+                    <img [src]="getImageUrl(rel.images[0]?.url || '')" [alt]="rel.name">
                     <div class="rel-info">
                         <p class="rel-name">{{ rel.name }}</p>
                         <p class="rel-price">${{ rel.finalPrice || rel.price }}</p>

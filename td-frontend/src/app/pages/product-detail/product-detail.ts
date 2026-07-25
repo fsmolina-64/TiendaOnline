@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { Product } from '../../core/models';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-product-detail',
@@ -34,6 +35,11 @@ export class ProductDetail implements OnInit {
   addedToCart = signal(false);
   isFavorite = signal(false);
   error = signal<string | null>(null);
+
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {

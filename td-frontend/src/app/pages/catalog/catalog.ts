@@ -6,6 +6,7 @@ import { ProductsService } from '../../core/services/products.service';
 import { CategoriesService } from '../../core/services/categories.service';
 import { Product, Category } from '../../core/models';
 import { ProductDrawer } from '../../shared/components/product-drawer/product-drawer';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-catalog',
@@ -34,6 +35,11 @@ export class Catalog implements OnInit {
   limit = 12;
 
   selectedProductSlug = signal<string | null>(null);
+
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
 
   ngOnInit() {
     this.categoriesService.getAll().subscribe((cats) => this.categories.set(cats));
