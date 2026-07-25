@@ -6,7 +6,7 @@
         @if (avatarPreview()) {
         <img [src]="avatarPreview()!" alt="Vista previa" class="avatar-img" />
         } @else if (currentAvatar) {
-        <img [src]="currentAvatar" alt="Avatar" class="avatar-img" />
+        <img [src]="getImageUrl(currentAvatar)" alt="Avatar" class="avatar-img" />
         } @else {
         <div class="avatar-placeholder">{{ avatarInitial }}</div>
         }

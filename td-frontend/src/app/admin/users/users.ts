@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../core/services/user.service';
 import { ToastService } from '../../core/services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-users',
@@ -21,6 +22,11 @@ export class Users implements OnInit {
   loadingDetail = signal(false);
   search = '';
   showInactive = false;
+
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
 
   ngOnInit() { this.loadUsers(); }
 

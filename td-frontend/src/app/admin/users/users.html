@@ -33,7 +33,7 @@
               (click)="selectUser(user.id)">
               <div class="user-avatar">
                 @if (user.avatar) {
-                  <img [src]="user.avatar" [alt]="user.name" />
+                  <img [src]="getImageUrl(user.avatar)" [alt]="user.name" />
                 } @else {
                   <span>{{ user.name.charAt(0).toUpperCase() }}</span>
                 }
@@ -67,7 +67,7 @@
           <div class="detail-header">
             <div class="detail-avatar">
               @if (selectedUser().avatar) {
-                <img [src]="selectedUser().avatar" [alt]="selectedUser().name" />
+                <img [src]="getImageUrl(selectedUser().avatar)" [alt]="selectedUser().name" />
               } @else {
                 <span>{{ selectedUser().name.charAt(0).toUpperCase() }}</span>
               }

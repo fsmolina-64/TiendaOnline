@@ -18,6 +18,8 @@
   --transition-base: 0.3s ease;
 }
 
+@import 'leaflet/dist/leaflet.css';
+
 * {
   margin: 0;
   padding: 0;

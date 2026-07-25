@@ -68,6 +68,11 @@ export class Profile implements OnInit {
   showConfirmPwd = signal(false);
   showDeletePwd = signal(false);
 
+  getImageUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : environment.apiUrl + url;
+  }
+
 
   personalForm = this.fb.group({
     name: ['', Validators.required],
